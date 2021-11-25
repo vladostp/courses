@@ -907,7 +907,7 @@ Utilisez `Log Browser` pour explorer les logs et les étiquettes (`labels`) disp
 #### Conclusion
 Dans cette section, vous avez installé et configuré la solution de centralisation des logs `Grafana Loki`. `Grafana Loki` est une solution très légère et adaptée à l'environnement avec des microservices. Cette solution montre toute sa puissance et son potentiel d'évolutivité lorsqu'elle est utilisée dans un cluster `Kubernetes`. 
 
-`Grafana Loki `est très intéressant pour centraliser les logs d'une petite infrastructure, car il est facile à installer et a peu de composants.
+`Grafana Loki` est très intéressant pour centraliser les logs d'une petite infrastructure, car il est facile à installer et a peu de composants.
 
 L'utilisation de `Grafana Loki` peut également être intéressante si votre stack de monitoring est basé sur `Prometheus`. Dans ce cas, vous n'aurez qu'une seule interface web `Grafana` pour consulter les logs et les données de la supervision.
 
