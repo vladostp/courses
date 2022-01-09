@@ -69,8 +69,8 @@ Le processus d'initialisation du cluster est très simple. Vous allez utiliser *
     ```bash
     $ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
     ```
-    - Attention! Mémorisez bien le token donné par cette commande, ce token sera utilisé par vos nœuds workers pour rejoindre le cluster.
-    - Qu'est-ce que l'option "--pod-network-cidr" permet de faire?
+    - **Attention!** Mémorisez bien le token donné par cette commande, ce token sera utilisé par vos nœuds workers pour rejoindre le cluster.
+    - Qu'est-ce que l'option `--pod-network-cidr` permet de faire?
     - Essayez de comprendre les étapes d'initialisation du cluster Kubernetes.
 
 - **Configurez l'outil d'administration kubectl**
