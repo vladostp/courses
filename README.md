@@ -2,8 +2,11 @@
 In this repository you will find all my courses, presentations and labs.
 
 ## Kubernetes
-### M2 SRIV
+### M2 TIW, Data Science
 - [CM Kubernetes](./kubernetes/cm-kubernetes.pdf) - French
+
+### M2 SRIV
+- [CM Kubernetes](./kubernetes/cm-kubernetes-sriv.pdf) - French
 - [TP Kubernetes](./kubernetes/tp-kubernetes.pdf) - French
 
 ## Log Management
