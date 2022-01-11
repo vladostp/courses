@@ -420,22 +420,22 @@ Vous avez deux moyens de mettre à jour votre déploiement:
     apiVersion: apps/v1
     kind: Deployment
     metadata:
-    name: nginx-deployment
+      name: nginx-deployment
     spec:
-    selector:
+      selector:
         matchLabels:
         app: web
-    replicas: 3
-    template:
+      replicas: 3
+      template:
         metadata:
-        labels:
+          labels:
             app: web
         spec:
-        containers:
-        - name: nginx
+          containers:
+          - name: nginx
             image: nginx:1.16.0
             ports:
-            - containerPort: 80
+              - containerPort: 80
     ```
     - **Pour appliquer les changements**
         ```bash
