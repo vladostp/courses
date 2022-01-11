@@ -424,7 +424,7 @@ Vous avez deux moyens de mettre à jour votre déploiement:
     spec:
       selector:
         matchLabels:
-        app: web
+          app: web
       replicas: 3
       template:
         metadata:
