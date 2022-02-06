@@ -321,4 +321,73 @@ Stored XSS est considéré comme une vulnérabilité critique car le code s'exé
 
 - Avez-vous réussi à exploiter cette vulnérabilité?
 
-Bravo! Vous avez terminé le TP!
+## Bonus
+Cette section est destinée aux étudiants qui ont terminé toutes les tâches précédentes et qui souhaitent aller plus loin.
+
+### Injection - Récupérer la liste de tous les utilisateurs
+Dans cette section, vous allez exploiter une injection SQL de type Union-based pour récupérer la liste de tous les utilisateurs de la base de données.
+
+Vous allez exploiter la vulnérabilité présente dans l'API qui récupère le résultat d'une recherche de produit. Analysez les échanges avec Burp Suite lors de la recherche d'un produit.
+
+Trouvez le endpoint et le paramètre vulnérables et un moyen de les exploiter. Pour ce faire, vous devrez intercepter la requête avec Burp Suite et l'envoyer au Repeater. Puis vous devez jouer avec le paramètre afin de provoquer une erreur SQL. Faites attention à l'en-tête `If-None-Match`.
+
+Ensuite, vous devez créer un `UNION SELECT` fusionnant les données de la table DB de l'utilisateur dans les produits renvoyés dans le résultat JSON.
+
+Visualisez la requête SQL présentée dans le message d'erreur et essayez d'y ajouter une simple `UNION`. Comme cette fois vous utilisez le paramètre URL, vous devrez remplacer les espaces par `%20`.
+
+Le premier challenge dans cette partie est de trouver le nom de la table ou les utilisateurs sont stockés. Normalement, vous pouvez deviner ce nom facilement. Vous l'avez déjà vu dans les messages d'erreur SQL au début de ce TP.
+- Quel est le nom de la table des utilisateurs?
+
+Le deuxième challenge est de trouver le nombre de colonnes qui sont renvoyées par la requête initiale, car pour pouvoir effectuer une `UNION` des deux requêtes le nombre de colonnes renvoyées par ces deux requêtes doit être le même. 
+
+Pour cela, ajoutez progressivement les colonnes à droite de votre `UNION` jusqu'à ce que vous n'ayez plus d'erreur SQL. 
+- `')) UNION SELECT '1' FROM table`
+- `')) UNION SELECT '1', '2'  FROM table`
+- `')) UNION SELECT '1', '2', '3'  FROM table`
+- …
+
+- Quel est le nombre de colonnes renvoyées par la requête initiale ? 
+
+Vous pouvez vous débarrasser des résultats de recherche en ajoutant quelque chose au début de la requête.
+- `asdeqwe')) …`
+
+Le dernier challenge consiste à afficher une liste d'utilisateurs avec leur mot de passe. Vous avez déjà vu les noms des colonnes contenant le nom et le mot de passe des utilisateurs dans le message d'erreur SQL généré au début de ce TP. Remplacez les nombres que vous avez mis dans l'UNION pour trouver le nombre de colonnes renvoyées avec les noms de colonne. 
+- Avez-vous réussi à récupérer la liste de tous les utilisateurs ?
+- Comment les mots de passe sont-ils stockés dans la base de données ?
+- Quel est le nom de Cris ?
+
+### Broken Access Control - Enregistrez-vous en tant qu'utilisateur avec des privilèges d'administrateur 
+Dans cette section, vous allez vous enregistrer en tant qu'utilisateur avec des privilèges d'administrateur.
+
+Analysez la requête envoyée et la réponse retournée lors de la création de l'utilisateur. Trouvez un paramètre dans la réponse qui peut être intéressant dans notre contexte et essayez de forcer ce paramètre dans la requête.
+- Avez-vous réussi à créer un utilisateur avec des privilèges d'administrateur ?
+
+### Passez une commande qui vous rend riche
+Dans cette section, vous allez exploiter une vulnérabilité qui vous permettra d'obtenir de l'argent sur votre portefeuille numérique.
+
+Créez un utilisateur simple, authentifiez-vous et ajoutez un article dans votre panier.
+
+Analysez comment fonctionne la modification de la quantité d'articles dans le panier. Analysez les requêtes et les paramètres envoyés lors du changement de quantité. 
+
+Essayez d'exploiter le paramètre envoyé afin de gagner éventuellement de l'argent.
+
+Passez la commande et visualisez votre Digital Wallet.
+- Avez-vous trouvé une vulnérabilité dans le panier ?
+- Avez-vous réussi à gagner de l’argent sur votre Digital Wallet?
+
+### Déterminer la réponse à la question de sécurité d'Emma
+Dans cette section, vous devez trouver la réponse à la question de sécurité d'Emma. Devinez l'adresse e-mail d'Emma et trouvez la question de sécurité via le formulaire de récupération de mot de passe. 
+
+Pour trouver la réponse à la question de sécurité d'Emma, parcourez le site Web et analysez attentivement les éléments postés par les utilisateurs. Faites attention aux commentaires et aux images. Parfois, les utilisateurs peuvent divulguer des informations importantes sans s'en rendre compte.
+- Quelle est la réponse à la question de sécurité d'Emma ? 
+- Où l’avez-vous trouvé?
+
+### Déterminer la réponse à la question de sécurité de John 
+Dans cette section, vous devez trouver la réponse à la question de sécurité de John. Devinez l'adresse e-mail de John et trouvez la question de sécurité via le formulaire de récupération de mot de passe.
+
+Pour trouver la réponse à la question de sécurité de John, parcourez le site Web et analysez attentivement les éléments postés par les utilisateurs.
+
+Vous devez trouver une photo qui peut potentiellement vous aider à trouver la réponse. 
+
+Analysez les métadonnées de cette photo. Pour cela, vous pouvez utiliser un outil en ligne d'analyse des métadonnées d'image. 
+- Quelle est la réponse à la question de sécurité de John ? 
