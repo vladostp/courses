@@ -1,4 +1,4 @@
-# TP Kubernetes 2022
+
 Au cours de ce TP, vous allez installer, configurer et administrer un cluster K8S. Puis, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc).
 
 --------
@@ -31,37 +31,37 @@ Pour des raisons de simplicité, dans cette section du laboratoire, vous allez m
 #### Sur tous les VMs
 
 - **Ajoutez la clé GPG et le repository Kubernetes**
-  ```bash
-  $ sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-  $ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-  $ sudo apt update
-  ```
+```bash
+$ sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+$ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+$ sudo apt update
+```
 
 - **Installez les packages Kubernetes**
-  ```bash
-  $ sudo apt install -y kubelet=1.22.0-00 kubeadm=1.22.0-00 kubectl=1.22.0-00
-  ```
+```bash
+$ sudo apt install -y kubelet=1.22.0-00 kubeadm=1.22.0-00 kubectl=1.22.0-00
+```
 Dans cette section, vous installez la version 1.22.0 du Kubernetes. Dans la section suivante, vous verrez comment mettre à jour K8S.
 
 - **Bloquez la mise à jour automatique des packages installés précédemment**
-  ```bash
-  $ sudo apt-mark hold kubelet kubeadm kubectl
-  ```
+```bash
+$ sudo apt-mark hold kubelet kubeadm kubectl
+```
     - La mise à jour automatique de ces packages peut casser votre cluster.
 
 ### Configuration du proxy
 - **Ajoutez la variable NO_PROXY dans les variables d'environnement**
     - Ajoutez la ligne dans `/etc/environment`
-  ```bash
-  NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
-  ```
+```bash
+NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
+```
         - `10.244.0.0/16` - la plage des adresses des PODS dans votre cluster
         - `10.96.0.0/12` - la plage des adresses système de Kubernetes
 
 - **Testez si Docker peut télécharger et lancer un conteneur**
-  ```bash
-  $ sudo docker run hello-world
-  ```
+```bash
+$ sudo docker run hello-world
+```
 
 - **Redémarrez tous les machines**
 
@@ -74,42 +74,42 @@ Le processus d'initialisation du cluster est très simple. Vous allez utiliser *
 
 #### Sur le nœud master
 - **Initialisez votre cluster**
-  ```bash
-  $ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
-  ```
+```bash
+$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+```
     - **Attention !** Mémorisez bien le token donné par cette commande, ce token sera utilisé par vos nœuds workers pour rejoindre le cluster.
     - Qu'est-ce que l'option `--pod-network-cidr` permet de faire ?
     - Suivez les étapes d'initialisation du cluster Kubernetes.
 
 - **Configurez l'outil d'administration kubectl**
-  ```bash
-  $ mkdir -p $HOME/.kube
-  $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
-  ```
+```bash
+$ mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
     - Que fait cet outil ?
 
 #### Sur les nœuds worker
 - **Ajoutez les Workers dans cluster**
-  ```bash
-  $ sudo kubeadm join [join_token]
-  ```
+    ```bash
+$ sudo kubeadm join [join_token]
+    ```
     - Le token a été donné par la commande **kubeadm init**, lors de l'initialisation du cluster.
 
 #### Sur le noeud Master
 - **Verifiez l'etat des nodes**
-  ```bash
-  $ kubectl get nodes
-  $ kubectl describe nodes
-  ```
+```bash
+$ kubectl get nodes
+$ kubectl describe nodes
+```
     - Vérifiez l'état des nœuds
     - Pourquoi l'état des nœuds est "NotReady"?
 
 - **Installez CNI (Container network interface)**
-  ```bash
-  $ kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-  $ kubectl get pods -n kube-flannel
-  ```
+```bash
+$ kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+$ kubectl get pods -n kube-flannel
+```
     - Pour initialiser Flannel, Kubernetes crée un objet de type "DaemonSet". Pourquoi un objet de type "DaemonSet" est-il créé ?
     - Attendez que les Pods Flannel soient en état "Running".
 
@@ -118,28 +118,28 @@ Le processus d'initialisation du cluster est très simple. Vous allez utiliser *
 
 ### Validation de l'installation
 - **Créez un deployment nginx**
-  ```bash
-  $ kubectl create deployment --image=nginx nginx
-  ```
+```bash
+$ kubectl create deployment --image=nginx nginx
+```
 
 - **Vérifiez que le pod est bien lancé et que le déploiement a été bien créé**
-  ```bash
-  $ kubectl get pods
-  $ kubectl get deployments
-  ```
+```bash
+$ kubectl get pods
+$ kubectl get deployments
+```
 
 - **Créez un port forward sur le pod et vérifiez son fonctionnement**
-  ```bash
-  $ kubectl port-forward PODNAME 8081:80 &
-  $ curl 127.0.0.1:8081
-  ```
+```bash
+$ kubectl port-forward PODNAME 8081:80 &
+$ curl 127.0.0.1:8081
+```
     - **Attention**! Vous devez remplacer **PODNAME** par le nom du pod créé par deploy,ent.
     - Que permet de faire un port-forward?
 
 - **Visualisez des logs du Pod**
-  ```bash
-  $ kubectl logs PODNAME
-  ```
+```bash
+$ kubectl logs PODNAME
+```
 
 - Trouver sur quel nœud le pod a été lancé. Vous pouvez utiliser l'option `-o wide` de la commande `kubectl get pods`.
 
@@ -152,19 +152,19 @@ Pour effectuer cela, vous allez utiliser l'outil **kubeadm**.
 Avant de commencer la mise à jour du cluster, il faut vérifier la version actuelle des éléments de votre cluster. Ensuite, vous devez trouver quelle est la dernière version stable de K8S.
 
 - **Vérifiez la version de kubelet sur les noeuds**
-  ```bash
-  $ kubectl get nodes
-  ```
+```bash
+$ kubectl get nodes
+```
 
 - **Vérifiez la version d'API du client et serveur**
-  ```bash
-  $ kubectl version --short
-  ```
+```bash
+$ kubectl version --short
+```
 
 - **Vérifiez la version de kubeadm**
-  ```bash
-  $ kubeadm version
-  ```
+```bash
+$ kubeadm version
+```
 
 Vous mettrez à jour le cluster vers la dernière version stable prenant en charge Docker par défaut (1.23.13). 
 
@@ -172,34 +172,34 @@ Vous mettrez à jour le cluster vers la dernière version stable prenant en char
 Vous allez commencer par mettre à jour le nœud principal.
 
 - **Exportez les variables d'environnement suivantes**
-  ```bash
-  $ export VERSION=v1.23.13
-  $ export ARCH=amd64
-  ```
+```bash
+$ export VERSION=v1.23.13
+$ export ARCH=amd64
+```
 
 - **Récupérez et installez de la nouvelle version de kubeadm**
-  ```bash
-  $ curl -sSL https://dl.k8s.io/release/${VERSION}/bin/linux/${ARCH}/kubeadm > kubeadm
-  $ sudo install -o root -g root -m 0755 ./kubeadm /usr/bin/kubeadm
-  $ sudo kubeadm version
-  ```
+```bash
+$ curl -sSL https://dl.k8s.io/release/${VERSION}/bin/linux/${ARCH}/kubeadm > kubeadm
+$ sudo install -o root -g root -m 0755 ./kubeadm /usr/bin/kubeadm
+$ sudo kubeadm version
+```
 
 - **Exécutez la commande de planification de la mise à jour**
-  ```
-  $ sudo kubeadm upgrade plan
-  ```
+```
+$ sudo kubeadm upgrade plan
+```
     - Que fait cette commande ?
     - Si toute l'information affichée vous semble correcte, vous pouvez effectuer la mise à jour du cluster
 
 - **Mettez à jour le cluster**
-  ```bash
-  $ sudo kubeadm upgrade apply v1.23.13
-  ```
+```bash
+$ sudo kubeadm upgrade apply v1.23.13
+```
 
 - **Vérifiez les versions de kubelet sur les nœuds**
-  ```
-  $ kubectl get nodes
-  ```
+```
+$ kubectl get nodes
+```
     - Que pouvez-vous cconstater ?
 
 - **Mettez à jour le kubelet**
@@ -244,16 +244,16 @@ Vous allez commencer par mettre à jour le nœud principal.
 Bravo! Vous avez mis à jour votre cluster sans aucune interruption de service!
 
 ### Nettoyage
-Dans la section suivante, vous allez installer Kubernetes avec RKE (Rancher Kubernetes Engine).
+Dans la section suivante, nous allons installer Kubernetes avec RKE (Rancher Kubernetes Engine).
 Pour que l'installation avec RKE se passe bien, vous devez d'abord supprimer le cluster créé avec **kubedm** et supprimer toutes les images docker.
 - **Supprimez le cluster avec kubadm** 
-  ```bash
-  sudo kubeadm reset
-  ```
+```bash
+sudo kubeadm reset
+```
 - **Supprimez tous les images docker**
-  ```bash
-  sudo docker rmi -f $(sudo docker images -q)
-  ```
+```bash
+sudo docker rmi -f $(sudo docker images -q)
+```
 
 Vous devez exécuter ces commandes sur tous les nœuds du cluster.
 
@@ -272,14 +272,14 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 #### Proxy
 - **Si ce n'est pas encore fait, ajoutez la variable NO_PROXY dans les variables d'environnement sur tous les nœuds**
     - Ajoutez la ligne dans `/etc/environment`
-    ```bash
-    NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
-    ```
-  - **Si vous avez modifié le fichier `/etc/environment`, redémarrez les nœuds**
+```bash
+NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
+```
+- **Redémarrez les nœuds**
 
 ### Installation et configuration de RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
-	- **Attention !** Vous devez choisir une version stable (release) et non pre-release !
+	- **Attention !** Vous devez choisir une version stable (release) et non un pre-release !
 - Rendez le fichier téléchargé exécutable et lancer la configuration
 	```bash
 	$ ./rke config
@@ -303,20 +303,20 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 
 ### Installation et configuration de kubectl
 - Téléchargez et installez la dernière version de **kubectl**
-  ```bash
-  $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-  $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-  ```
+```bash
+$ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+$ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
 - Copiez la configuration de kubectl crée par **RKE**
-  ```bash
-  $ mkdir -p $HOME/.kube
-  $ sudo cp -i kube_config_cluster.yml $HOME/.kube/config
-  $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
-  ```
+```bash
+$ mkdir -p $HOME/.kube
+$ sudo cp -i kube_config_cluster.yml $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
 - Vérifiez le fonctionnement de **kubectl** en récupérant les informations du nœud de cluster
-  ```bash
-  kubectl get nodes
-  ```
+```bash
+kubectl get nodes
+```
 
 -------------
 
@@ -591,7 +591,7 @@ metadata:
 spec:
   storageClassName: manual
   capacity:
-    storage: 10Gi
+    storage: 200Mi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -628,7 +628,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: 200Mi
 ```
 
 - **Créez cet objet dans le cluster**
@@ -683,6 +683,12 @@ spec:
     - **Trouvez un moyen de vérifier que le volume persistent fonctionne correctement**
         - Comment l'avez-vous vérifié ?
 
+
+### Environment variables 
+TODO
+
+### Init containers
+TODO
 
 ### Secrets
 Les secrets sont utilisés pour sécuriser les données sensibles qui peuvent être mises à disposition dans vos Pods. Les secrets peuvent être fournis à vos pods de deux manières différentes : en tant que variables d'environnement ou en tant que volumes contenant les secrets.
@@ -739,7 +745,6 @@ spec:
     - Que voyez-vous dans les logs du Pod?
 
 ### Sondes de Liveness et Readiness
-
 Par défaut, si un **Pod** est en cours d'exécution (Running), il est considéré comme opérationnel par Kubernetes. Cela peut créer un problème, car même si le **Pod** est en cours d'exécution, l'application peut être bloquée ou pas prête à recevoir les demandes des utilisateurs. Pour résoudre ce problème, Kubernetes propose trois mécanismes : sondes de **Liveness**, **Readiness** et **Startup**.
 
 Kubernetes est capable de vérifier automatiquement si vos applications répondent aux demandes des utilisateurs avec des sondes **Liveness**. Si votre application est bloquée et ne répond pas, K8S la détecte et relance ou recrée le conteneur.
@@ -908,4 +913,153 @@ spec:
 - Essayez d'accéder au **Service** avec votre navigateur en utilisant le nom DNS créé précédemment.
 	- Que pouvez-vous constater ?
 
+------
 
+## Un déploiement plus complexe
+
+Dans la section précédente, vous avez manipulé de nombreux objets et mécanismes de Kubernetes. Vous pouvez désormais effectuer un déploiement plus complexe sur Kubernetes.
+
+Dans cette section, vous rassemblerez toutes les connaissances acquises précédemment pour déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
+
+### Architecture de déploiement
+L'application sera composée des deux services :
+- **Le premier service est la base de données Redis**
+	- Il sera utilisé pour stocker un compteur utilisé et mis à jour par l'application
+	- Il stockera ses données sur un volume persistant
+	- Il sera configuré avec un **initContainer** pour demander une authentification avec un mot de passe qui sera fourni par un **Secret** K8s
+	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
+	- Il sera accessible via un **Service**
+- **Le deuxième service est une application simple Counter que nous avons développée pour ce TP**
+	- Ce service va lire et incrémenter le compteur stocké dans la base de données Redis
+	- Il sera initialisé en récupérant un code source depuis un dépôt Git avec **initContainer**
+	- Le service aura 3 instances
+	- Le `hostname` de Redis sera fourni par une simple variable d'environnement
+	- Le mot de passe d'authentification **Redis** sera fourni en montant le secret **Redis** en tant que volume
+	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
+	- Il sera accessible via un **Ingress**
+
+
+### Service Redis
+Afin de créer le service Redis décrit dans l'architecture de déploiement, vous devez créer les objets K8S suivants :
+- **PersistantVolume**
+	- Créez un volume persistant avec le nom `redis-pv` , de type `hostPath`,  avec une capacité de stockage de `500Mi` , le mode d'accès `ReadWriteOnce` et un point de montage `/mnt/redis`. Vous pouvez vous inspirer du volume persistant créé précédemment et de la documentation officielle de Kubernetes.
+- **PersistantVolumeClaim**
+	- Créez un **PersistantVolumeClaim** avec le nom `redis-pvc` qui demande un stockage avec une capacité de `500Mi` et le mode d'accès `ReadWriteOnce`.
+	- Verifiez que les états de **PersistantVolume** et **PersistantVolumeClaim** sont `Bound`
+    ```bash
+    $ kubectl get pv
+    $ kubectl get pvc
+	  ```
+- **Secret**
+	- Créez le **Secret** avec le nom `redis-secret` qui stocke un champ nommé `password`. Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authetification **Redis**. N'oubliez pas que les secrets doivent être encodés en `base64`.
+- **Deployment**
+	- Créez un déploiement avec le nom `redis-deployment` qui
+		- Crée un seul replica des **Pods**
+		- A le label `app: redis`
+		- A deux volumes
+			- Volume de type `emptyDir` qui sera utilisé pour stocker la configuration **Redis**
+			- Volume de `PersistantVolumeClaim` crée précédemment qui sera utilisé pour stocker les données **Redis** 
+		- A deux conteneurs : un principal et un d'initialisation
+		- Le conteneur principal 
+			- Utilise l'image  `redis`
+			- Execute la commande `["redis-server", "/etc/redis/redis.conf"]`
+			- Monte deux volumes
+				- Volume de configuration **Redis** dans le path `/etc/redis/`
+				- Volume des données **Redis** dans le path `/data`
+			- A une sonde **Liveness** de type `exec` qui exécute la commande `["redis-cli", "ping"]` pour vérifier si l'application fonctionne correctement
+		-  Le conteneur d'initilisation `initContainers`
+			- Utilise l'image `busybox`
+			- Execute la commande `["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"] `
+			- Expose le champ `password` du secret `redis-secret` comme variable d'enviromenet nommée `PASSWORD`
+			- Monte le volume de configuration **Redis** dans le path `/etc/redis/`
+	- Verifiez le Deployement et le Pod crée
+    ```bash
+    $ kubectl get deployments
+    $ kubectl get pods
+    ```
+- **Service**
+	- Créez un service avec le nom `redis-service`  qui
+		- Utilise un selector sur le label `app: redis`
+		- Transfére le trafic envoyé au port TCP `6379` du **Service** sur le port `6379` du **Pod** 
+	 - Verifiez le **Service** et les **Endpoints**
+    ```bash
+    $ kubectl get services
+    $ kubectl get endpoints
+    ```
+
+Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonctionne correctement. 
+- Créez un deploiement `busybox` avec la commande `kubectl create`
+	```bash
+	$ kubectl create deployment --image=busybox busybox -- sleep 99999999
+	```
+
+- Récupérez le nom du Pod créé par le déploiement et lancer un terminal dans ce Pod
+	```bash
+	$ kubectl get pods 
+	$ kubectl exec -it PODNAME -- sh
+	```
+
+- Connectez-vous avec `telnet` sur le **Redis** à partir de **Pod** busybox et testez **Redis** fonctionne correctement
+	```bash
+	$ telnet redis-service 6379
+	$ GET counter
+	-NOAUTH Authentication required.
+	$ AUTH redispassword
+	+OK
+	$ MGET *
+	*1  
+	$-1
+	$ QUIT
+	```
+	- Si vous avez exécuté toutes les commandes et que vous voyez ces résultats, Redis et son authentification ont été correctement configurés
+
+### Service Counter
+Afin de créer le service Counter décrit dans l'architecture de déploiement, vous devez créer les objets K8S suivants :
+- **Deployment**
+	- Créez un déploiement avec le nom `counter-deployment` qui
+		- Crée un trois replicas des **Pods**
+		- A le label `app: counter
+		- A deux volumes
+			- Volume de type `emptyDir` qui sera utilisé pour stocker l'application PHP **Counter**
+			- Volume de type **Secret**  qui va utiliser le Secret `redis-secret`
+		- A deux conteneurs : un principal et un d'initialisation
+		- Le conteneur principal 
+			- Utilise l'image  `vladost/php:7.2-apache-redis`
+			- Monte deux volumes
+				- Volume de l'application PHP **Counter** dans le path `/var/www/html`
+				- Volume de Secret `redis-secret` dans le path `/credentials`
+			- A une sonde **Liveness** de type `httpGet` qui sonde le path `/` sur le port `80` pour vérifier si l'application fonctionne correctement
+		-  Le conteneur d'initilisation `initContainers`
+			- Utilise l'image `busybox`
+			- Execute la commande `['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']`
+			- Monte le volume de l'application PHP **Counter** dans le path `/var/www/html`
+	- Verifiez le Deployement et les Pods crées
+    ```bash
+    $ kubectl get deployments
+    $ kubectl get pods
+    ```
+- **Service**
+	- Créez un **Service** avec le nom `counter-service`  qui
+		- Utilise un selector sur le label `app: counter`
+		- Transfére le trafic envoyé au port TCP `80` du **Service** sur le port `80` des **Pods** 
+	 - Verifiez le **Service** et les **Endpoints**
+    ```bash
+    $ kubectl get services
+    $ kubectl get endpoints
+    ```
+
+- **Ingress**
+	- Créez un **Ingress** avec le nom `counter-ingress` qui 
+		- A l'annotation `nginx.ingress.kubernetes.io/rewrite-target: /`
+		- Redirige les requêtes HTTP envoyées au au path `/counter` vers le port `80` de **Service** `counter-service`
+	 - Verifiez l'**Ingress**
+    ```bash
+    $ kubectl get ingress
+    ```
+
+### Verification de l'application
+Pour vérifier le fonctionnement de l'application, vous pouvez accéder au service avec votre navigateur en utilisant le nom DNS créé précédemment.
+Pour rappel, vous avez crée un nom DNS de la forme `votrenom.xxxxx.os.univ-lyon1.fr`.
+Pour accéder au service `counter-service`, vous devez ajouter le préfixe `/counter` au nom DNS.
+Si tout a été configuré correctement, vous devriez voir un compteur d'utilisation du service et le nom de l'instance de **Pod** que vous utilisez actuellement sur la page Web de l'application. 
+Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et le changement de nom de l'instance de **Pod**.
