@@ -244,7 +244,7 @@ Vous allez commencer par mettre à jour le nœud principal.
 Bravo! Vous avez mis à jour votre cluster sans aucune interruption de service!
 
 ### Nettoyage
-Dans la section suivante, nous allons installer Kubernetes avec RKE (Rancher Kubernetes Engine).
+Dans la section suivante, vous allez installer Kubernetes avec RKE (Rancher Kubernetes Engine).
 Pour que l'installation avec RKE se passe bien, vous devez d'abord supprimer le cluster créé avec **kubedm** et supprimer toutes les images docker.
 - **Supprimez le cluster avec kubadm** 
   ```bash
@@ -275,11 +275,11 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
     ```
-- **Redémarrez les nœuds**
+  - **Si vous avez modifié le fichier `/etc/environment`, redémarrez les nœuds**
 
 ### Installation et configuration de RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
-	- **Attention !** Vous devez choisir une version stable (release) et non un pre-release !
+	- **Attention !** Vous devez choisir une version stable (release) et non pre-release !
 - Rendez le fichier téléchargé exécutable et lancer la configuration
 	```bash
 	$ ./rke config
