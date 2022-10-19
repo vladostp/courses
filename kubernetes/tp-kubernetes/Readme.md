@@ -49,7 +49,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDsiRclaL3m5x2QZI206d07s6pCElUgH+qMJ8kfBVHG
     ```
 - **Redémarrez tous les nœuds**
 
-Toutes les actions effectuées à partir de ce moment doivent être effectuées sur le nœud **Master**.
+Toutes les actions à partir de maintenant doivent être effectuées à partir du nœud **Master**!
 
 ### Installation et configuration de RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
