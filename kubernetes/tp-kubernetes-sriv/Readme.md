@@ -1,5 +1,8 @@
+# TP Kubernetes
 
-Au cours de ce TP, vous allez installer, configurer et administrer un cluster K8S. Puis, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc).
+Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outil RKE (Rancher Kubernetes Engine). Ensuite, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc). Vous finirez par déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
+
+Vous recevrez une note pour ce TP. Veillez donc à bien utiliser les noms demandés pour les objets Kubernetes.
 
 --------
 
@@ -19,247 +22,8 @@ Ces machines doivent avoir des hostnames suivants :
 
 ------
 
-## Installation, validation et la mise à jour (M2 SRIV)
-Dans cette section, vous allez installer et valider le fonctionnement du cluster Kubernetes. 
-Dans les nouvelles versions, Kubernetes ne prend plus en charge Container Runtime Docker par défaut. Pour pouvoir utiliser Docker avec Kubernetes, il faut installer et configurer un composant shim **[cri-dockerd](https://github.com/Mirantis/cri-dockerd)**.
-
-Pour des raisons de simplicité, dans cette section du laboratoire, vous allez manipuler une version de Kubernetes qui prend en charge Docker par défaut.
-
-
-### Installation
-
-#### Sur tous les VMs
-
-- **Ajoutez la clé GPG et le repository Kubernetes**
-```bash
-$ sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-$ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-$ sudo apt update
-```
-
-- **Installez les packages Kubernetes**
-```bash
-$ sudo apt install -y kubelet=1.22.0-00 kubeadm=1.22.0-00 kubectl=1.22.0-00
-```
-Dans cette section, vous installez la version 1.22.0 du Kubernetes. Dans la section suivante, vous verrez comment mettre à jour K8S.
-
-- **Bloquez la mise à jour automatique des packages installés précédemment**
-```bash
-$ sudo apt-mark hold kubelet kubeadm kubectl
-```
-    - La mise à jour automatique de ces packages peut casser votre cluster.
-
-### Configuration du proxy
-- **Ajoutez la variable NO_PROXY dans les variables d'environnement**
-    - Ajoutez la ligne dans `/etc/environment`
-```bash
-NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
-```
-        - `10.244.0.0/16` - la plage des adresses des PODS dans votre cluster
-        - `10.96.0.0/12` - la plage des adresses système de Kubernetes
-
-- **Testez si Docker peut télécharger et lancer un conteneur**
-```bash
-$ sudo docker run hello-world
-```
-
-- **Redémarrez tous les machines**
-
-
-### Initialisation du Cluster
-Une fois les packages Kubernetes installés, vous pouvez initialiser le cluster et installer un CNI (Container Network Interface). 
-
-Le processus d'initialisation du cluster est très simple. Vous allez utiliser **kubeadm** pour initialiser votre cluster et **flannel** comme le CNI.
-
-
-#### Sur le nœud master
-- **Initialisez votre cluster**
-```bash
-$ sudo kubeadm init --pod-network-cidr=10.244.0.0/16
-```
-    - **Attention !** Mémorisez bien le token donné par cette commande, ce token sera utilisé par vos nœuds workers pour rejoindre le cluster.
-    - Qu'est-ce que l'option `--pod-network-cidr` permet de faire ?
-    - Suivez les étapes d'initialisation du cluster Kubernetes.
-
-- **Configurez l'outil d'administration kubectl**
-```bash
-$ mkdir -p $HOME/.kube
-$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
-```
-    - Que fait cet outil ?
-
-#### Sur les nœuds worker
-- **Ajoutez les Workers dans cluster**
-    ```bash
-$ sudo kubeadm join [join_token]
-    ```
-    - Le token a été donné par la commande **kubeadm init**, lors de l'initialisation du cluster.
-
-#### Sur le noeud Master
-- **Verifiez l'etat des nodes**
-```bash
-$ kubectl get nodes
-$ kubectl describe nodes
-```
-    - Vérifiez l'état des nœuds
-    - Pourquoi l'état des nœuds est "NotReady"?
-
-- **Installez CNI (Container network interface)**
-```bash
-$ kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-$ kubectl get pods -n kube-flannel
-```
-    - Pour initialiser Flannel, Kubernetes crée un objet de type "DaemonSet". Pourquoi un objet de type "DaemonSet" est-il créé ?
-    - Attendez que les Pods Flannel soient en état "Running".
-
-- **Re-vérifiez l'état des nœuds**
-    - Qu'avez-vous remarqués?
-
-### Validation de l'installation
-- **Créez un deployment nginx**
-```bash
-$ kubectl create deployment --image=nginx nginx
-```
-
-- **Vérifiez que le pod est bien lancé et que le déploiement a été bien créé**
-```bash
-$ kubectl get pods
-$ kubectl get deployments
-```
-
-- **Créez un port forward sur le pod et vérifiez son fonctionnement**
-```bash
-$ kubectl port-forward PODNAME 8081:80 &
-$ curl 127.0.0.1:8081
-```
-    - **Attention**! Vous devez remplacer **PODNAME** par le nom du pod créé par deploy,ent.
-    - Que permet de faire un port-forward?
-
-- **Visualisez des logs du Pod**
-```bash
-$ kubectl logs PODNAME
-```
-
-- Trouver sur quel nœud le pod a été lancé. Vous pouvez utiliser l'option `-o wide` de la commande `kubectl get pods`.
-
-
-### La mise à jour du cluster
-Dans cette section, vous allez mettre à jour votre cluster K8s. 
-Pour effectuer cela, vous allez utiliser l'outil **kubeadm**. 
-
-### Préparation de la mise à jour
-Avant de commencer la mise à jour du cluster, il faut vérifier la version actuelle des éléments de votre cluster. Ensuite, vous devez trouver quelle est la dernière version stable de K8S.
-
-- **Vérifiez la version de kubelet sur les noeuds**
-```bash
-$ kubectl get nodes
-```
-
-- **Vérifiez la version d'API du client et serveur**
-```bash
-$ kubectl version --short
-```
-
-- **Vérifiez la version de kubeadm**
-```bash
-$ kubeadm version
-```
-
-Vous mettrez à jour le cluster vers la dernière version stable prenant en charge Docker par défaut (1.23.13). 
-
-### La mise à jour du cluster
-Vous allez commencer par mettre à jour le nœud principal.
-
-- **Exportez les variables d'environnement suivantes**
-```bash
-$ export VERSION=v1.23.13
-$ export ARCH=amd64
-```
-
-- **Récupérez et installez de la nouvelle version de kubeadm**
-```bash
-$ curl -sSL https://dl.k8s.io/release/${VERSION}/bin/linux/${ARCH}/kubeadm > kubeadm
-$ sudo install -o root -g root -m 0755 ./kubeadm /usr/bin/kubeadm
-$ sudo kubeadm version
-```
-
-- **Exécutez la commande de planification de la mise à jour**
-```
-$ sudo kubeadm upgrade plan
-```
-    - Que fait cette commande ?
-    - Si toute l'information affichée vous semble correcte, vous pouvez effectuer la mise à jour du cluster
-
-- **Mettez à jour le cluster**
-```bash
-$ sudo kubeadm upgrade apply v1.23.13
-```
-
-- **Vérifiez les versions de kubelet sur les nœuds**
-```
-$ kubectl get nodes
-```
-    - Que pouvez-vous cconstater ?
-
-- **Mettez à jour le kubelet**
-    - **Exportez les variables d'environnement suivantes**
-	```bash
-	$ export VERSION=v1.23.13
-	$ export ARCH=amd64
-	```
-
-    - **Installez la nouvelle version de kubelet**
-        ```bash
-        $ curl -sSL https://dl.k8s.io/release/${VERSION}/bin/linux/${ARCH}/kubelet > kubelet
-        $ sudo install -o root -g root -m 0755 ./kubelet /usr/bin/kubelet
-        $ sudo systemctl restart kubelet.service
-        ```
-    - **Vérifiez la mise à jour de kubelet**
-        ```bash
-        $ kubectl get nodes
-        ```
-
-- **Vérifiez la version du kubectl**
-    ```bash
-    $ kubectl version
-    ```
-    - Que pouvez-vous constater ?
-
-- **Mettez à jour le kubectl**
-    ```bash
-    $ curl -sSL https://dl.k8s.io/release/${VERSION}/bin/linux/${ARCH}/kubectl > kubectl
-    $ sudo install -o root -g root -m 0755 ./kubectl /usr/bin/kubectl
-    $ kubectl version
-    ```
-
-- **Mettez à jour les nœuds workers**
-    - Quel composant doit être mis à jour sur les nœuds workers afin de finaliser la mise à jour de votre cluster ? 
-    
-- **VVérifiez à partir du nœud master que tous les workers ont été mis à jour**
-        ```bash
-        $ kubectl get nodes
-        ```
-
-Bravo! Vous avez mis à jour votre cluster sans aucune interruption de service!
-
-### Nettoyage
-Dans la section suivante, nous allons installer Kubernetes avec RKE (Rancher Kubernetes Engine).
-Pour que l'installation avec RKE se passe bien, vous devez d'abord supprimer le cluster créé avec **kubedm** et supprimer toutes les images docker.
-- **Supprimez le cluster avec kubadm** 
-```bash
-sudo kubeadm reset
-```
-- **Supprimez tous les images docker**
-```bash
-sudo docker rmi -f $(sudo docker images -q)
-```
-
-Vous devez exécuter ces commandes sur tous les nœuds du cluster.
-
-------
-
-## RKE Installation et validation
+## Déploiement du cluster
+Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (Rancher Kubernetes Engine).
 
 ### Préparation de nœuds
 #### SSH
@@ -269,13 +33,23 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 -   **Ajoutez** la clef publique (`.ssh/id_rsa.pub`) du **Master** au fichier des clefs autorisées (`.ssh/authorized_keys`) sur tous les nœuds (y compris sur le nœud Master).
 	 - **Attention !** Conservez les clefs déjà présentes dans `.ssh/authorized_keys` (sinon vous ne pourrez plus vous connecter aux nœuds).
 - Testez si le nœud **Master** arrive à se connecter en ssh sur tous les nœuds (**y compris sur lui-même**)
-#### Proxy
-- **Si ce n'est pas encore fait, ajoutez la variable NO_PROXY dans les variables d'environnement sur tous les nœuds**
-    - Ajoutez la ligne dans `/etc/environment`
+
+- **Attention!** Afin que nous puissions évaluer le travail effectué au cours de ce TP, ajoutez la clé publique suivante dans `.ssh/authorized_keys` sur le nœud Master.
 ```bash
-NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDsiRclaL3m5x2QZI206d07s6pCElUgH+qMJ8kfBVHGQjtetxnqbb5LMZAwKIliNQfIbJpjaWngdZHEtGFPwLEp2s73V2HX1W/XH35jMvQX9uwCSqEZ8CeDb3il9eLcEXO7O9hxfuHRf18AQ9xuav1Kp  
+43GSv5WI/TQw5g5EtGJfrCjxNDRYtsgdHI/5TwgNjUo6QAwh7mCIaqm+LIaPsw+0gd5wW2ZPPSB3oNbhtgoHblU/lyeW72p1HhdW2SnfDDZzUDX2Gdf+bNUsx3ktRqRPUEGxmnQgr1xj2zdhkZ5q47L9V/MghERmlGHtqdXuBJRnvtOmw8JjfNfI+T6h8  
+4F7Oio519iniK9q+J4bBe8LXsA1eRSFU0UQsb0l7vNQLVYiiOVReperSD90zFDPPAzXvejErZVberZQUlsFYSGnpAdx1z8i/S7Hpw+iJ2bepiDhHsF4/ogluuYtETPUUdCORixpssFvwalE8n85ovxnbZBUAjpS7NVuPtMSPP1brk=
 ```
-- **Redémarrez les nœuds**
+
+#### Proxy
+- **Ajoutez la variable NO_PROXY dans les variables d'environnement sur tous les nœuds**
+    - Ajoutez la ligne dans `/etc/environment`
+    ```bash
+    NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
+    ```
+- **Redémarrez tous les nœuds**
+
+Toutes les actions effectuées à partir de ce moment doivent être effectuées sur le nœud **Master**.
 
 ### Installation et configuration de RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
