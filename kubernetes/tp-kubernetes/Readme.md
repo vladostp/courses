@@ -458,11 +458,37 @@ spec:
         - Comment l'avez-vous vérifié ?
 
 
-### Environment variables 
-TODO
+### Variables d'environnement
+L'utilisation de variables d'environnement est le moyen le plus simple d'injecter des données dans vos applications.
+Dans cette section, vous allez créer un **Pod** qui utilise une variable d'environnement et affiche sa valeur au démarrage.
 
-### Init containers
-TODO
+Créez le fichier `env_var_pod.yml`:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-var-pod
+spec:
+   containers:
+   - name: env-busybox
+     image: busybox
+     command: ['sh', '-c', 'echo "Username: $USERNAME" && sleep 99999']
+     env: 
+     - name: USERNAME
+       value: administrator
+```
+
+- **Créez le Pod dans le cluster**
+    ```bash
+    $ kubectl apply -f env_var_pod.yml
+    ```
+
+- **Visualisez les logs du pod**
+    ```
+    $ kubectl get pods
+    $ kubectl logs NOM_DU_POD
+    ```
+    - Que voyez-vous dans les logs du Pod?
 
 ### Secrets
 Les secrets sont utilisés pour sécuriser les données sensibles qui peuvent être mises à disposition dans vos Pods. Les secrets peuvent être fournis à vos pods de deux manières différentes : en tant que variables d'environnement ou en tant que volumes contenant les secrets.
@@ -517,6 +543,11 @@ spec:
     $ kubectl logs NOM_DU_POD
     ```
     - Que voyez-vous dans les logs du Pod?
+
+### Init containers
+L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur d'application. Ces conteneurs peuvent être utilisés pour télécharger du code, effectuer une configuration ou initialiser une base de données avant le démarrage de l'application principale. 
+Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur `nginx` principal.
+
 
 ### Sondes de Liveness et Readiness
 Par défaut, si un **Pod** est en cours d'exécution (Running), il est considéré comme opérationnel par Kubernetes. Cela peut créer un problème, car même si le **Pod** est en cours d'exécution, l'application peut être bloquée ou pas prête à recevoir les demandes des utilisateurs. Pour résoudre ce problème, Kubernetes propose trois mécanismes : sondes de **Liveness**, **Readiness** et **Startup**.
