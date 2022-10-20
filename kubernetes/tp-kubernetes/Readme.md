@@ -2,7 +2,7 @@
 
 Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outil RKE (Rancher Kubernetes Engine). Ensuite, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc). Vous finirez par déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
-Vous recevrez une note pour ce TP. Veillez donc à bien utiliser les noms demandés pour les objets Kubernetes.
+**Attention!** Vous recevrez une note pour ce TP. Veillez donc à bien utiliser les noms demandés pour les objets Kubernetes.
 
 --------
 
@@ -546,7 +546,7 @@ spec:
 
 ### Init containers
 L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur d'application. Ces conteneurs peuvent être utilisés pour télécharger du code, effectuer une configuration ou initialiser une base de données avant le démarrage de l'application principale. 
-Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur `nginx` principal.
+Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur principal.
 
 
 ### Sondes de Liveness et Readiness
