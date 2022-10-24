@@ -1,5 +1,4 @@
 # TP Kubernetes
-
 Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outil RKE (Rancher Kubernetes Engine). Ensuite, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc). Vous finirez par déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
 **Attention!** Vous recevrez une note pour ce TP. Veillez donc à bien utiliser les noms demandés pour les objets Kubernetes.
@@ -43,7 +42,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDsiRclaL3m5x2QZI206d07s6pCElUgH+qMJ8kfBVHG
 
 #### Proxy
 - **Ajoutez la variable NO_PROXY dans les variables d'environnement sur tous les nœuds**
-    - Ajoutez la ligne dans `/etc/environment`
+    - Ajoutez la ligne à la fin du fichier `/etc/environment`
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
     ```
@@ -51,46 +50,47 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDsiRclaL3m5x2QZI206d07s6pCElUgH+qMJ8kfBVHG
 
 Toutes les actions à partir de maintenant doivent être effectuées à partir du nœud **Master**!
 
-### Installation et configuration de RKE
+### Déploiement de Kubernetes avec RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
 	- **Attention !** Vous devez choisir une version stable (release) et non un pre-release !
 - Rendez le fichier téléchargé exécutable et lancer la configuration
 	```bash
 	$ ./rke config
 	```
-	- Créez un cluster de 3 machines. Avec Master ayant les rôles  `control-plane` et `etcd`, les deux travailleurs ayant le rôle de `worker`.
+	- Créez un cluster de 3 machines. Avec Master ayant les rôles  `control-plane` et `etcd`, les deux Workers ayant le rôle de `worker`.
 	- Mettez les adresses IP de vos machines en tant que `SSH Address of host`.
 	- Laissez toutes les autres valeurs par défaut
-	- Cette commande va créer le fichier de configuration du cluster `cluster.yml` qui peut être modifié à la main si vous souhaitez modifier la configuration du cluster.
+	- Cette commande va créer le fichier de configuration du cluster `cluster.yml` qui peut être changé à la main si vous souhaitez modifier la configuration du cluster.
 - Démarrez le cluster Kubernetes avec RKE
 	```bash
 	$ ./rke up
 	```
-	- Cette commande va lire le fichier de configuration du cluster `cluster.yml` et va installer, démarrer et configurer tout ce qui est nécessaire pour un cluster Kubernetes.
-	- Si vous voyez "Fini de créer le cluster Kubernetes avec succès", le cluster a été démarré avec succès
-		- Sinon, essayez de supprimer et de redémarrer le cluster
+	- Cette commande lit le fichier de configuration du cluster `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire pour avoir un cluster Kubernetes fonctionnel.
+	- Si vous voyez "Finished building Kubernetes cluster successfully", le cluster a été déployé avec succès
+		- Si ce n'est pas le cas, essayez de supprimer et de redéployer le cluster
 		```bash
 		./rke remove
 		./rke up
 		```
 
-
 ### Installation et configuration de kubectl
 - Téléchargez et installez la dernière version de **kubectl**
-```bash
-$ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-$ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-```
-- Copiez la configuration de kubectl crée par **RKE**
-```bash
-$ mkdir -p $HOME/.kube
-$ sudo cp -i kube_config_cluster.yml $HOME/.kube/config
-$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
-```
-- Vérifiez le fonctionnement de **kubectl** en récupérant les informations du nœud de cluster
-```bash
-kubectl get nodes
-```
+  ```bash
+  $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  ```
+- Copiez la configuration de `kubectl` crée par **RKE**
+  ```bash
+  $ mkdir -p $HOME/.kube
+  $ sudo cp -i kube_config_cluster.yml $HOME/.kube/config
+  $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  ```
+- Vérifiez le fonctionnement de `kubectl` en récupérant les informations du nœud de cluster
+  ```bash
+  kubectl get nodes
+  ```
+  - Quel est l'état des nœuds ?
+
 
 -------------
 
@@ -546,7 +546,52 @@ spec:
 
 ### Init containers
 L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur d'application. Ces conteneurs peuvent être utilisés pour télécharger du code, effectuer une configuration ou initialiser une base de données avant le démarrage de l'application principale. 
-Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur principal.
+Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur principal. Comme le `initContainer` et le conteneur principal sont deux conteneurs distincts, il faudra créer un volume partagé par les deux conteneurs. Grâce à ce volume le `initContainer` pourra modifier la page d'accueil du conteneur principal. Vous allez utiliser un volume de type `emptyDir`.
+
+Créez le fichier `nginx_pod_with_init.yml`:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod-with-init
+  labels:
+    service: web-with-init
+spec:
+  volumes:  
+  - name: www 
+    emptyDir: {}  
+  containers:
+   - name: nginx
+     image: nginx
+     ports:
+        - containerPort: 80
+          hostPort: 8081
+     volumeMounts:  
+     - mountPath: /usr/share/nginx/html 
+       name: www
+  initContainers:
+  - name: init-nginx
+    image: busybox
+    command: ["sh", "-c", "echo 'Kubernetes' > /usr/share/nginx/html/index.html"]
+    volumeMounts:  
+    - mountPath: /usr/share/nginx/html  
+      name: www
+```
+
+- **Créez cet objet dans le cluster**
+    ```bash
+    $ kubectl apply -f nginx_pod_with_init.yml
+    ```
+
+- **Surveillez le déploiement du Pod**
+  ```bash
+  $ kubectl get pods
+  ```
+  - Exécutez la commande plusieurs fois pour voir toutes les étapes de création du **Pod**.
+  - Sur quel nœud **Worker** le **Pod** a-t-il été lancé (utilisez l'option `-o wide` ou la commande `kubectl describe pods <NOM_DU_POD>`) ?
+
+- **Testez le Pod deploye precedement avec la commande `curl` depuis le noeud Worker**
+  - Que vous renvoie la commande `curl` ?
 
 
 ### Sondes de Liveness et Readiness
@@ -721,7 +766,6 @@ spec:
 ------
 
 ## Un déploiement plus complexe
-
 Dans la section précédente, vous avez manipulé de nombreux objets et mécanismes de Kubernetes. Vous pouvez désormais effectuer un déploiement plus complexe sur Kubernetes.
 
 Dans cette section, vous rassemblerez toutes les connaissances acquises précédemment pour déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
@@ -843,6 +887,7 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
     $ kubectl get deployments
     $ kubectl get pods
     ```
+
 - **Service**
 	- Créez un **Service** avec le nom `counter-service`  qui
 		- Utilise un selector sur le label `app: counter`
@@ -868,3 +913,17 @@ Pour rappel, vous avez crée un nom DNS de la forme `votrenom.xxxxx.os.univ-lyon
 Pour accéder au service `counter-service`, vous devez ajouter le préfixe `/counter` au nom DNS.
 Si tout a été configuré correctement, vous devriez voir un compteur d'utilisation du service et le nom de l'instance de **Pod** que vous utilisez actuellement sur la page Web de l'application. 
 Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et le changement de nom de l'instance de **Pod**.
+
+- **Surveillez la valeur du compteur, attendez une minute et mettez à jour la page.**
+  - Que remarquez-vous ? Comment pouvez-vous l'expliquer?
+
+Bravo! Vous avez terminé le TP!
+
+--------
+
+## Ce travail a été réalisé par
+
+- [Vladimir Ostapenco](https://vladost.com/)
+- [Fabien Rico](https://perso.univ-lyon1.fr/fabien.rico/site/)
+
+----------
