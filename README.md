@@ -4,7 +4,7 @@ In this repository you will find all my courses, presentations and labs.
 ## Kubernetes
 ### M2 TIW and SRS
 - [CM Kubernetes](./kubernetes/cm-kubernetes.pdf) - French
-- [TP Kubernetes Markdown Version](./kubernetes/tp-kubernetes) - French
+- [TP Kubernetes](./kubernetes/tp-kubernetes) - French
 
 ## Log Management
 ### M2 SRS
