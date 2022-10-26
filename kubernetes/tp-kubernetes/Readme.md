@@ -921,6 +921,7 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
 
 - **Ingress**
 	- Créez un **Ingress** avec le nom `counter-ingress` qui 
+    - A l'annotation `nginx.ingress.kubernetes.io/rewrite-target: /` (Section `annotations` dans `metadata`)
 		- Redirige les requêtes HTTP envoyées au au path `/counter` vers le port `80` de **Service** `counter-service`
   - Vous pouvez vous inspirer de l'exemple Ingress `simple-fanout-example` qui est donné dans le cours
   - Verifiez l'**Ingress**
