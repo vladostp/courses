@@ -12,14 +12,11 @@ Dans cette section, vous devez créer trois machines virtuelles dans OpenStack a
 - 4Go RAM
 - 20Go d'espace disque
 
-Une machine sera le *Master Node (Control Plane)* et deux autres seront des *Worker Nodes*. 
-
-Ces machines doivent avoir des hostnames suivants :
-- [num_etu]-master-node
-- [num_etu]-worker1
-- [num_etu]-worker2
+Une machine sera le *Master Node (Control Plane)* et deux autres seront des *Worker Nodes*.
 
 Afin de créer une machine avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **snap-tpkube-2022** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+
+**Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Master Node* sur Tomuss.
 
 ------
 
@@ -41,7 +38,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
     ```
-- **Redémarrez tous les machines**
+- **Redémarrez toutes les machines**
 
 ### Déploiement de Kubernetes avec RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
