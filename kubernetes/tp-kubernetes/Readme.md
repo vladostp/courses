@@ -824,12 +824,12 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
 			- Volume avec le nom `redis-config` de type `emptyDir` qui sera utilisé pour stocker la configuration **Redis**
 			- Volume avec le nom `redis-data` de `PersistantVolumeClaim` crée précédemment qui sera utilisé pour stocker les données **Redis** 
 		- A deux conteneurs : un d'initialisation et un principal
-      -  Le conteneur d'initilisation `initContainer`
-         - A le nom `redis-config-init`
-         - Utilise l'image `busybox`
-         - Execute la commande `["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"]`
-         - Expose le champ `password` du secret `redis-secret` comme variable d'enviromenet nommée `PASSWORD`
-         - Monte le volume de configuration **Redis** dans le path `/etc/redis/`
+      - Le conteneur d'initilisation `initContainer`
+        - A le nom `redis-config-init`
+        - Utilise l'image `busybox`
+        - Execute la commande `["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"]`
+        - Expose le champ `password` du secret `redis-secret` comme variable d'enviromenet nommée `PASSWORD`
+        - Monte le volume de configuration **Redis** dans le path `/etc/redis/`
       - Le conteneur principal
         - A le nom et utilise l'image  `redis`
         - Execute la commande `["redis-server", "/etc/redis/redis.conf"]`
@@ -890,11 +890,11 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
 			- Volume avec le nom `counter-app` de type `emptyDir` qui sera utilisé pour stocker l'application PHP **Counter**
 			- Volume avec le nom `redis-secret` de type **Secret**  qui va utiliser le Secret `redis-secret`
 		- A deux conteneurs : un d'initialisation et un principal
-      -  Le conteneur d'initilisation `initContainers`
-         - A le nom `counter-app-init`
-         - Utilise l'image `busybox`
-         - Execute la commande `['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']`
-         - Monte le volume de l'application PHP **Counter** dans le path `/var/www/html`
+      - Le conteneur d'initilisation `initContainers`
+        - A le nom `counter-app-init`
+        - Utilise l'image `busybox`
+        - Execute la commande `['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']`
+        - Monte le volume de l'application PHP **Counter** dans le path `/var/www/html`
       - Le conteneur principal
         - A le nom `counter-app`
         - Utilise l'image  `vladost/php:7.2-apache-redis`
