@@ -915,10 +915,10 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
 		- Utilise un selector sur le label `app: counter`
 		- Transfére le trafic envoyé au port TCP `80` du **Service** sur le port `80` des **Pods** 
 	 - Verifiez le **Service** et les **Endpoints**
-    ```bash
-    $ kubectl get services
-    $ kubectl get endpoints
-    ```
+     ```bash
+     $ kubectl get services
+     $ kubectl get endpoints
+     ```
 
 - **Ingress**
 	- Créez un **Ingress** avec le nom `counter-ingress` qui
