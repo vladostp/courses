@@ -43,7 +43,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 ### Déploiement de Kubernetes avec RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
 	- **Attention !** Vous devez choisir une version stable (release) et non un pre-release !
-- Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`) et lancez la configuration
+- Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`), renommez le fichier en `rke` et lancez la configuration
 	```bash
 	$ ./rke config
 	```
@@ -59,8 +59,8 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 	- Si vous voyez "Finished building Kubernetes cluster successfully", le cluster a été déployé avec succès
 		- Si ce n'est pas le cas, essayez de supprimer et de redéployer le cluster
 		```bash
-		./rke remove
-		./rke up
+		$ ./rke remove
+		$ ./rke up
 		```
 
 ### Installation et configuration de kubectl
@@ -77,7 +77,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
   ```
 - Vérifiez le fonctionnement de `kubectl` en récupérant les informations du nœud de cluster
   ```bash
-  kubectl get nodes
+  $ kubectl get nodes
   ```
   - Quel est l'état des nœuds ?
 
@@ -132,7 +132,7 @@ Ce fichier décrit un Pod qui a les caractéristiques suivantes :
   
 - **Visualisez les logs du pod**
 	```bash
-	kubectl logs NOM_DU_POD
+	$ kubectl logs NOM_DU_POD
 	```
 	- Avec cette commande, vous pouvez consulter depuis le nœud Master les logs de tout Pod lancé sur le cluster K8s. 
     - Vous n'avez donc plus besoin de vous connecter en **ssh** au Worker exécutant le Pod.
@@ -250,11 +250,10 @@ spec:
     $ curl -I 127.0.0.1:[node_port]
     ```
 
-- **Vérifier que le service est accessible depuis le Pod `nginx-pod` créé précédemment  
-    - Le service doit être accessible en utilisant son nom `nginx-service` comme un nom DNS depuis le **Pod** `nginx-pod`. 
+- **Vérifier que le service est accessible depuis le Pod `nginx-pod` créé précédemment**
+    - Le service doit être accessible en utilisant son nom `nginx-service` comme un nom DNS depuis le **Pod** `nginx-pod` 
     - Vous pouvez faire une requête avec `curl` sur `http://nginx-service` depuis le **Pod** `nginx-pod`
-	- Pour exécuter une commande dans un **Pod**, vous pouvez utiliser `kubectl exec -it nginx-pod -- sh`.
-
+	  - Pour exécuter une commande dans le **Pod** `nginx-pod`, vous pouvez utiliser `kubectl exec -it nginx-pod -- sh`
 
 ### Rolling Updates
 Imaginez que vous avez une nouvelle version de l'application à déployer et vous voulez le faire sans aucune interruption de service.
@@ -336,7 +335,7 @@ Pour cela, vous devez récupérer l'historique de déploiement et choisir la ré
 Vous pouvez revenir à une révision particulière du déploiement en utilisant l'option `--to-revision` de la commande `kubectl rollout undo`.
 
 - **Revenez à la révision 2 du déploiement**
-    - Quelle commande avez-vous utilisée ?
+    - Quelle commande avez-vous utilisé ?
 
 
 ### Volumes
@@ -345,7 +344,7 @@ Dans cette section, vous allez manipuler le mécanisme des volumes persistants p
 
 La création d'un volume et son attribution à un **Pod** se font en plusieurs étapes.
 Tout d'abord, un objet "Persistent Volume" doit être créé. Cette tâche est généralement effectuée par l'administrateur du cluster.
-Dans le cadre de ce TP, vous allez créer un volume de type `local` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de 200Mi.
+Dans le cadre de ce TP, vous allez créer un volume persistant de type `local` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de 200Mi.
 
 Créez le fichier `pv.yml`
 ```yaml
@@ -384,7 +383,7 @@ Kubernetes ajoute une couche d'abstraction - l'objet **PersistentVolumeClaim**.
 Cet objet peut être vu comme une demande de stockage et peut être attaché à un **Pod**. 
 Cette abstraction permet de découpler les volumes mis à disposition par les administrateurs K8s et les demandes d'espace de stockage des développeurs pour leurs applications.
 
-Nous allons demander un volume qui a au moins 100 Mi de stockage et qui peut être montée en lecture-écriture par un seul nœud.
+Vous allez demander 100 Mi de stockage qui peut être monté en lecture-écriture par un seul nœud en créant un objet **PersistentVolumeClaim**.
 
 Créez le fichier `pvc.yml`
 ```yaml
@@ -632,16 +631,16 @@ spec:
 
 - **Supprimez le répertoire `/usr/share/nginx` à l'intérieur du Pod `liveness-pod`**
 	```bash
-	kubectl exec -it liveness-pod -- rm -r /usr/share/nginx
+	$ kubectl exec -it liveness-pod -- rm -r /usr/share/nginx
 	```
-	- Cette commande fait échouer la sonde Liveness du **Pod** car le serveur `nginx` ne trouve plus la page d'index et répond avec une erreur 404.
+	- Cette commande provoque l'échec de la sonde Liveness du **Pod** car le serveur `nginx` ne peut plus trouver la page d'index et répond avec une erreur 404.
 
 - **Surveillez les événements et le comportement du Pod `liveness-pod`**
   ```bash
   $ kubectl describe pod liveness-pod
   $ kubectl get pods
   ```
-	- **Que fait Kubernetes en cas d'échec de la liveness probe?**
+	- **Que fait Kubernetes en cas d'échec de la Liveness probe?**
 
 
 #### Readiness probe
@@ -768,13 +767,13 @@ spec:
   $ kubectl apply -f nginx_ingress.yml
   ```
 
-- **Visualisez la liste des Ingress
+- **Visualisez la liste des Ingress**
   ```
   $ kubectl get ingress
   ```
-- Quelles adresses se trouvent dans le colonne `ADDRESS` ? Si vous n'avez rien dans cette colonne, attendez un peu et réexécutez la commande.
+  - Quelles adresses se trouvent dans le colonne `ADDRESS` ? Si vous n'avez rien dans cette colonne, attendez un peu et réexécutez la commande.
 	
-- Essayez d'accéder au **Service** en utilisant le nom DNS précédemment créé à parir de votre navigateur ou en executant la commande `curl`.
+- **Essayez d'accéder au **Service** en utilisant le nom DNS précédemment créé à parir de votre navigateur ou en executant la commande `curl`**
 	- Que pouvez-vous constater ?
 
 ------
@@ -793,11 +792,11 @@ L'application sera composée des deux services :
 	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
 	- Il sera accessible via un **Service**
 - **Le deuxième service est une application simple Counter que nous avons développée pour ce TP**
-	- Ce service va lire et incrémenter le compteur stocké dans la base de données Redis
+	- Ce service lit et incrémente le compteur stocké dans la base de données Redis
 	- Il sera initialisé en récupérant un code source depuis un dépôt Git avec **initContainer**
 	- Le service aura 3 instances
 	- Le `hostname` de Redis sera fourni par une variable d'environnement
-	- Le mot de passe d'authentification **Redis** sera fourni en montant le secret **Redis** en tant que volume
+	- Le mot de passe d'authentification **Redis** sera fourni en montant le Secret **Redis** en tant que volume
 	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
 	- Il sera accessible via un **Ingress**
 
@@ -805,6 +804,7 @@ L'application sera composée des deux services :
 Afin de créer le service Redis décrit dans l'architecture de déploiement, vous devez créer les objets K8s suivants :
 - **PersistantVolume**
 	- Créez un volume persistant avec le nom `redis-pv` , de type `hostPath`,  avec une capacité de stockage de `500Mi` , le mode d'accès `ReadWriteOnce` et un point de montage `/mnt/redis`. Vous pouvez vous inspirer du volume persistant créé précédemment et de la documentation officielle de Kubernetes.
+
 - **PersistantVolumeClaim**
 	- Créez un **PersistantVolumeClaim** avec le nom `redis-pvc` qui demande un stockage avec une capacité de `500Mi` et le mode d'accès `ReadWriteOnce`.
 	- Verifiez que les états de **PersistantVolume** et **PersistantVolumeClaim** sont `Bound`
@@ -812,8 +812,10 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
     $ kubectl get pv
     $ kubectl get pvc
 	  ```
+  
 - **Secret**
 	- Créez le **Secret** avec le nom `redis-secret` qui a un champ nommé `password`. Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authetification **Redis**. N'oubliez pas que les secrets doivent être encodés en `base64`.
+
 - **Deployment**
 	- Créez un déploiement avec le nom `redis-deployment` qui
 		- Crée un seul replica du **Pod**
@@ -822,24 +824,25 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
 			- Volume avec le nom `redis-config` de type `emptyDir` qui sera utilisé pour stocker la configuration **Redis**
 			- Volume avec le nom `redis-data` de `PersistantVolumeClaim` crée précédemment qui sera utilisé pour stocker les données **Redis** 
 		- A deux conteneurs : un d'initialisation et un principal
-		-  Le conteneur d'initilisation `initContainer`
-      - A le nom `redis-config-init`
-			- Utilise l'image `busybox`
-			- Execute la commande `["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"]`
-			- Expose le champ `password` du secret `redis-secret` comme variable d'enviromenet nommée `PASSWORD`
-			- Monte le volume de configuration **Redis** dans le path `/etc/redis/`
-		- Le conteneur principal
-			- A le nom et utilise l'image  `redis`
-			- Execute la commande `["redis-server", "/etc/redis/redis.conf"]`
-			- Monte deux volumes
-				- Volume de configuration **Redis** dans le path `/etc/redis/`
-				- Volume des données **Redis** dans le path `/data`
-			- A une sonde **Liveness** de type `exec` qui exécute la commande `["redis-cli", "ping"]` pour vérifier si l'application fonctionne correctement
+      -  Le conteneur d'initilisation `initContainer`
+         - A le nom `redis-config-init`
+         - Utilise l'image `busybox`
+         - Execute la commande `["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"]`
+         - Expose le champ `password` du secret `redis-secret` comme variable d'enviromenet nommée `PASSWORD`
+         - Monte le volume de configuration **Redis** dans le path `/etc/redis/`
+      - Le conteneur principal
+        - A le nom et utilise l'image  `redis`
+        - Execute la commande `["redis-server", "/etc/redis/redis.conf"]`
+        - Monte deux volumes
+          - Volume de configuration **Redis** dans le path `/etc/redis/`
+          - Volume des données **Redis** dans le path `/data`
+        - A une sonde **Liveness** de type `exec` qui exécute la commande `["redis-cli", "ping"]` pour vérifier si l'application fonctionne correctement
 	- Verifiez le Deployement et le Pod crée
     ```bash
     $ kubectl get deployments
     $ kubectl get pods
     ```
+
 - **Service**
 	- Créez un service de type `ClusterIP` avec le nom `redis-service`  qui
 		- Utilise un selector sur le label `app: redis`
@@ -850,7 +853,7 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
     $ kubectl get endpoints
     ```
 
-Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonctionne correctement. 
+Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonctionne correctement. Pour cela :
 - Créez un deploiement `busybox` avec la commande `kubectl create`
 	```bash
 	$ kubectl create deployment --image=busybox busybox -- sleep 99999999
@@ -878,6 +881,7 @@ Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonction
 
 ### Service Counter
 Afin de créer le service Counter décrit dans l'architecture de déploiement, vous devez créer les objets K8S suivants :
+
 - **Deployment**
 	- Créez un déploiement avec le nom `counter-deployment` qui
 		- Crée un trois replicas des **Pods**
@@ -886,19 +890,19 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
 			- Volume avec le nom `counter-app` de type `emptyDir` qui sera utilisé pour stocker l'application PHP **Counter**
 			- Volume avec le nom `redis-secret` de type **Secret**  qui va utiliser le Secret `redis-secret`
 		- A deux conteneurs : un d'initialisation et un principal
-		-  Le conteneur d'initilisation `initContainers`
-      - A le nom `counter-app-init`
-			- Utilise l'image `busybox`
-			- Execute la commande `['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']`
-			- Monte le volume de l'application PHP **Counter** dans le path `/var/www/html`
-		- Le conteneur principal
-      - A le nom `counter-app`
-			- Utilise l'image  `vladost/php:7.2-apache-redis`
-      - A une variable d'environement nomée `REDIS_HOST` contenant le nom du service Redis `redis-service`
-			- Monte deux volumes
-				- Volume de l'application PHP **Counter** dans le path `/var/www/html`
-				- Volume de Secret `redis-secret` dans le path `/credentials`
-			- A une sonde **Liveness** de type `httpGet` qui sonde le path `/` sur le port `80` pour vérifier si l'application fonctionne correctement
+      -  Le conteneur d'initilisation `initContainers`
+         - A le nom `counter-app-init`
+         - Utilise l'image `busybox`
+         - Execute la commande `['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']`
+         - Monte le volume de l'application PHP **Counter** dans le path `/var/www/html`
+      - Le conteneur principal
+        - A le nom `counter-app`
+        - Utilise l'image  `vladost/php:7.2-apache-redis`
+        - A une variable d'environement nomée `REDIS_HOST` contenant le nom du service Redis `redis-service`
+        - Monte deux volumes
+          - Volume de l'application PHP **Counter** dans le path `/var/www/html`
+          - Volume de Secret `redis-secret` dans le path `/credentials`
+        - A une sonde **Liveness** de type `httpGet` qui sonde le path `/` sur le port `80` pour vérifier si l'application fonctionne correctement
 
 	- Verifiez le Deployement et les Pods crées
     ```bash
@@ -917,18 +921,19 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
     ```
 
 - **Ingress**
-	- Créez un **Ingress** avec le nom `counter-ingress` qui 
+	- Créez un **Ingress** avec le nom `counter-ingress` qui
     - A l'annotation `nginx.ingress.kubernetes.io/rewrite-target: /` (Section `annotations` dans `metadata`)
 		- Redirige les requêtes HTTP envoyées au au path `/counter` vers le port `80` de **Service** `counter-service`
-  - Vous pouvez vous inspirer de l'exemple Ingress `simple-fanout-example` qui est donné dans le cours
+    - Vous pouvez vous inspirer de l'exemple Ingress `simple-fanout-example` qui est donné dans le cours
   - Verifiez l'**Ingress**
-  ```bash
-  $ kubectl get ingress
-  ```
+    ```bash
+    $ kubectl get ingress
+    ```
 
 ### Verification de l'application
-Pour vérifier le fonctionnement de l'application, vous pouvez accéder au service avec votre navigateur en utilisant le nom DNS créé précédemment.
-Pour rappel, vous avez crée un nom DNS de la forme `votrenom.xxxxx.os.univ-lyon1.fr`.
+Pour vérifier le fonctionnement de l'application, vous pouvez essayer d'y accéder avec votre navigateur en utilisant le nom DNS créé précédemment et le préfixe `/counter`.
+  - Pour rappel, vous avez créé précédemment un nom DNS de la forme `votrenom.xxxxx.os.univ-lyon1.fr`.
+
 Pour accéder au service `counter-service`, vous devez ajouter le préfixe `/counter` au nom DNS.
 Si tout a été configuré correctement, vous devriez voir un compteur d'utilisation du service et le nom de l'instance de **Pod** que vous utilisez actuellement sur la page Web de l'application. 
 Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et le changement de nom de l'instance de **Pod**.
