@@ -7,14 +7,14 @@ Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outi
 
 ## Creation de l'infrastructure
 Dans cette section, vous devez créer trois machines virtuelles dans OpenStack avec les caractéristiques suivantes:
-- Image Ubuntu Server 22.04.1 LTS - Docker Ready
 - 2 vCPU
 - 4Go RAM
 - 20Go d'espace disque
+- Réseau `vlan1383` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
 
 Une machine sera le *Master Node (Control Plane)* et deux autres seront des *Worker Nodes*.
 
-Afin de créer une machine avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **snap-tpkube-2022** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **snap-tpkube-2022** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1383` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
 **Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Master Node* sur Tomuss.
 
