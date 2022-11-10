@@ -87,7 +87,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 Dans cette section, vous allez déployer quelques objets Kubernetes sur votre cluster. 
 Pour cela, vous allez créer des fichiers **yml** contenant la description des objets K8s. Ensuite vous allez créer ces objets avec la commande :
 ```bash
-$ kubectl apply -f nom_du_fichier.yaml
+$ kubectl apply -f nom_du_fichier.yml
 ```
 
 ### Création d'un pod
@@ -608,7 +608,7 @@ Dans cette section, vous allez déployer des Pods avec les sondes **Liveness** e
 Kubernetes est capable de vérifier automatiquement si vos applications répondent aux demandes des utilisateurs avec des sondes **Liveness**. 
 Si votre application est bloquée et ne répond pas, K8s la détecte et relance ou recrée le conteneur.
 
-Créez le fichier `liveness_pod.yaml`
+Créez le fichier `liveness_pod.yml`
 ```yaml
 apiVersion: v1
 kind: Pod
