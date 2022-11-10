@@ -945,7 +945,7 @@ Bravo! Vous avez terminé le TP!
 
 --------
 
-## Ce travail a été réalisé par
+## Ce TP a été créé par
 
 - [Vladimir Ostapenco](https://vladost.com/)
 - [Fabien Rico](https://perso.univ-lyon1.fr/fabien.rico/site/)
