@@ -702,17 +702,17 @@ spec:
     ```
 
 - **Etudiez le comportement des Pods avec une sonde Readiness**
-	- Surveillez les pods
-	```bash
-	$ kubectl get pods -o wide
-	```
+  - Surveillez les pods
+  ```bash
+  $ kubectl get pods -o wide
+  ```
   - Que remarquez-vous?
 
   - **Surveillez la liste des endpoints du service**
     ```bash
     $ kubectl get endpoints
     ```
-		- Que remarquez-vous?
+    - Que remarquez-vous?
 
 - **Est-ce que le service répond aux requêtes?**
   ```bash
