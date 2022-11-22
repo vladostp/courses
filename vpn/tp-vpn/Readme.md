@@ -35,7 +35,7 @@ Créez les éléments suivants :
 - Vous pouvez vous inspirer du tutoriel suivant : 
     - https://www.xmodulo.com/create-gre-tunnel-linux.html
 
-**Mettez à jour les règles de routage afin que les machines du réseau A puissent communiquer avec les machines du réseau B.**
+**Mettez à jour les règles de routage afin que les machines du réseau A puissent communiquer avec les machines du réseau B via le tunnel GRE.**
 
 **Visualisez avec Wireshark via SSH les paquets échangés entre le Router 1 et le Router 2. Que pouvez-vous conclure?**
 - Vous pouvez utiliser le Wireshark via SSH avec la commande suivante:
@@ -67,27 +67,29 @@ La configuration manuelle des clés de chiffrement convient à des fins de démo
     - https://www.tecmint.com/setup-ipsec-vpn-with-strongswan-on-debian-ubuntu/
 
 **Vérifiez que les hôtes des deux réseaux puissent se parler.**
-- Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.
+<!---
+- Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.)
 - Pourquoi y a-t-il des problèmes avec le NAT dans cette configuration ?
+--->
 
 **Vérifiez la sécurité des paquets échangés entre les routeurs avec Wireshark.**
 
 ## 5 - OpenVPN
-Dans cette section, vous allez configurer un **OpenVPN** avec une autorité de certification et des certificats.
+Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 comme serveur et le Router 2 et le Host EXT comme clients.
 
 **Supprimez IPSec strongSwan entre les routeurs 1 et 2.**
-- Pour ce faire, restaurez le contenu du fichier ***/etc/ipsec.conf*** depuis ***/etc/ipsec.conf.orig*** et redémarrez ***ipsec***. Si vous n'avez pas enregistré la configuration IPsec par défaut, supprimez le fichier ***/etc/ipsec.conf*** et redémarrez ***ipsec***.
+- Pour ce faire, restaurez le contenu du fichier ***/etc/ipsec.conf*** depuis ***/etc/ipsec.conf.orig*** et redémarrez ***ipsec***. Si vous n'avez pas sauvegardé la configuration IPsec par défaut, supprimez le fichier ***/etc/ipsec.conf*** et redémarrez ***ipsec***.
 
-**Configurez le serveur OpenVPN sur le Routeur 1**
-- Le serveur doit être configuré en **mode TUN** et doit utiliser le protocole **UDP**
-- Commencez par créer l'autorité de certification sur le Routeur 1, vous pouvez vous inspirer du tutoriel suivant (Jusqu'à l'étape 3) :
+**Configurez le serveur OpenVPN sur le Router 1**
+- Le serveur doit être configuré en **mode TUN**, utiliser le protocole **UDP** pour la communication et les certificats pour l'authentification.
+- Commencez par créer l'autorité de certification sur le Router 1, vous pouvez vous inspirer du tutoriel suivant (jusqu'à l'étape 3) :
     - https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04
 - Pour la configuration de la partie serveur, vous pouvez vous inspirer du tutoriel suivant :
     - https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-an-openvpn-server-on-ubuntu-20-04
     - Si vous utilisez ce tutoriel, ne changez pas l'utilisateur et le groupe du serveur OpenVPN
 - Générez les clés et les certificats pour deux clients
 
-**Configurez le serveur OpenVPN pour qu’il annonce la route du réseau A sur chaque client.**
+**Configurez le serveur OpenVPN pour qu’il annonce la route du réseau A pour chaque client.**
 - Pour cela, vous devez configurer une ***push "route"*** dans **server.conf**
 
 **Configurez le Router 2 et le Host EXT comme clients OpenVPN**
@@ -100,17 +102,17 @@ Dans cette section, vous allez configurer un **OpenVPN** avec une autorité de c
     auth SHA256
     ```
 
-**Vérifiez si le Router 2 et Host EXT sont capables de communiquer avec les hôtes du réseau A.**
+**Vérifiez que le Router 2 et Host EXT sont capables de communiquer avec les hôtes du réseau A.**
 
-**Configurez le serveur OpenVPN pour que le réseau B soit accessible par tous les clients OpenVPN via le Routeur 2.**
+**Configurez le serveur OpenVPN pour que le réseau B soit accessible par tous les clients OpenVPN via le Router 2.**
 - Vous pouvez vous inspirer de la section “Including multiple machines on the client side when using a routed VPN (dev tun)” de ce tutoriel: 
     - https://openvpn.net/community-resources/how-to/
 
-**Vérifiez si le Router 1 et le Host EXT sont capables de communiquer avec les hôtes du réseau B.**
+**Vérifiez que le Router 1 et le Host EXT sont capables de communiquer avec les hôtes du réseau B.**
 
-**Vérifiez si les hôtes des deux réseaux peuvent communiquer via le tunnel OpenVPN.**
+**Vérifiez que les hôtes des deux réseaux peuvent communiquer via le tunnel OpenVPN.**
 
-**Vérifiez que l'échange entre le Router 1 et le Router 2 est bien sécurisé.**
+**Vérifiez avec WireShark que l'échange entre le Router 1 et le Router 2 est bien sécurisé.**
 
 ## 6 - BONUS - WireGuard
 Dans cette section, vous allez mettre en place un VPN Wireguard entre les routeurs 1 et 2.
@@ -118,10 +120,10 @@ Dans cette section, vous allez mettre en place un VPN Wireguard entre les routeu
 **Supprimez le VPN OpenVPN.**
 
 **Configurez un VPN Wireguard entre deux routeurs**
-- Vous pouvez-vous inspirez de la documentation officielle de WireGuard https://www.wireguard.com/#conceptual-overview et de l’article https://www.ericlight.com/wireguard-part-one-installation.html
+- Vous pouvez-vous inspirer de la documentation officielle de WireGuard https://www.wireguard.com/#conceptual-overview et de l’article https://www.ericlight.com/wireguard-part-one-installation.html
 
-**Vérifiez si les hôtes des deux réseaux peuvent communiquer via VPN WireGuard.**
+**Vérifiez que les hôtes des deux réseaux peuvent communiquer via VPN WireGuard.**
 
-**Vérifiez que l'échange entre le Router 1 et le Router 2 est bien sécurisé.**
+**Vérifiez avec WireShark que l'échange entre le Router 1 et le Router 2 est bien sécurisé.**
 
 Bravo! Vous avez terminé le TP!
