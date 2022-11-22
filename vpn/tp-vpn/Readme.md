@@ -19,7 +19,7 @@ Créez les éléments suivants :
     - 1 réseau pour le **Network B** avec le sous réseau ***172.19.{Numéro de groupe}.0/24***. Nommez le réseau ***network-b-{numéro de groupe}***
 - 5 machines virtuelles avec 1 vCPU, 2 GB de RAM, l’image Ubuntu 22.04, les interfaces réseau qui font partie des réseaux respectant l'architecture de déploiement et la clé SSH créée précédemment. Nommez les machines en suivant la même logique que pour les réseaux.
 
-**Désactivez dans l’OpenStack la sécurité des ports sur tous les ports des réseaux A et B. **
+**Désactivez dans l’OpenStack la sécurité des ports sur tous les ports des réseaux A et B.**
 - *Network -> Networks -> {Nom du réseau} -> Ports -> Edit Port -> Décochez Port Security*
 - Si vous ne faites pas cela, Openstack bloquera tout le trafic avec des adresses IP qui ne sont pas incluses dans les sous-réseaux précédemment configurés.
 
