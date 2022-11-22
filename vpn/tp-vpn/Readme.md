@@ -32,7 +32,8 @@ Créez les éléments suivants :
 
 ## 2 - Tunnel GRE
 **Configurez un tunnel GRE entre Router 1 et Router 2.**
-- Vous pouvez vous inspirer du tutoriel suivant : https://www.xmodulo.com/create-gre-tunnel-linux.html
+- Vous pouvez vous inspirer du tutoriel suivant : 
+    - https://www.xmodulo.com/create-gre-tunnel-linux.html
 
 **Mettez à jour les règles de routage afin que les machines du réseau A puissent communiquer avec les machines du réseau B.**
 
