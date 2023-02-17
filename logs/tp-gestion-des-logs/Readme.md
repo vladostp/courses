@@ -237,7 +237,7 @@ Visualisez la page `http://IP_ADDR_MACHINE_ELASITC:5601/status` pour vérifier q
 ##### Installation et configuration de Logstash
 `Logstash` est un agrégateur qui collecte des données à partir de diverses sources d'entrée, exécute différentes transformations, puis les envoie à `Elasticsearch`.
 
-Installez le Logstash.
+Installez le `Logstash`
 ```
 $ sudo apt install logstash
 ```
@@ -295,7 +295,7 @@ output {
 usermod -a -G elasticsearch logstash
 ```
 
-`Logstash` va envoyer des logs directement dans `Elasticsearch`.
+Avec cette configuration, `Logstash` va envoyer des logs directement à `Elasticsearch`.
 
 Démarrez le `logstash` et activez le démarrage automatique
 ```
@@ -307,7 +307,9 @@ Vérifiez avec la commande `journalctl` que `logstash` a démarré sans erreur.
 - Quelle commande utiliserez-vous pour le faire ?
 
 ##### Configuration des agents collecteurs sur Linux
-Dans cette section, vous allez utiliser `Filebeat` comme agent collecteur des logs. Cet agent doit être installe et configuré sur toutes les machines créées au cours de ce TP. Vous allez commencer par la machine `elastic`, car sur cette machine vous devrez effectuer des actions supplémentaires. 
+Dans cette section, vous allez utiliser `Filebeat` comme agent collecteur des logs. Cet agent doit être installe et configuré sur toutes les machines créées au cours de ce TP. 
+
+Vous allez commencer par la machine `elastic`, car sur cette machine vous devrez effectuer des actions supplémentaires. 
 
 Sur toutes les machines **sauf `elastic`** vous devez ajouter les repos `Elastic` dans le gestionnaire des packages `apt`.
 ```
@@ -347,7 +349,7 @@ Dans cette section, vous allez utiliser deux modules :
 - Le module `system` qui collecte les logs `syslog` (`/var/log/syslog`) et les logs d'authentification (`/var/log/auth.log`).
 - Le module `nginx` qui collecte les logs d'accès et les logs d'erreurs du serveur nginx.
 
-Activez le module `system` avec la commande
+Activez le module `system` sur toutes les machines avec la commande
 ```
 $ sudo filebeat modules enable system
 ```
