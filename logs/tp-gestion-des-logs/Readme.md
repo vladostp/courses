@@ -1,8 +1,10 @@
 # TP Gestion des Logs
-## Introduction
-Au cours de ce TP, vous allez manipuler les différents outils de gestion des logs.
+Au cours de ce TP, vous explorerez et implémenterez la gestion des logs sur des machines Linux et Windows.
+Vous commencerez par préparer l'infrastructure, puis vous manipulerez et configurerez les logs sur les machines Linux et Windows.
+Vous finirez par installer et configurer les trois solutions de centralisation de logs vues en cours: **Elastic Stack**, **Graylog** et **Grafana Loki**. 
 
-Nous commencerons par préparer l'infrastructure, puis nous continuerons par la visualisation et la configuration des logs sur les machines Linux et Windows. Nous terminerons par l'installation et la configuration des trois solutions de centralisation de logs vues en cours: **Elastic Stack**, **Graylog** et **Grafana Loki**. 
+**Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées au cours du TP.
+
 ## Préparation de l’infrastructure
 Dans cette section, vous devrez créer 5 machines virtuelles dans OpenStack avec les caractéristiques suivantes:
 - 3 machines Ubuntu 20.04.3, 1 machine Ubuntu 20.04.3 - Docker Ready et 1 machine Windows 10 (BONUS)
@@ -11,32 +13,31 @@ Dans cette section, vous devrez créer 5 machines virtuelles dans OpenStack avec
 - 10GB d’espace disque
 
 Ces machines doivent avoir des hostnames suivants:
-- `[num_etu]-nginx-server` (Ubuntu)
-- `[num_etu]-graylog` (Ubuntu)
-- `[num_etu]-elastic` (Ubuntu)
-- `[num_etu]-loki` (Ubuntu - Docker Ready)
-- `[num_etu]-windows-web-server` (Windows 10) (BONUS)
+- `[num]-nginx-server` (Ubuntu)
+- `[num]-graylog` (Ubuntu)
+- `[num]-elastic` (Ubuntu)
+- `[num]-loki` (Ubuntu - Docker Ready)
+- `[num]-windows-web-server` (Windows 10) (BONUS)
 
-Où `[num_etu]` est votre numéro d'étudiant.
+Où `[num]` est votre numéro d'étudiant ou votre numero de groupe.
 
 ## Logs Linux
-Dans cette section, nous verrons comment fonctionnent les logs Linux. Nous allons visualiser, configurer et générer les logs sur la machine `nginx-server`.
+Dans cette section, vous manipulerez les logs Linux. Vous allez visualiser, configurer et générer les logs sur la machine `nginx-server`.
+Pour commencer, vous devez installer un serveur `nginx` via le gestionnaire de packages `apt`. Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes des utilisateurs.
+
+### Rappel: Architecture des logs de l'espace utilisateur Linux
 
 ![L’architecture des logs de l’espace utilisateur](./linux_logs_arch.jpg)
-
-**L’architecture des logs de l’espace utilisateur**
-
-Pour commencer, vous devez installer un serveur `nginx` via le gestionnaire de packages `apt`. Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes des utilisateurs.
 
 ### Rsyslog
 `Rsyslog` est une implémentation du protocol `syslog` et est fourni par défaut sur la plupart des systèmes Linux modernes. `Syslog` est utilisé comme un standard pour produire, transmettre et collecter des logs.
 
-Rsyslog récupère les logs de l’espace noyau et du journal de systemd et les persiste dans des fichiers.
-
+`Rsyslog` récupère les logs de l’espace noyau et du journal de systemd et les persiste dans des fichiers.
 
 Analysez les fichiers de configuration de `rsyslog` (`/etc/rsyslog.conf` et les fichiers dans `/etc/rsyslog.d/`). 
 - Quels modules sont activés par défaut et que font-ils?
-- Quelles logs sont écrites dans le fichier “/var/log/syslog”?
+- Comment les filtres sont-ils définis dans les fichiers de configuration et à quoi servent-ils ? Que signifie le filtre `*.*`?
+- Quelles logs sont écrites dans le fichier `/var/log/syslog`?
 - Dans quel fichier sont écrits les logs du noyau?
 
 Configurez `rsyslog` pour qu’il envoie tous les logs contenant le mot `ssh` dans le fichier `/var/log/ssh.log`. (Créez un fichier de configuration dans `/etc/rsyslog.d/`, n’oubliez pas de redémarrer le `rsyslog`).
@@ -89,14 +90,18 @@ Configurez la rotation pour le fichier `/var/log/ssh.log`. La rotation doit avoi
 - Que mettez-vous dans le fichier de configuration?
 
 Vérifiez si votre configuration est correcte et est prise en compte avec la commande `sudo logrotate /etc/logrotate.conf --debug`. 
-- Que fait cette commande?
+- Que renvoie cette commande ?
+- Trouvez un moyen de forcer le `logrotate` et vérifiez que la rotation pour le fichier `/var/log/ssh.log` a été bien effectuée.
+  - Quelle commande utiliserez-vous pour le faire ?
+  - Le fichier `/var/log/ssh.log` a-t-il été compressé ?
+- Generez des logs contenant `ssh` et exécutez à nouveau le `logrotate` forcé. Que pouvez-vous remarquer ?
 
 ### Fail2ban
 Dans cette section, vous allez installer et configurer l’outil `fail2ban`. Cet outil analyse les fichiers logs et interdit les adresses IP qui montrent les signes malveillants. 
 
 Installez l’outil `fail2ban` via le gestionnaire des packages `apt`.
 
-#### Les filtres
+#### Les filtresi
 `Fail2ban` est fourni par défaut avec plusieurs filtres.
 Les filtres sont généralement des expressions régulières qui sont utilisées pour détecter les tentatives d'effraction, les échecs de mot de passe, etc. Les filtres sont stockés dans `/etc/fail2ban/filter.d`. 
 
@@ -139,7 +144,7 @@ Sauvegardez et effacez les logs de sécurité, puis ouvrez le fichier sauvegard�
 - Dans quelle catégorie le fichier de logs ouvert apparaît-il?
 
 ## Centralisation des logs
-Dans cette section, vous allez planifier et effectuer la centralisation des logs de toutes les machines créées auparavant. Pour cela vous allez déployer et utiliser les 3 solutions de centralisation des logs vues en cours.
+Dans cette section, vous allez planifier et configurer la centralisation des logs de toutes les machines en utilisant les 3 solutions de centralisation des logs vues en cours.
 - Pourquoi est-il important de centraliser les logs?
 
 ### Planification de collecte des logs
@@ -149,7 +154,7 @@ Pour les machines Linux, nous allons collecter et envoyer les logs `syslog`, les
 
 Pour la machine Windows - tous les `Event Logs`.
 
-- Dans un environnement de production avec un volume de logs très important, cette stratégie est-elle viable?
+- Dans un environnement de production avec une très grande quantité de logs, cette stratégie est-elle viable ?
 
 Pour collecter et envoyer les logs des machines, vous allez utiliser un agent. 
 
@@ -174,79 +179,60 @@ Dans cette section, vous allez installer `Elasticsearch`, `Kibana` et `Logstash`
 
 Installez `Elasticsearch` avec les commandes suivantes
 ```
-$ curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-$ echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+$ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 $ sudo apt update
 $ sudo apt install elasticsearch
 ```
+**Attention!** Lors de l'installation, `elasticsearch` génère un mot de passe pour le superutilisateur `elastic`. Conservez ce mot de passe car il vous sera nécessaire dans la suite du TP !
 
-Démarrez `Elasticsearch` et activez le démarrage automatique. 
+Démarrez `Elasticsearch` et activez le démarrage automatique au démarrage du système. 
 ```
+$ sudo systemctl daemon-reload
 $ sudo systemctl start elasticsearch
 $ sudo systemctl enable elasticsearch
 ```
 
-Ensuite, testez que `Elasticsearch` a démarré avec succès en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
+Vérifiez avec la commande `journalctl` que `elasticsearch` a démarré sans erreur.
+- Quelle commande utiliserez-vous pour le faire ?
+
+Ensuite, testez que `Elasticsearch` fonctionne et repond aux requêtes en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
 ```
-$ curl -X GET "localhost:9200"
+$ curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
 ```
 - Quel est le résultat de la commande `curl`?
 
 ##### Installation et configuration de Kibana
 `Kibana` est une interface Web qui permet de visualiser et d’analyser les données stockées dans `Elasticsearch`.
 
-Installez et démarrez Kibana.
+Installez, démarrez `Kibana` et activez le démarrage automatique au démarrage du système.
 ```
 $ sudo apt install kibana
 $ sudo systemctl enable kibana
 $ sudo systemctl start kibana
 ```
 
-Étant donné que `Kibana` est configuré pour écouter uniquement sur `localhost`, nous devons configurer un reverse proxy pour autoriser l'accès externe. Nous allons utiliser `nginx` comme reverse proxy.
+Vérifiez avec la commande `journalctl` que `kibana` a démarré sans erreur.
+- Quelle commande utiliserez-vous pour le faire ?
 
-Installez nginx
-```
-$ sudo apt install nginx
-```
+Étant donné que `Kibana` est configuré par défaut pour n'écouter que sur `localhost`, afin d'y accéder, nous devons le configurer pour écouter sur l'adresse IP de la machine `elastic`.Pour cela, décommentez `server.host` dans le fichier de configuration `/etc/kibana/kibana.yml` et mettez l'adresse IP de la machine `elastic` au lieu de `localhost`. Redémarrez le service `kibana`.
 
-`Kibana` ne propose pas de l’authentification dans sa version gratuite, mais nous pouvons l’ajouter avec un reverse proxy.
+Vérifiez que le port `5601` de la machine `elastic` est bien ouvert dans `Openstack`.
 
-Pour ce faire, vous allez créer un utilisateur et un mot de passe administrateur. 
-```
-$ echo "kibanaadmin:`openssl passwd -apr1`" | sudo tee -a /etc/nginx/htpasswd.users
-```
+Accédez à `Kibana` via un navigateur Web en utilisant l’adresse IP de la machine `elastic` et le port `5601`.
 
-Configurez le reverse proxy `nginx`. Pour ce faire, créez le fichier de configuration nginx `/etc/nginx/sites-available/kibana`
-```
-server {
-    listen 80;
-
-    auth_basic "Restricted Access";
-    auth_basic_user_file /etc/nginx/htpasswd.users;
-
-    location / {
-        proxy_pass http://localhost:5601;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
+Kibana demandera un enrollment token qui peut être généré en exécutant sur la machine `elastic` la commande
+```bash
+/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
 ```
 
-Supprimez la configuration `nginx` par défaut et activez la nouvelle configuration
-```
-$ sudo rm /etc/nginx/sites-enabled/default
-$ sudo ln -s /etc/nginx/sites-available/kibana /etc/nginx/sites-enabled/kibana
-$ sudo systemctl reload nginx
-```
+Générez le enrollment token, fournissez-le à `Kibana`. 
 
-Vérifiez que le port `80` de la machine `elastic` est bien ouvert dans `Openstack`.
+Le code de vérification sera disponible dans les logs du service `kibana`. Vous pouvez le récupérer via `journalctl`.
 
-Accédez à `Kibana` via un navigateur Web en utilisant l’adresse IP de la machine `elastic` et l’utilisateur administrateur créé précédemment. 
+Authentifiez-vous avec l'utilisateur `elastic` et le mot de passe qui a été donné lors de l'installation `elasticsearch`.
 
-Visualisez la page `http://IP_ADDR_MACHINE_ELASITC/status` pour vérifier que tout fonctionne correctement.
+Visualisez la page `http://IP_ADDR_MACHINE_ELASITC:5601/status` pour vérifier que tout fonctionne correctement.
 
 ##### Installation et configuration de Logstash
 `Logstash` est un agrégateur qui collecte des données à partir de diverses sources d'entrée, exécute différentes transformations, puis les envoie à `Elasticsearch`.
@@ -256,11 +242,11 @@ Installez le Logstash.
 $ sudo apt install logstash
 ```
 
-Lorsque vous configurez `Logstash`, il peut être utile de voir `Logstash` comme un pipeline qui prend des données à une extrémité, les traite d’une manière ou d’une autre et les envoie à sa destination. 
+`Logstash` peut être vu comme un pipeline qui prend des données à une extrémité, les traite d'une manière ou d'une autre et les envoie à sa destination.
 
 Un pipeline `Logstash` a deux éléments obligatoires, ***une entrée*** et ***une sortie***, et un élément facultatif, ***un filtre***. 
 
-Pour configurer ce pipeline, vous allez créer deux fichiers de configuration. Un fichier pour configurer l'entrée et l’autre fichier pour configurer la sortie.
+Pour configurer ce pipeline, vous devez créer deux fichiers de configuration. Un fichier pour configurer l'entrée et l’autre fichier pour configurer la sortie.
 
 Créez le fichier de configuration de l'entrée `/etc/logstash/conf.d/01-beats-input.conf`
 ```
@@ -281,22 +267,35 @@ Créez le fichier de configuration de la sortie
 output {
   if [@metadata][pipeline] {
     elasticsearch {
-    hosts => ["localhost:9200"]
-    manage_template => false
-    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
-    pipeline => "%{[@metadata][pipeline]}"
+      hosts => ["localhost:9200"]
+      user => elastic
+      password => "MOT_DE_PASSE"
+      cacert => "/etc/elasticsearch/certs/http_ca.crt"
+      ssl => true
+      manage_template => false
+      index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+      pipeline => "%{[@metadata][pipeline]}"
     }
   } else {
     elasticsearch {
-    hosts => ["localhost:9200"]
-    manage_template => false
-    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+      hosts => ["localhost:9200"]
+      user => elastic
+      password => "MOT_DE_PASSE"
+      cacert => "/etc/elasticsearch/certs/http_ca.crt"
+      ssl => true
+      manage_template => false
+      index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
     }
   }
 }
 ```
+- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe donné lors de l'installation `elasticsearch`.
+- Pour que `logstash` ait accès au certificat `/etc/elasticsearch/certs/http_ca.crt`, vous devez ajouter l'utilisateur `logstash` dans le groupe `elasticsearch` avec la commande.
+```bash
+usermod -a -G elasticsearch logstash
+```
 
-`Logstash` doit envoyer des logs directement dans `Elasticsearch`.
+`Logstash` va envoyer des logs directement dans `Elasticsearch`.
 
 Démarrez le `logstash` et activez le démarrage automatique
 ```
@@ -304,13 +303,16 @@ $ sudo systemctl start logstash
 $ sudo systemctl enable logstash
 ```
 
+Vérifiez avec la commande `journalctl` que `logstash` a démarré sans erreur.
+- Quelle commande utiliserez-vous pour le faire ?
+
 ##### Configuration des agents collecteurs sur Linux
 Dans cette section, vous allez utiliser `Filebeat` comme agent collecteur des logs. Cet agent doit être installe et configuré sur toutes les machines créées au cours de ce TP. Vous allez commencer par la machine `elastic`, car sur cette machine vous devrez effectuer des actions supplémentaires. 
 
-Sur toutes les machines sauf `elastic` vous devez ajouter les repos `Elastic` dans le gestionnaire des packages `apt`.
+Sur toutes les machines **sauf `elastic`** vous devez ajouter les repos `Elastic` dans le gestionnaire des packages `apt`.
 ```
-$ curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-$ echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+$ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 $ sudo apt update
 ```
 
@@ -338,23 +340,32 @@ output.logstash:
 Vous avez configuré la sortie des logs, ils seront envoyés à `Logstash`.
 
 Vous devez maintenant indiquer à `Filebeat` quels logs il doit collecter. Vous avez deux possibilités: 
-- Modifier manuellement le fichier de configuration `Filebeat` et spécifier les fichiers des logs
-- Utiliser des modules `Filebeat`. `Filebeat` supporte plusieurs modules afin d’indiquer les sources des logs et d’étendre ses fonctionnalités
+- Modifier manuellement le fichier de configuration `Filebeat` et spécifier les fichiers des logs.
+- Utiliser des modules `Filebeat`. `Filebeat` supporte plusieurs modules afin d’indiquer les sources des logs et d’étendre ses fonctionnalités.
 
-Dans cette section, nous utiliserons le module `system`, qui collecte les logs `syslog` (`/var/log/syslog`) et les logs d'authentification (`/var/log/auth.log`).
+Dans cette section, vous allez utiliser deux modules :
+- Le module `system` qui collecte les logs `syslog` (`/var/log/syslog`) et les logs d'authentification (`/var/log/auth.log`).
+- Le module `nginx` qui collecte les logs d'accès et les logs d'erreurs du serveur nginx.
+
+Activez le module `system` avec la commande
 ```
 $ sudo filebeat modules enable system
-$ sudo filebeat setup --pipelines --modules system
 ```
+Après l'activation, vous devez spécifier dans le fichier de configuration du module `/etc/filebeat/modules.d/system.yml` quels logs collecter. 
+- Modifiez le fichier de configuration afin que le module collecte les logs syslog et les logs d'autorisation.
 
-Activez le module `nginx` sur les machines avec un serveur `nginx.
-- Quelle commande utiliserez-vous?
+Activez le module `nginx` sur les machines avec un serveur `nginx`. N'oubliez pas de modifier le fichier de configuration du module afin qu'il collecte les logs d'accès et les logs d'erreurs du serveur nginx.
+- Quelle commande utiliserez-vous ?
+- Donnez est le contenu du fichier de configuration du module `nginx`.
 
-Une fois que `Filebeat` connaît quels logs à collecter et où les envoyer, il faut créer un indice pour stocker les logs dans `Elasticsearch` et une description des pipelines de traitement des logs. ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
+Une fois que `Filebeat` connaît quels logs à collecter et où les envoyer, il faut créer un indice pour stocker les logs dans `Elasticsearch` et une description des pipelines de traitement des logs. 
+***Cette opération ne doit être effectuée que sur la machine `elastic`.***
 ```
-$ sudo filebeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]'
-$ sudo filebeat setup --pipelines --modules system,nginx -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]'
+$ ELASTIC_PASSWORD="MOT_DE_PASSE"
+$ sudo filebeat setup --index-management -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E output.logstash.enabled=false
+$ sudo filebeat setup --pipelines -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E output.logstash.enabled=false
 ```
+- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe donné lors de l'installation `elasticsearch`.
 
 Démarrez le `Filebeat` et activez le démarrage automatique
 ```
@@ -362,9 +373,13 @@ $ sudo systemctl start filebeat
 $ sudo systemctl enable filebeat
 ```
 
-Vérifiez si `Elasticsearch` reçoit des données. Pour ce faire, interrogez l'index `Filebeat` avec la commande suivante. ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
+Vérifiez avec la commande `journalctl` que `filebeat` a démarré sans erreur.
+- Quelle commande utiliserez-vous pour le faire ?
+
+Vérifiez si `Elasticsearch` reçoit les logs. Pour ce faire, interrogez `Elasticsearch` avec la commande suivante. 
+***Cette opération ne doit être effectuée que sur la machine `elastic`.***
 ```
-$ curl -XGET 'http://localhost:9200/filebeat-*/_search?pretty'
+$ curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
 ```
 - `Elasticsearch` reçoit-il des données?
 
@@ -374,21 +389,26 @@ Installez et configurez le `Winlogbeat` sur la machine `Windows`.
 Le `Winlogbeat` doit collecter et envoyer tous les `Event Logs`.
 
 #### Visualisation et dashboards dans Kibana
-> **Rappel**: le lien pour accéder à l’instance `Kibana` est `http://ADRESSE_IP_DE_LA_MACHINE_ELASTIC/`
+> **Rappel**: le lien pour accéder à l’instance `Kibana` est `http://ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601/`
 
 ##### Dashboards
 `Filebeat` est livré avec quelques tableaux de bord `Kibana` prédéfinis qui vous permettent d'afficher les données `Filebeat` dans `Kibana`. 
 
-Importez les dashboards dans Kibana avec la commande suivante. ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
+Importez les dashboards dans Kibana avec la commande suivante. 
+***Cette opération ne doit être effectuée que sur la machine `elastic`.***
 ```
-$ sudo filebeat setup -E output.logstash.enabled=false -E output.elasticsearch.hosts=['localhost:9200'] -E setup.kibana.host=localhost:5601
+$ ELASTIC_PASSWORD="MOT_DE_PASSE"
+$ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601
+$ sudo filebeat setup --dashboards -E setup.kibana.host=$KIBANA_HOST setup -E setup.kibana.username=elastic -E setup.kibana.password="$ELASTIC_PASSWORD"
 ```
+- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe donné lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
 
 Trouvez et visualisez le dashboard `[Filebeat System] Syslog dashboard ECS` dans `Kibana`.
 - Quelles autres dashboards de type `[Filebeat System]` sont disponibles dans `Kibana`?
 
 ##### Visualisation
 Visualisez les logs dans l’interface `Kibana`. (`Kibana->Discover`)
+Avant de pouvoir afficher les logs dans `Discover`, créez un data view avec l'index pattern `filebeat-*`.
 
 Trouvez tous les logs provenant de la machine `nginx-server`.
 - Quelle requête utiliserez-vous?
@@ -400,7 +420,7 @@ Si vous envisagez de déployer `Elastic Stack` en production, il faudra penser �
 
 Même si vous avez utilisé `Elastic Stack` pour la centralisation des logs, il est capable de traiter tous types de messages. C'est en partie pourquoi il est relativement difficile à configurer (ajout des pipelines, création des indices et etc).
 
-De plus, de nombreuses fonctionnalités, comme l'alerting, l'authentification, l'apprentissage automatique, ne sont disponibles que dans la version payante.
+De plus, de nombreuses fonctionnalités, comme l'alerting, l'apprentissage automatique, ne sont disponibles que dans la version payante.
 
 Dans la section suivante, vous allez mettre en place une solution spécialement conçue pour la centralisation des logs. Cette solution est plus facile à configurer et à maintenir et possède de nombreuses fonctionnalités intéressantes fournies gratuitement. 
 
