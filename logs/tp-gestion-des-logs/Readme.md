@@ -184,7 +184,7 @@ $ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://ar
 $ sudo apt update
 $ sudo apt install elasticsearch
 ```
-**Attention!** Lors de l'installation, `elasticsearch` génère un mot de passe pour le superutilisateur `elastic`. Conservez ce mot de passe car il vous sera nécessaire dans la suite du TP !
+**Attention!** Lors de l'installation, `elasticsearch` génère un mot de passe pour le superutilisateur `elastic`. Conservez ce mot de passe car vous en aurez besoin plus tard!
 
 Démarrez `Elasticsearch` et activez le démarrage automatique au démarrage du système. 
 ```
@@ -215,7 +215,7 @@ $ sudo systemctl start kibana
 Vérifiez avec la commande `journalctl` que `kibana` a démarré sans erreur.
 - Quelle commande utiliserez-vous pour le faire ?
 
-Étant donné que `Kibana` est configuré par défaut pour n'écouter que sur `localhost`, afin d'y accéder, nous devons le configurer pour écouter sur l'adresse IP de la machine `elastic`.Pour cela, décommentez `server.host` dans le fichier de configuration `/etc/kibana/kibana.yml` et mettez l'adresse IP de la machine `elastic` au lieu de `localhost`. Redémarrez le service `kibana`.
+Étant donné que `Kibana` est configuré par défaut pour n'écouter que sur `localhost`, afin d'y accéder, nous devons le configurer pour écouter sur l'adresse IP de la machine `elastic`. Pour cela, décommentez `server.host` dans le fichier de configuration `/etc/kibana/kibana.yml` et mettez l'adresse IP de la machine `elastic` au lieu de `localhost`. Redémarrez le service `kibana`.
 
 Vérifiez que le port `5601` de la machine `elastic` est bien ouvert dans `Openstack`.
 
@@ -230,7 +230,7 @@ Générez le enrollment token, fournissez-le à `Kibana`.
 
 Le code de vérification sera disponible dans les logs du service `kibana`. Vous pouvez le récupérer via `journalctl`.
 
-Authentifiez-vous avec l'utilisateur `elastic` et le mot de passe qui a été donné lors de l'installation `elasticsearch`.
+Authentifiez-vous avec l'utilisateur `elastic` et le mot de passe qui a été généré lors de l'installation `elasticsearch`.
 
 Visualisez la page `http://IP_ADDR_MACHINE_ELASITC:5601/status` pour vérifier que tout fonctionne correctement.
 
@@ -289,7 +289,7 @@ output {
   }
 }
 ```
-- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe donné lors de l'installation `elasticsearch`.
+- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch`.
 - Pour que `logstash` ait accès au certificat `/etc/elasticsearch/certs/http_ca.crt`, vous devez ajouter l'utilisateur `logstash` dans le groupe `elasticsearch` avec la commande.
 ```bash
 usermod -a -G elasticsearch logstash
@@ -365,7 +365,7 @@ $ ELASTIC_PASSWORD="MOT_DE_PASSE"
 $ sudo filebeat setup --index-management -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E output.logstash.enabled=false
 $ sudo filebeat setup --pipelines -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E output.logstash.enabled=false
 ```
-- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe donné lors de l'installation `elasticsearch`.
+- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch`.
 
 Démarrez le `Filebeat` et activez le démarrage automatique
 ```
@@ -401,7 +401,7 @@ $ ELASTIC_PASSWORD="MOT_DE_PASSE"
 $ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601
 $ sudo filebeat setup --dashboards -E setup.kibana.host=$KIBANA_HOST setup -E setup.kibana.username=elastic -E setup.kibana.password="$ELASTIC_PASSWORD"
 ```
-- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe donné lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
+- Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
 
 Trouvez et visualisez le dashboard `[Filebeat System] Syslog dashboard ECS` dans `Kibana`.
 - Quelles autres dashboards de type `[Filebeat System]` sont disponibles dans `Kibana`?
