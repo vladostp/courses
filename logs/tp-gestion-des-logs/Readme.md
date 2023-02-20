@@ -187,8 +187,8 @@ $ sudo apt install elasticsearch
 Démarrez `Elasticsearch` et activez le démarrage automatique au démarrage du système sur la machine `elastic`.
 ```
 $ sudo systemctl daemon-reload
-$ sudo systemctl enable elasticsearch
 $ sudo systemctl start elasticsearch
+$ sudo systemctl enable elasticsearch
 ```
 
 Vérifiez avec la commande `journalctl` que `elasticsearch` a démarré sans erreur.
@@ -206,8 +206,8 @@ $ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://loc
 Installez, démarrez `Kibana` et activez le démarrage automatique au démarrage du système sur la machine `elastic`.
 ```
 $ sudo apt install kibana
-$ sudo systemctl enable kibana
 $ sudo systemctl start kibana
+$ sudo systemctl enable kibana
 ```
 
 Vérifiez avec la commande `journalctl` que `kibana` a démarré sans erreur.
