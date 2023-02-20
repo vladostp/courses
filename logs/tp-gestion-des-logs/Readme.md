@@ -6,18 +6,14 @@ Vous finirez par installer et configurer les trois solutions de centralisation d
 **Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées au cours du TP.
 
 ## Préparation de l’infrastructure
-Dans cette section, vous devrez créer 5 machines virtuelles dans OpenStack avec les caractéristiques suivantes:
-- 3 machines Ubuntu 22.04.1, 1 machine Ubuntu 22.04.1 - Docker Ready et 1 machine Windows 10 (BONUS)
-- 2 vCPU
-- 4GB RAM
-- 10GB d’espace disque
+Dans cette section, vous devrez créer 5 machines virtuelles dans OpenStack.
 
-Ces machines doivent avoir des hostnames suivants:
-- `[num]-nginx-server` (Ubuntu)
-- `[num]-graylog` (Ubuntu)
-- `[num]-elastic` (Ubuntu)
-- `[num]-loki` (Ubuntu - Docker Ready)
-- `[num]-windows-web-server` (Windows 10) (BONUS)
+Ces machines doivent avoir les noms d'hôte et les caractéristiques suivants :
+- `[num]-nginx-server` (Ubuntu 22.04.1, 2vCPU, 4GB RAM, 10GB d’espace disque)
+- `[num]-graylog` (Ubuntu 22.04.1, 2vCPU, 8GB RAM, 20GB d’espace disque)
+- `[num]-elastic` (Ubuntu 22.04.1, 4vCPU, 16GB RAM, 20GB d’espace disque)
+- `[num]-loki` (Ubuntu 22.04.1 - Docker Ready, 2vCPU, 4GB RAM, 10GB d’espace disque)
+- `[num]-windows-web-server` (Windows 10, 2vCPU, 8GB RAM, 20GB d’espace disque) (BONUS)
 
 Où `[num]` est votre numéro d'étudiant ou votre numero de groupe.
 
@@ -153,7 +149,7 @@ Comme dans le cadre de ce TP la volumétrie des logs n'est pas importante, nous 
 Pour les machines Linux, nous allons collecter et envoyer les logs `syslog`, les logs d'authentification et les logs du serveur `nginx`.
 
 Pour la machine Windows - tous les `Event Logs`.
-
+clear
 - Dans un environnement de production avec une très grande quantité de logs, cette stratégie est-elle viable ?
 
 Pour collecter et envoyer les logs des machines, vous allez utiliser un agent. 
@@ -163,7 +159,9 @@ Pour collecter et envoyer les logs des machines, vous allez utiliser un agent.
 Pour faciliter le travail dans le cadre de ce TP, nous n'allons pas configurer d'authentification ou de canaux sécurisés pour transférer les logs. En revanche, c’est obligatoire en production, car les logs peuvent contenir des informations sensibles.
 
 ### Elastic Stack
-`Elastic Stack` est une solution de monitoring et de gestion des logs très populaire. De manière plus générale, cette solution permet de récupérer des données de manière fiable et sécurisée à partir de n'importe quelle source, dans n'importe quel format, puis de les rechercher, les analyser et les visualiser en temps réel. Mais nous limiterons son utilisation à la centralisation et à l'agrégation des logs. 
+`Elastic Stack` est une solution de monitoring et de gestion des logs très populaire. 
+De manière plus générale, cette solution permet de récupérer des données de manière fiable et sécurisée à partir de n'importe quelle source, dans n'importe quel format, puis de les rechercher, les analyser et les visualiser en temps réel. 
+Mais nous limiterons son utilisation à la centralisation et à l'agrégation des logs. 
 
 Dans cette partie, vous allez donc déployer et configurer un `Elastic Stack`. 
 
@@ -186,11 +184,11 @@ $ sudo apt install elasticsearch
 ```
 **Attention!** Lors de l'installation, `elasticsearch` génère un mot de passe pour le superutilisateur `elastic`. Conservez ce mot de passe car vous en aurez besoin plus tard!
 
-Démarrez `Elasticsearch` et activez le démarrage automatique au démarrage du système. 
+Démarrez `Elasticsearch` et activez le démarrage automatique au démarrage du système sur la machine `elastic`.
 ```
 $ sudo systemctl daemon-reload
-$ sudo systemctl start elasticsearch
 $ sudo systemctl enable elasticsearch
+$ sudo systemctl start elasticsearch
 ```
 
 Vérifiez avec la commande `journalctl` que `elasticsearch` a démarré sans erreur.
@@ -198,14 +196,14 @@ Vérifiez avec la commande `journalctl` que `elasticsearch` a démarré sans err
 
 Ensuite, testez que `Elasticsearch` fonctionne et repond aux requêtes en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
 ```
-$ curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
+$ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
 ```
 - Quel est le résultat de la commande `curl`?
 
 ##### Installation et configuration de Kibana
 `Kibana` est une interface Web qui permet de visualiser et d’analyser les données stockées dans `Elasticsearch`.
 
-Installez, démarrez `Kibana` et activez le démarrage automatique au démarrage du système.
+Installez, démarrez `Kibana` et activez le démarrage automatique au démarrage du système sur la machine `elastic`.
 ```
 $ sudo apt install kibana
 $ sudo systemctl enable kibana
@@ -215,15 +213,19 @@ $ sudo systemctl start kibana
 Vérifiez avec la commande `journalctl` que `kibana` a démarré sans erreur.
 - Quelle commande utiliserez-vous pour le faire ?
 
-Étant donné que `Kibana` est configuré par défaut pour n'écouter que sur `localhost`, afin d'y accéder, nous devons le configurer pour écouter sur l'adresse IP de la machine `elastic`. Pour cela, décommentez `server.host` dans le fichier de configuration `/etc/kibana/kibana.yml` et mettez l'adresse IP de la machine `elastic` au lieu de `localhost`. Redémarrez le service `kibana`.
+Étant donné que `Kibana` est configuré par défaut pour n'écouter que sur `localhost`, afin d'y accéder, nous devons le configurer pour écouter sur l'adresse IP de la machine `elastic`. 
+Nous allons également changer le port de Kibana en `8080`, afin que nous puissions y accéder via le VPN.
 
-Vérifiez que le port `5601` de la machine `elastic` est bien ouvert dans `Openstack`.
+Pour cela, décommentez `server.port` et `server.host` dans le fichier de configuration `/etc/kibana/kibana.yml` et mettez le port `8080` et l'adresse IP de la machine `elastic`.
+Redémarrez le service `kibana`.
 
-Accédez à `Kibana` via un navigateur Web en utilisant l’adresse IP de la machine `elastic` et le port `5601`.
+Vérifiez que le port `8080` de la machine `elastic` est bien ouvert dans `Openstack`.
+
+Accédez à `Kibana` via un navigateur Web en utilisant l’adresse IP de la machine `elastic` et le port `8080`.
 
 Kibana demandera un enrollment token qui peut être généré en exécutant sur la machine `elastic` la commande
 ```bash
-/usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+$ sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
 ```
 
 Générez le enrollment token, fournissez-le à `Kibana`. 
@@ -232,12 +234,12 @@ Le code de vérification sera disponible dans les logs du service `kibana`. Vous
 
 Authentifiez-vous avec l'utilisateur `elastic` et le mot de passe qui a été généré lors de l'installation `elasticsearch`.
 
-Visualisez la page `http://IP_ADDR_MACHINE_ELASITC:5601/status` pour vérifier que tout fonctionne correctement.
+Visualisez la page `http://IP_ADDR_MACHINE_ELASITC:8080/status` pour vérifier que tout fonctionne correctement.
 
 ##### Installation et configuration de Logstash
 `Logstash` est un agrégateur qui collecte des données à partir de diverses sources d'entrée, exécute différentes transformations, puis les envoie à `Elasticsearch`.
 
-Installez le `Logstash`
+Installez le `Logstash` sur la machine `elastic`.
 ```
 $ sudo apt install logstash
 ```
@@ -259,7 +261,7 @@ input {
 
 `Logstash` écoutera le port `5044` et attendra les logs au format `Beats`. 
 
-Ouvrez le port `5044` de la machine `elastic` dans `Openstack`.
+Vérifiez que le port `5044` de la machine `elastic` est bien ouvert dans `Openstack`.
 
 Créez le fichier de configuration de la sortie
 `/etc/logstash/conf.d/02-elasticsearch-output.conf`
@@ -292,10 +294,10 @@ output {
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch`.
 - Pour que `logstash` ait accès au certificat `/etc/elasticsearch/certs/http_ca.crt`, vous devez ajouter l'utilisateur `logstash` dans le groupe `elasticsearch` avec la commande.
 ```bash
-usermod -a -G elasticsearch logstash
+$ sudo usermod -a -G elasticsearch logstash
 ```
 
-Avec cette configuration, `Logstash` va envoyer des logs directement à `Elasticsearch`.
+Avec cette configuration, `Logstash` enverra des logs directement à `Elasticsearch` les logs seront stockes dans l'index nommé selon le Beat utilisé et postfixé par la date.
 
 Démarrez le `logstash` et activez le démarrage automatique
 ```
@@ -307,7 +309,8 @@ Vérifiez avec la commande `journalctl` que `logstash` a démarré sans erreur.
 - Quelle commande utiliserez-vous pour le faire ?
 
 ##### Configuration des agents collecteurs sur Linux
-Dans cette section, vous allez utiliser `Filebeat` comme agent collecteur des logs. Cet agent doit être installe et configuré sur toutes les machines créées au cours de ce TP. 
+Dans cette section, vous allez utiliser `Filebeat` comme agent collecteur des logs. 
+Cet agent doit être installe et configuré sur toutes les machines créées au cours de ce TP. 
 
 Vous allez commencer par la machine `elastic`, car sur cette machine vous devrez effectuer des actions supplémentaires. 
 
@@ -353,15 +356,29 @@ Activez le module `system` sur toutes les machines avec la commande
 ```
 $ sudo filebeat modules enable system
 ```
+Vous pouvez voir une liste des modules activés et désactivés en exécutant
+```
+$ sudo filebeat modules list
+```
+
 Après l'activation, vous devez spécifier dans le fichier de configuration du module `/etc/filebeat/modules.d/system.yml` quels logs collecter. 
 - Modifiez le fichier de configuration afin que le module collecte les logs syslog et les logs d'autorisation.
+
+<!---
+Ensuite, nous devons activer les pipelines d'ingestion `Filebeat`, qui analysent et parsent les logs avant de les envoyer à `Logstash`. 
+```
+sudo filebeat setup --pipelines --modules system, nginx
+```
+--->
 
 Activez le module `nginx` sur les machines avec un serveur `nginx`. N'oubliez pas de modifier le fichier de configuration du module afin qu'il collecte les logs d'accès et les logs d'erreurs du serveur nginx.
 - Quelle commande utiliserez-vous ?
 - Donnez est le contenu du fichier de configuration du module `nginx`.
 
-Une fois que `Filebeat` connaît quels logs à collecter et où les envoyer, il faut créer un indice pour stocker les logs dans `Elasticsearch` et une description des pipelines de traitement des logs. 
+Une fois que `Filebeat` connaît quels logs à collecter et où les envoyer, il faut créer le template d'index pour stocker les logs `Filebeat` dans `Elasticsearch` et une description des pipelines de traitement des logs. Un index `Elasticsearch` est une collection de documents qui ont des caractéristiques similaires. Les index sont identifiés par un nom. Le template d'index sera automatiquement appliqué lors de la création d'un nouvel index.
+
 ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
+
 ```
 $ ELASTIC_PASSWORD="MOT_DE_PASSE"
 $ sudo filebeat setup --index-management -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E output.logstash.enabled=false
@@ -381,7 +398,7 @@ Vérifiez avec la commande `journalctl` que `filebeat` a démarré sans erreur.
 Vérifiez si `Elasticsearch` reçoit les logs. Pour ce faire, interrogez `Elasticsearch` avec la commande suivante. 
 ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
 ```
-$ curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
+$ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
 ```
 - `Elasticsearch` reçoit-il des données?
 
@@ -391,7 +408,7 @@ Installez et configurez le `Winlogbeat` sur la machine `Windows`.
 Le `Winlogbeat` doit collecter et envoyer tous les `Event Logs`.
 
 #### Visualisation et dashboards dans Kibana
-> **Rappel**: le lien pour accéder à l’instance `Kibana` est `http://ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601/`
+> **Rappel**: le lien pour accéder à l’instance `Kibana` est `http://ADRESSE_IP_DE_LA_MACHINE_ELASTIC:8080/`
 
 ##### Visualisation des logs
 Visualisez les logs dans l’interface `Kibana`. (`Kibana->Discover`)
@@ -407,8 +424,8 @@ Importez les dashboards dans Kibana avec la commande suivante.
 ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
 ```
 $ ELASTIC_PASSWORD="MOT_DE_PASSE"
-$ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601
-$ sudo filebeat setup --dashboards -E setup.kibana.password="$ELASTIC_PASSWORD" -E setup.kibana.host=$KIBANA_HOST setup -E setup.kibana.username=elastic
+$ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC
+$ sudo filebeat setup --dashboards -E setup.kibana.password="$ELASTIC_PASSWORD" -E setup.kibana.host=$KIBANA_HOST:8080 setup -E setup.kibana.username=elastic
 ```
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
 
