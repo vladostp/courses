@@ -456,7 +456,7 @@ Vous allez installer `Elasticsearch`, `Mongodb` et `Graylog-server` sur la machi
 Installez les composants nécessaires pour `Graylog`.
 ``` 
 $ sudo apt update
-$ sudo apt install apt-transport-https uuid-runtime pwgen
+$ sudo apt install -y apt-transport-https uuid-runtime pwgen
 ```
 
 ##### Installation de MongoDB
@@ -507,7 +507,7 @@ $ sudo systemctl restart elasticsearch.service
 $ sudo systemctl --type=service --state=active | grep elasticsearch
 $ curl -X GET "localhost:9200"
 ```
-- Quel est le résultat de la commande “curl”?
+- Quel est le résultat de la commande `curl`?
 
 ##### Installation et configuration de Graylog
 `Graylog server` est un serveur de collecte et de visualisation des logs. C'est le composant clé de la solution `Graylog`. 
@@ -535,10 +535,10 @@ $ echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | c
 
 Ajoutez ces deux valeurs dans le fichier de configuration 
 `/etc/graylog/server/server.conf`.
-
+<!--
 Par défaut, `Graylog` a besoin de 5 Go de stockage libre pour stocker le journal des messages qui ne sont pas encore écrits dans `Elasticsearch`.
 Comme la machine dispose de peu d'espace de stockage, vous devez également modifier la taille maximale du journal en décommentant l'option `message_journal_max_size` et en lui donnant une valeur plus petite (par exemple 2 Go) dans le `fichier de configuration /etc /graylog/server/server.conf`.
-
+-->
 Pour accéder à l’interface Web `Graylog`, vous allez installer et utiliser un reverse proxy `nginx`.
 
 Installez nginx
@@ -735,7 +735,7 @@ Cliquez sur la petite flèche sur `source_ip`, puis `Show top values` pour affic
 ##### Visualisation des logs
 Jouez avec l'interface de recherche pour comprendre son fonctionnement (la période de recherche, la mise à jour automatique et etc).
 - Quelle requête utilisez-vous pour trouver tous les messages contenant votre adresse IP?
-- Quelle requête utilisez-vous pour trouver tous les messages contenant le champ “source_ip”?
+- Quelle requête utilisez-vous pour trouver tous les messages contenant le champ `source_ip`?
 
 Vous pouvez trouver plus d'informations sur la syntaxe des requêtes ici: 
 - https://go2docs.graylog.org/5-0/making_sense_of_your_log_data/writing_search_queries.html?Highlight=query%20language
