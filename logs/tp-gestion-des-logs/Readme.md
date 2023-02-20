@@ -7,7 +7,7 @@ Vous finirez par installer et configurer les trois solutions de centralisation d
 
 ## Préparation de l’infrastructure
 Dans cette section, vous devrez créer 5 machines virtuelles dans OpenStack avec les caractéristiques suivantes:
-- 3 machines Ubuntu 20.04.3, 1 machine Ubuntu 20.04.3 - Docker Ready et 1 machine Windows 10 (BONUS)
+- 3 machines Ubuntu 22.04.1, 1 machine Ubuntu 22.04.1 - Docker Ready et 1 machine Windows 10 (BONUS)
 - 2 vCPU
 - 4GB RAM
 - 10GB d’espace disque
@@ -760,7 +760,10 @@ L'un des principaux avantages de `Graylog` est qu'il est spécialement conçu po
 De plus, une fois configuré, la plupart des actions peuvent être effectuées via son interface web. Et si vous automatisez le déploiement des agents collecteurs et de `Graylog Sidecar` avec `Puppet` ou `Ansible`, vous ne toucherez presque plus jamais les fichiers de configuration.
 
 ### Grafana Loki (PLG Stack)
-`Grafana Loki` est une solution simple, légère et facile à utiliser. La principale différence avec les solutions vues précédemment est que `Grafana Loki` n'utilise pas `Elasticsearch` pour le stockage des logs. Cette solution n'indexe que les métadonnées et n'indexe pas le contenu des logs donc nécessite moins de ressources pour son fonctionnement. Cette solution est très utilisée pour la centralisation des logs dans un cluster Kubernetes et peut utiliser le stockage objet qui est un type de stockage relativement peu coûteux.
+`Grafana Loki` est une solution simple, légère et facile à utiliser. 
+La principale différence avec les solutions vues précédemment est que `Grafana Loki` n'utilise pas `Elasticsearch` pour le stockage des logs. 
+Cette solution n'indexe que les métadonnées et n'indexe pas le contenu des logs donc nécessite moins de ressources. 
+Cette solution est largement utilisée pour centraliser les logs dans l'environment Kubernetes et peut utiliser le stockage objet, qui est un type de stockage relativement peu coûteux.
 
 Dans cette section, vous allez déployer et configurer la solution de centralisation des logs `Grafana Loki` en mode monolithique avec `Docker`.
 
@@ -768,10 +771,12 @@ Dans cette section, vous allez déployer et configurer la solution de centralisa
 **Architecture de Grafana Loki**
 
 #### Installation et configuration
-Dans cette section, vous allez lancer `Grafana Loki` et `Grafana` dans des containers `Docker` sur la machine `loki`. Ensuite, vous allez installer et lancer le binaire `Promtail` sur chaque machine créée précédemment.
+Dans cette section, vous allez lancer `Grafana Loki` et `Grafana` dans des containers `Docker` sur la machine `loki`. Ensuite, vous allez installer et lancer le `Promtail` sur chaque machine créée précédemment.
 
 ##### Creation des volumes Docker
-Avant de commencer, vous allez créer deux volumes `Docker`. Le premier volume contiendra la base de données `Loki` et le second la configuration de l’interface web `Grafana`. 
+Avant de commencer, vous allez créer deux volumes `Docker`. 
+
+Le premier volume contiendra la base de données `Loki` et le second la configuration de l’interface web `Grafana`. 
 
 L’utilisation des volumes `Docker` est utile pour assurer la persistance en cas de recréation du conteneur.
 ```
@@ -782,7 +787,7 @@ $ docker volume create grafana
 ##### Grafana Loki
 `Grafana Loki` est le composant principal du `Stack PLG`. Il est responsable de l'agrégation et du stockage des logs.
 
-Créez le fichier de configuration `loki-config.yaml` avec le contenu suivant:
+Pour commencer, créez le fichier de configuration `loki-config.yaml` avec le contenu suivant:
 ```
 auth_enabled: false
 
@@ -816,12 +821,12 @@ ruler:
  alertmanager_url: http://localhost:9093
 ```
 
-Lancez Grafana Loki avec Docker
+Lancez `Loki` avec Docker
 ```
-$ docker run -d --name loki -v $(pwd)/loki-config.yaml:/mnt/config/loki-config.yaml -v loki:/loki -p 3100:3100 grafana/loki:2.4.1 -config.file=/mnt/config/loki-config.yaml
+$ docker run -d --name loki -v $(pwd)/loki-config.yaml:/mnt/config/loki-config.yaml -v loki:/loki -p 3100:3100 grafana/loki:2.7.2 -config.file=/mnt/config/loki-config.yaml
 ```
 
-Vérifiez si Grafana Loki a été bien lancé
+Vérifiez si le conteneur `Loki` a été démarré
 ```
 $ docker ps
 ```
@@ -842,9 +847,9 @@ Lancez `Grafana` avec `Docker`
 $ docker run -d --name grafana -e GF_SECURITY_ADMIN_USER=$GF_SECURITY_ADMIN_USER -e GF_SECURITY_ADMIN_PASSWORD=$GF_SECURITY_ADMIN_PASSWORD -v grafana:/var/lib/grafana -p 80:3000 grafana/grafana:latest
 ```
 
-Vérifiez si `Grafana` a été bien lancé
+Vérifiez si le conteneur `Grafana` a été démarré
 ```
-docker ps
+$ docker ps
 ```
 
 L’interface web `Grafana` sera disponible sur `http://ADRESSE_IP_DE_LA_MACHINE_LOKI`.
@@ -854,21 +859,21 @@ Authentifiez-vous avec les identifiants administrateur choisis précédemment.
 
 Ajoutez la source de données `Loki` dans `Grafana` (`Configuration -> Datasources -> Add Datasource -> Loki`). Lors de l'ajout de Loki en tant que source de données, mettez `http://ADRESSE_IP_DE_LA_MACHINE_LOKI:3100` comme URL de Loki et laissez tous les autres paramètres par défaut. Cliquez sur `Save & Test`.
 
-Si tout a été démarré et configuré correctement, vous verrez le message `Data source connected and labels found.`.
-- Avez-vous vu ce message?
+Si tout a été configuré correctement, vous verrez le message `Data source connected...`.
+- Quel est le message complet affiché ?
 
 #### Configuration des sources et des entrées des logs Linux
-Dans cette section, vous allez déployer le binaire et configurer `Promtail` sur toutes les machines Linux créées dans ce TP.
+Dans cette section, vous allez installer et configurer `Promtail` sur toutes les machines Linux créées au cours de ce TP.
 
 Vérifiez si le port `3100` est bien ouvert sur la machine `loki` dans `Openstack`, sinon ouvrez-le.
 
 ##### Installation de Promtail
 Sur chaque machine Linux, exécutez les commandes suivantes
 ```
-sudo apt install -y unzip
-curl -O -L "https://github.com/grafana/loki/releases/download/v2.4.1/promtail-linux-amd64.zip"
-unzip promtail-linux-amd64.zip
-sudo mv promtail-linux-amd64 /usr/local/bin/promtail
+$ sudo apt install -y unzip
+$ wget https://github.com/grafana/loki/releases/download/v2.7.3/promtail-linux-amd64.zip
+$ unzip promtail-linux-amd64.zip
+$ sudo mv promtail-linux-amd64 /usr/local/bin/promtail
 ```
 
 Créez un service `Promtail` dans `systemd`. 
@@ -915,30 +920,34 @@ scrape_configs:
       job: varlogs
       __path__: /var/log/*log
 ```
-- A partir de cette configuration, pouvez-vous dire quels fichiers seront surveillés par `Promtail` pour collecter les logs?
+- À partir de cette configuration, pouvez-vous dire quels fichiers seront surveillés par `Promtail` pour collecter les logs?
 
 Démarrez le service `Promtail`, activez son démarrage automatique et vérifiez s'il fonctionne correctement
 ```
-sudo systemctl daemon-reload
-sudo systemctl start promtail
-sudo systemctl enable promtail
-sudo systemctl status promtail
+$ sudo systemctl daemon-reload
+$ sudo systemctl start promtail
+$ sudo systemctl enable promtail
+$ sudo systemctl status promtail
 ```
 - Avez-vous réussi à démarrer le Promtail ?
 
 N'oubliez pas de configurer et de lancer Promtail sur chaque machine Linux.
 
 #### Visualisation des logs
-Si tout a été configuré correctement, vous devriez pouvoir consulter les logs via `Grafana` dans la section `Explore`. 
+Si tout a été correctement configuré, les logs sont envoyés par chaque instance de `Promtail` dans `Loki`.
+Vous devriez pouvoir les consulter via `Grafana` dans la section `Explore`. 
 
-Utilisez `Log Browser` pour explorer les logs et les étiquettes (`labels`) disponibles.  
-- Quels labels sont disponibles dans le Log Browser?
-- Quelle requête `Loki LogQL` utiliseriez vous pour afficher toutes les logs provenant des fichiers `/var/log/syslog` de toutes les machines?
+Explorez la page `Explore` de `Grafana`.
+- Quelless `labels` sont présentes dans `Loki`?
+- Quelle requête `LogQL` utiliseriez-vous pour afficher toutes les logs provenant des fichiers `/var/log/syslog` de toutes les machines?
+- Quelle requête `LogQL` utiliseriez-vous pour afficher les logs contenant le message `error` proventant de la machine `graylog`?
 
 #### Conclusion
-Dans cette section, vous avez installé et configuré la solution de centralisation des logs `Grafana Loki`. `Grafana Loki` est une solution très légère et adaptée à l'environnement avec des microservices. Cette solution montre toute sa puissance et son potentiel d'évolutivité lorsqu'elle est utilisée dans un cluster `Kubernetes`. 
+Dans cette section, vous avez installé et configuré la solution de centralisation des logs `Grafana Loki`. 
+`Grafana Loki` est une solution très légère et adaptée à l'environnement avec des microservices. 
+Cette solution montre toute sa puissance et son potentiel d'évolutivité lorsqu'elle est utilisée dans un cluster `Kubernetes`. 
 
-`Grafana Loki` est très intéressant pour centraliser les logs d'une petite infrastructure, car il est facile à installer et a peu de composants.
+`Grafana Loki` est un outil très intéressant pour centraliser les logs d'une petite infrastructure, car il est facile à installer et à maintenir.
 
 L'utilisation de `Grafana Loki` peut également être intéressante si votre stack de monitoring est basé sur `Prometheus`. Dans ce cas, vous n'aurez qu'une seule interface web `Grafana` pour consulter les logs et les données de la supervision.
 
