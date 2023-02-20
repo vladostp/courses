@@ -101,7 +101,7 @@ Dans cette section, vous allez installer et configurer l’outil `fail2ban`. Cet
 
 Installez l’outil `fail2ban` via le gestionnaire des packages `apt`.
 
-#### Les filtresi
+#### Les filtres
 `Fail2ban` est fourni par défaut avec plusieurs filtres.
 Les filtres sont généralement des expressions régulières qui sont utilisées pour détecter les tentatives d'effraction, les échecs de mot de passe, etc. Les filtres sont stockés dans `/etc/fail2ban/filter.d`. 
 
@@ -393,27 +393,27 @@ Le `Winlogbeat` doit collecter et envoyer tous les `Event Logs`.
 #### Visualisation et dashboards dans Kibana
 > **Rappel**: le lien pour accéder à l’instance `Kibana` est `http://ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601/`
 
+##### Visualisation des logs
+Visualisez les logs dans l’interface `Kibana`. (`Kibana->Discover`)
+Avant de pouvoir afficher les logs dans `Discover`, créez un data view avec l'index pattern `filebeat-*`.
+
+Trouvez tous les logs provenant de la machine `nginx-server`.
+- Quelle requête utiliserez-vous?
+
 ##### Dashboards
-`Filebeat` est livré avec quelques tableaux de bord `Kibana` prédéfinis qui vous permettent d'afficher les données `Filebeat` dans `Kibana`. 
+`Filebeat` est livré avec quelques tableaux de bord `Kibana` prédéfinis qui vous permettent d'afficher les statistiques créées à partir des logs `Filebeat` dans `Kibana`. 
 
 Importez les dashboards dans Kibana avec la commande suivante. 
 ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
 ```
 $ ELASTIC_PASSWORD="MOT_DE_PASSE"
 $ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC:5601
-$ sudo filebeat setup --dashboards -E setup.kibana.host=$KIBANA_HOST setup -E setup.kibana.username=elastic -E setup.kibana.password="$ELASTIC_PASSWORD"
+$ sudo filebeat setup --dashboards -E setup.kibana.password="$ELASTIC_PASSWORD" -E setup.kibana.host=$KIBANA_HOST setup -E setup.kibana.username=elastic
 ```
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
 
 Trouvez et visualisez le dashboard `[Filebeat System] Syslog dashboard ECS` dans `Kibana`.
 - Quelles autres dashboards de type `[Filebeat System]` sont disponibles dans `Kibana`?
-
-##### Visualisation
-Visualisez les logs dans l’interface `Kibana`. (`Kibana->Discover`)
-Avant de pouvoir afficher les logs dans `Discover`, créez un data view avec l'index pattern `filebeat-*`.
-
-Trouvez tous les logs provenant de la machine `nginx-server`.
-- Quelle requête utiliserez-vous?
 
 #### Conclusion
 Dans cette section, vous avez installé et manipulé `Elastic Stack`. 
@@ -427,8 +427,7 @@ De plus, de nombreuses fonctionnalités, comme l'alerting, l'apprentissage autom
 Dans la section suivante, vous allez mettre en place une solution spécialement conçue pour la centralisation des logs. Cette solution est plus facile à configurer et à maintenir et possède de nombreuses fonctionnalités intéressantes fournies gratuitement. 
 
 ### Graylog
-Dans cette section, vous allez déployer et configurer la solution de centralisation des logs `Graylog` avec son système de gestion centralisée des sources de logs `Graylog Sidecar`
-
+Dans cette section, vous allez déployer et configurer la solution de centralisation des logs `Graylog` avec son système de gestion centralisée des sources de logs `Graylog Sidecar`.
 ![Architecture de Graylog](./graylog_arch.jpg)
 
 **Architecture de Graylog**
@@ -440,32 +439,34 @@ Vous allez installer `Elasticsearch`, `Mongodb` et `Graylog-server` sur la machi
 Installez les composants nécessaires pour `Graylog`.
 ``` 
 $ sudo apt update
-$ sudo apt install apt-transport-https openjdk-8-jre-headless uuid-runtime pwgen
+$ sudo apt install apt-transport-https uuid-runtime pwgen
 ```
 
 ##### Installation de MongoDB
 Installez MongoDB
 ```
-$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --keyserver-options http-proxy=http://proxy.univ-lyon1.fr:3128 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
-$ echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+$ wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+$ echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
 $ sudo apt update
 $ sudo apt install -y mongodb-org
 ```
 
 Activez le démarrage automatique de `MongoDB` lors du démarrage du système et vérifiez qu'il est en cours d'exécution.
 ```
-$ sudo systemctl start mongod
-$ sudo systemctl enable mongod
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable mongod.service
+$ sudo systemctl restart mongod.service
 $ sudo systemctl --type=service --state=active | grep mongod
 ```
 
-##### Installation et configuration de l’Elasticsearch
-`Graylog` ne peut être utilisé qu'avec `Elasticsearch 7.x`. Dans cette section, nous allons installer la version open source `Elasticsearch`.
+##### Installation et configuration de data node
+`Graylog` stocke les logs dans un data node. Le data node peut être `Elasticsearch` ou `OpenSearch`. 
+Les deux sont des moteurs de recherche open source. Dans cette section, vous allez utiliser `Elasticsearch`.
+`Graylog 5.0` ne peut être utilisé qu'avec `Elasticsearch 7.10.2`, vous allez donc installer cette version.
+
 ```
-$ wget -q https://artifacts.elastic.co/GPG-KEY-elasticsearch -O myKey
-$ sudo apt-key add myKey
-$ echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-$ sudo apt-get update && sudo apt-get install elasticsearch-oss
+$ wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.2-amd64.deb
+$ sudo dpkg -i elasticsearch-oss-7.10.2-amd64.deb
 ```
 
 Pour améliorer la sécurité de `Elasticsearch`, nous allons en restreindre l'accès. Pour ce faire, dans `/etc/elasticsearch/elasticsearch.yml`, recherchez la ligne qui spécifie `network.host`, décommentez-la et remplacez sa valeur par `localhost` comme ceci:
@@ -480,32 +481,31 @@ cluster.name: graylog
 action.auto_create_index: false
 ```
 
-Démarrez et configurez le service `Elasticsearch` pour qu'il démarre automatiquement à chaque démarrage du serveur. Ensuite, testez que `Elasticsearch` est fonctionnel en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
+Démarrez et configurez le service `Elasticsearch` pour qu'il démarre automatiquement à chaque démarrage du système d'exploitation. 
+Ensuite, testez que `Elasticsearch` est fonctionnel en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
 ``` 
-$ sudo systemctl start elasticsearch
-$ sudo systemctl enable elasticsearch
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable elasticsearch.service
+$ sudo systemctl restart elasticsearch.service
 $ sudo systemctl --type=service --state=active | grep elasticsearch
 $ curl -X GET "localhost:9200"
 ```
 - Quel est le résultat de la commande “curl”?
 
 ##### Installation et configuration de Graylog
-`Graylog` est un serveur de collecte et de visualisation des logs. C'est le composant clé de la solution `Graylog`. `Graylog server` stocke les données de configuration dans `MongoDB`. `Elasticsearch` est utilisé pour stocker les logs.
+`Graylog server` est un serveur de collecte et de visualisation des logs. C'est le composant clé de la solution `Graylog`. 
+`Graylog server` stocke les données de configuration dans `MongoDB`. `Elasticsearch` est utilisé comme data node pour stocker les logs.
 
 Installez le Graylog Server
 ```
-$ wget https://packages.graylog2.org/repo/packages/graylog-4.2-repository_latest.deb
-$ sudo dpkg -i graylog-4.2-repository_latest.deb
+$ wget https://packages.graylog2.org/repo/packages/graylog-5.0-repository_latest.deb
+$ sudo dpkg -i graylog-5.0-repository_latest.deb
 $ sudo apt-get update && sudo apt-get install graylog-server
 ```
 
-Le fichier de configuration du serveur Graylog est `/etc/graylog/server/server.conf`. 
+Pour pouvoir démarrer le serveur, vous devez au moins configurer les valeurs de `password_secret` et `root_password_sha2` dans le fichier de configuration du serveur Graylog `/etc/graylog/server/server.conf`.
 
-Pour pouvoir démarrer le serveur, vous devez configurer les valeurs de `password_secret` et `root_password_sha2`.
-
-Le `password_secret` est utilisé pour l’encryption de certaines données dans le `MongoDB` (mots des passe utilisateurs).
-
-Générez un `password_secret` avec
+Le `password_secret` est utilisé pour l’encryption de certaines données dans le `MongoDB` (mots des passe utilisateurs)et peut être généré avec
 ```
 $ pwgen -N 1 -s 96
 ```
@@ -518,6 +518,9 @@ $ echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | c
 
 Ajoutez ces deux valeurs dans le fichier de configuration 
 `/etc/graylog/server/server.conf`.
+
+Par défaut, `Graylog` a besoin de 5 Go de stockage libre pour stocker le journal des messages qui ne sont pas encore écrits dans `Elasticsearch`.
+Comme la machine dispose de peu d'espace de stockage, vous devez également modifier la taille maximale du journal en décommentant l'option `message_journal_max_size` et en lui donnant une valeur plus petite (par exemple 2 Go) dans le `fichier de configuration /etc /graylog/server/server.conf`.
 
 Pour accéder à l’interface Web `Graylog`, vous allez installer et utiliser un reverse proxy `nginx`.
 
@@ -559,24 +562,24 @@ http_external_uri = http://ADRESSE_IP_DE_LA_MACHINE_GRAYLOG/
 
 Démarrez et testez Graylog-server
 ```
-$ sudo systemctl enable graylog-server
-$ sudo systemctl start graylog-server
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable graylog-server.service
+$ sudo systemctl start graylog-server.service
 $ sudo systemctl --type=service --state=active | grep graylog
 ```
 
 Attendez une minute et vérifiez si l’interface Web `Graylog` fonctionne correctement. 
 
 L’interface web `Graylog` doit être disponible à l’adresse `http://ADRESSE_IP_DE_LA_MACHINE_GRAYLOG/`
-- L'interface Web Graylog fonctionne-t-elle ?
-
 Vous pouvez vous authentifier sur l'interface web `Graylog` avec l'utilisateur admin et le mot de passe créé précédemment.
+- L'interface Web Graylog fonctionne-t-elle ? Quelle page voyez-vous après la connexion ?
 
 #### Configuration de Graylog Sidecar sur Linux
-Dans cette section, nous n’allons pas configurer les collecteurs de logs manuellement comme nous l'avons fait pour `Elastic Stack`. 
+Dans cette section, vous ne configurerez pas les collecteurs de logs manuellement comme nous l'avons fait pour `Elastic Stack`. 
 
-Au lieu de cela, nous allons automatiser et centraliser la gestion de la configuration avec `Graylog Sidecar`. 
+Au lieu de cela, vous allez automatiser et centraliser la gestion de la configuration avec `Graylog Sidecar`. 
 
-Pour ce faire, nous allons installer le collecteur de logs `Filebeat`, si cela n'a pas été fait précédemment, et le gestionnaire de configuration `Graylog Sidecar` sur chaque machine. 
+Pour ce faire, vous allez installer le collecteur de logs `Filebeat`, si cela n'a pas été fait précédemment, et le gestionnaire de configuration `Graylog Sidecar` sur chaque machine. 
 
 ![Fonctionnement de Graylog avec Sidecar](./graylog_sidecar_arch.jpg)
 
@@ -586,16 +589,16 @@ La configuration des sources des logs sera stockée dans la base de données `Gr
 
 Le `Graylog Sidecar` contacte périodiquement l’API REST du serveur `Graylog` afin de récupérer la configuration et lance le collector de logs avec cette configuration.
 
-Dans notre cas, `Graylog Sidecar` récupérera la configuration du serveur `Graylog` et lancera une instance Filebeat` avec cette configuration.
+Dans notre cas, `Graylog Sidecar` récupérera la configuration du serveur `Graylog` et lancera une instance `Filebeat` avec cette configuration.
 
 ##### Installation de Filebeat
-Si vous avez effectué la partie de TP sur `Elastic Stack`. Le `Filebeat` doit déjà être présent sur toutes les machines. Sinon, vous trouverez les instructions d’installation de `Filebeat` dans la section sur `Elastic Stack`.
+Si vous avez effectué la partie de TP sur `Elastic Stack`, le `Filebeat` devrait déjà être présent sur toutes les machines. Sinon, vous trouverez les instructions pour installer `Filebeat` dans la section sur `Elastic Stack`.
 
 ##### Installation de Graylog Sidecar
 Installez le `Graylog Sidecar`
 ```
-$ wget https://packages.graylog2.org/repo/packages/graylog-sidecar-repository_1-2_all.deb
-$ sudo dpkg -i graylog-sidecar-repository_1-2_all.deb
+$ wget https://packages.graylog2.org/repo/packages/graylog-sidecar-repository_1-5_all.deb
+$ sudo dpkg -i graylog-sidecar-repository_1-5_all.deb
 $ sudo apt-get update && sudo apt-get install graylog-sidecar
 ```
 
@@ -639,9 +642,12 @@ Configurez une entrée de type `Beats`, nommez l’entrée et laissez tous les a
 Par défaut, le port pour l’entrée de type `Beats` est `5044`. Ouvrez ce port pour la machine `graylog”` dans `Openstack`.
 
 ##### Configuration des sources
-Pour envoyer les logs des machines vers le serveur `Graylog`, vous allez créer et attribuer la configuration des sources de logs via l'interface web `Graylog`. Cette configuration sera récupérée par `Graylog Sidecar` de chaque machine. Une instance de `Filebeat` avec la bonne configuration sera automatiquement lancée sur chaque machine. Ensuite, les journaux seront envoyés par `Filebeat` au serveur `Graylog`. 
+Pour envoyer les logs au serveur `Graylog`, vous allez créer et attribuer la configuration des sources de logs via l'interface web `Graylog`. 
+Cette configuration sera récupérée par `Graylog Sidecar` de chaque machine.
+Ensuite, `Graylog Sidecar` lancera une instance de `Filebeat` avec cette configuration sur chaque machine. 
+Comme résultat, les logs seront envoyés par `Filebeat` lancé sur chaque machine au serveur `Graylog`.
 
-Pour commencer, vous devez créer une configuration `Filebeat` dans l’interface web Graylog. (`System -> Sidecars -> Manage Sidecar -> Configuration -> Create Configuration`)
+Pour commencer, vous devez créer une configuration `Filebeat` dans l’interface web Graylog. (`System -> Sidecars -> Manage Sidecar -> filebeat -> Assign COnfigurations -> Add a new configuration`)
 
 Créez une configuration pour le collector `filebeat on Linux`. Configurez les inputs et l’output Filebeat. 
 
@@ -656,7 +662,8 @@ Le Filebeat doit tout envoyer au `ADRESSE_IP_DE_LA_MACHINE_GRAYLOG:5044` (Ne cha
 
 Puis, il faut attribuer la configuration créée à un `Graylog Sidecar`. (`System -> Sidecars -> Manage sidecar`).
 
-Pour ce faire, il faut choisir `filebeat`, cliquer sur `Configure` et choisir la configuration créée précédemment. Après la confirmation, `Graylog Sidecar` récupérera cette configuration et lancera `Filebeat`.
+Pour ce faire, il faut choisir `filebeat`, cliquer sur `Assign Configurations` et choisir la configuration créée précédemment. 
+Après la confirmation, `Graylog Sidecar` récupérera cette configuration et lancera `Filebeat`.
 
 Si tout à été correctement configuré, vous allez voir le status de `Filebeat` `Running` et vous allez pouvoir visualiser les logs dans la section `Search`.
 
@@ -665,7 +672,8 @@ Attribuez la configuration aux `Sidecars` de toutes les machines.
 Confirmez que toutes les machines envoient des logs au serveur Graylog.
 
 #### Installation de Graylog Sidecar et configuration des sources sur Windows - BONUS
-Si vous voulez aller plus loin, configurez `Graylog Sidecar` sur la machine `Windows`. La machine `Windows` doit envoyer tous les `Event Logs` au serveur `Graylog`.
+Si vous voulez aller plus loin, configurez `Graylog Sidecar` sur la machine `Windows`. 
+La machine `Windows` doit envoyer tous les `Event Logs` au serveur `Graylog`.
 
 Pour collecter et envoyer les `Event Logs`, il faudra utiliser `Winlogbeat` au lieu de `Filebeat`. 
 
@@ -680,9 +688,10 @@ Prenons comme exemple un log du reverse proxy `nginx`.
 172.29.27.162 - fa9506c3-f2d6-4d75-bcc4-8f877c798ac2 [08/Jan/2021:09:35:40 +0100] "POST /api/cluster/metrics/multiple HTTP/1.1" 200 295 "http://192.168.246.68/search?q=&rangetype=relative&relative=300" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0"
 ```
 
-Cette entrée contient beaucoup d'informations intéressantes. Par exemple, l'adresse IP du client qui a fait cette demande ou l'URL à laquelle le client a accédé. 
+Cette entrée contient plusieurs informations intéressantes. Par exemple, l'adresse IP du client qui a fait cette requête ou l'URL à laquelle le client a accédé. 
 
-Vous pouvez extraire ces informations dans des champs séparés. Ces champs seront indexés. En conséquence, les recherches basées sur ces champs seront très rapides. Cela vous permettra ensuite de créer des statistiques et des tableaux de bord basés sur ces champs. 
+Vous pouvez extraire ces informations et les mettre dans des champs séparés. Ces champs seront indexés et les recherches basées sur ces champs seront très rapides. 
+De plus, cela vous permettra de créer des statistiques et des tableaux de bord basés sur ces champs.
  
 Dans cette section, vous allez extraire l’adresse IP du client avec une expression régulière.
 
@@ -699,7 +708,7 @@ Mettez une condition d’extraction `Only attempt extraction if field contains s
 
 Nommez l'extracteur et le nouveau champ `source_ip`.
 
-Si nous configurons l'extracteur de cette façon, `Graylog` créera un nouveau champ `source_ip` contenant l'adresse IP du client pour les entrées où le `message` contient la chaîne `HTTP`.
+Si vous configurez l'extracteur de cette façon, `Graylog` créera un nouveau champ `source_ip` contenant l'adresse IP du client pour les entrées où le `message` contient la chaîne `HTTP`.
 
 Revenez sur la page de recherche et confirmez que tous les logs `nginx` ont un nouveau champ `source_ip` avec l’adresse IP du client.
 
@@ -712,12 +721,12 @@ Jouez avec l'interface de recherche pour comprendre son fonctionnement (la péri
 - Quelle requête utilisez-vous pour trouver tous les messages contenant le champ “source_ip”?
 
 Vous pouvez trouver plus d'informations sur la syntaxe des requêtes ici: 
-- https://docs.graylog.org/en/4.0/pages/searching/query_language.html
+- https://go2docs.graylog.org/5-0/making_sense_of_your_log_data/writing_search_queries.html?Highlight=query%20language
 
 ##### Creation d’un dashboard - BONUS
-Dans cette section, vous allez créer un tableau de bord qui affichera quelques statistiques des serveurs nginx. 
+Dans cette section, vous allez créer un tableau de bord qui affichera certaines statistiques du serveur nginx.
 
-Ce dashboard doit contenir:
+Ce tableau de bord doit contenir:
 - Une liste des serveurs ​nginx
 - Le nombre total des messages provenant des serveurs ​nginx
 - Une liste des adresses IP qui utilisent le plus les serveurs ​nginx
@@ -729,14 +738,14 @@ La rotation des logs est un élément très important de la gestion des logs qui
 
 `Graylog` écrit des messages dans des `index sets`. Un `index set` est une configuration de rétention, de partitionnement et de réplication des données stockées.
 
-Dans cette section, vous allez configurer la rotation et la période de rétention de l’index set principal. (`System -> Indices -> Default index set -> Edit`).
+Dans cette section, vous allez configurer la rotation et la période de rétention de l’index set principal. (`System -> Indices -> Default index set -> Edit Index Set`).
 
-Pour configurer la rotation et la période de rétention de l’index set, vous devrez modifier les paramètres dans `Index Rotation Configuration`.
+Pour configurer la rotation de l’index set, vous devrez modifier les paramètres dans la section `Index Rotation Configuration`.
 
 Configurez la stratégie de rotation `Index Time` pour la fréquence de rotation toutes les 12 heures. 
 - Que mettez-vous dans le champ “Rotation period”?
 
-Configurez la période de rétention pour une rétention des logs pendant 12 mois.
+Configurez la période de rétention dans la section`Index Rotation Configuration` pour une rétention des logs pendant 12 mois.
 - Combien d'indices faut-il conserver pour avoir la période de rétention des logs de 12 mois?
 
 #### Conclusion
