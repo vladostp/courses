@@ -14,8 +14,7 @@ In this repository you will find all my courses, presentations and labs.
 ## Log Management
 ### M2 SRS
 - [CM Gestion Des Logs](./logs/cm-gestion-des-logs.pdf) - French
-- [TP Gestion Des Logs PDF Version](./logs/tp-gestion-des-logs.pdf) - French
-- [TP Gestion Des Logs Markdown Version](./logs/tp-gestion-des-logs/) - French
+- [TP Gestion Des Logs](./logs/tp-gestion-des-logs/) - French
 
 ## OWASP
 ### M2 SRS
