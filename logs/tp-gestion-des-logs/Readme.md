@@ -13,7 +13,9 @@ Ces machines doivent avoir les noms d'hôte et les caractéristiques suivants :
 - `[num]-graylog` (Ubuntu 22.04.1, 2vCPU, 8GB RAM, 20GB d’espace disque)
 - `[num]-elastic` (Ubuntu 22.04.1, 4vCPU, 16GB RAM, 20GB d’espace disque)
 - `[num]-loki` (Ubuntu 22.04.1 - Docker Ready, 2vCPU, 4GB RAM, 10GB d’espace disque)
-- `[num]-windows-web-server` (Windows 10, 2vCPU, 8GB RAM, 20GB d’espace disque) (BONUS)
+- `[num]-windows-web-server` (Windows 10, 2vCPU, 8GB RAM, 50GB d’espace disque) (BONUS)
+  - Pour la machine Windows, créez un volume séparé avec 50 Go de stockage et l'image Windows 10 comme source de volume.
+  - Ensuite, créez l'instance Windows avec le volume créé auparavant comme source de démarrage.
 
 Où `[num]` est votre numéro d'étudiant ou votre numero de groupe.
 
@@ -396,7 +398,9 @@ Vérifiez avec la commande `journalctl` que `filebeat` a démarré sans erreur.
 - Quelle commande utiliserez-vous pour le faire ?
 
 Vérifiez si `Elasticsearch` reçoit les logs. Pour ce faire, interrogez `Elasticsearch` avec la commande suivante. 
+
 ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
+
 ```
 $ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
 ```
@@ -421,7 +425,9 @@ Trouvez tous les logs provenant de la machine `nginx-server`.
 `Filebeat` est livré avec quelques tableaux de bord `Kibana` prédéfinis qui vous permettent d'afficher les statistiques créées à partir des logs `Filebeat` dans `Kibana`. 
 
 Importez les dashboards dans Kibana avec la commande suivante. 
+
 ***Cette opération ne doit être effectuée que sur la machine `elastic`.***
+
 ```
 $ ELASTIC_PASSWORD="MOT_DE_PASSE"
 $ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC
@@ -707,8 +713,7 @@ Prenons comme exemple un log du reverse proxy `nginx`.
 
 Cette entrée contient plusieurs informations intéressantes. Par exemple, l'adresse IP du client qui a fait cette requête ou l'URL à laquelle le client a accédé. 
 
-Vous pouvez extraire ces informations et les mettre dans des champs séparés. Ces champs seront indexés et les recherches basées sur ces champs seront très rapides. 
-De plus, cela vous permettra de créer des statistiques et des tableaux de bord basés sur ces champs.
+Vous pouvez extraire ces informations et les mettre dans des champs séparés. Cela vous permettra de créer des statistiques et des tableaux de bord basés sur ces champs.
  
 Dans cette section, vous allez extraire l’adresse IP du client avec une expression régulière.
 
