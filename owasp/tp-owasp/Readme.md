@@ -135,7 +135,7 @@ Désactivez l’utilisation de proxy Burp Suite dans FoxyProxy et trouvez le lie
 
 Vous avez plusieurs options: soit vous analysez le code source du site (n'oubliez pas d'analyser les fichiers JavaScript), soit devinez le nom de la page où le tableau de score est caché.
 
-- Quel est le lien qui permet d'accéder au score board ?
+- Quel est le lien qui permet d'accéder au score board ? Où l'avez-vous trouvé ?
 
 ### Injection - Devenir administrateur
 Dans cette section, vous allez exploiter une injection SQL pour vous connecter en tant qu'administrateur.
@@ -165,7 +165,7 @@ Vous avez provoqué une erreur qui a révélé la requête SQL utilisée par l'a
 Cela représente une mauvaise configuration de la sécurité de l’application. 
 Normalement, l'application doit être configurée de manière à ne jamais afficher d'informations sensibles dans les messages d'erreur. 
 
-### Authentification cassée - Voler l'identité de Jim
+### Insecure Design - Voler l'identité de Jim
 Dans cette section, vous allez exploiter un mauvais mécanisme de récupération de mot de passe. 
 Vous allez exploiter cette vulnérabilité pour changer le mot de passe de l’utilisateur Jim et voler son identité.
 
@@ -182,7 +182,7 @@ Vous avez de la chance car l’adresse mail de la victime peut être trouvée su
 
 Explorez le site pour trouver l’adresse mail de Jim.
 
-- Quelle est l’adresse mail de Jim ?
+- Quelle est l’adresse mail de Jim ? Où l'avez-vous trouvé ?
 
 En saisissant son adresse email dans le formulaire de récupération du mot de passe, on retrouve sa question de sécurité. 
 
@@ -229,7 +229,7 @@ Puis dans l’onglet *Payloads*, choisissez un payload de type *Simple List* et 
 Démarrez l’attaque et analysez bien la longueur et le statut de la réponse. 
 Pour chaque réponse de sécurité essayée par *Intruder*, vous pouvez visualiser la requête envoyée et la réponse reçue de l’application web. 
 
-- Quelle est la réponse à la question de sécurité de Jim ?
+- Quelle est la réponse à la question de sécurité de Jim ? 
 
 Authentifiez-vous en tant qu'utilisateur Jim.
 
@@ -372,6 +372,10 @@ Trouvez le endpoint et le paramètre vulnérables et un moyen de les exploiter.
 Pour ce faire, vous devrez intercepter la requête avec Burp Suite et l'envoyer au `Repeater`. 
 Puis vous devez jouer avec le paramètre afin de provoquer une erreur SQL. Faites attention à l'en-tête `If-None-Match`.
 
+- Quels sont le endpoint et le paramètre vulnérables ?
+- Comment avez-vous provoqué l'erreur SQL ?
+- Que faut-il mettre en paramètre pour réparer la requête ?
+
 Ensuite, vous devez créer un `UNION SELECT` fusionnant les données de la table SQL de l'utilisateur avec les produits renvoyés dans le résultat JSON.
 
 Visualisez la requête SQL présentée dans le message d'erreur et essayez d'y ajouter une simple `UNION`. 
@@ -380,17 +384,19 @@ Comme cette fois vous utilisez le paramètre URL, vous devrez remplacer les espa
 Le premier challenge dans cette partie est de trouver le nom de la table ou les utilisateurs sont stockés. 
 Normalement, vous pouvez deviner ce nom facilement. 
 Vous l'avez déjà vu dans les messages d'erreur SQL au début de ce TP.
+
 - Quel est le nom de la table des utilisateurs ? 
 
 Le deuxième challenge est de trouver le nombre de colonnes qui sont renvoyées par la requête initiale, car pour pouvoir effectuer une `UNION` des deux requêtes le nombre de colonnes renvoyées par ces deux requêtes doit être le même. 
 
 Pour cela, ajoutez progressivement les colonnes à droite de votre `UNION` jusqu'à ce que vous n'ayez plus d'erreur SQL. 
-- `')) UNION SELECT '1' FROM table`
-- `')) UNION SELECT '1', '2'  FROM table`
-- `')) UNION SELECT '1', '2', '3'  FROM table`
+- `UNION SELECT '1' FROM table`
+- `UNION SELECT '1', '2'  FROM table`
+- `UNION SELECT '1', '2', '3'  FROM table`
 - …
 
 - Quel est le nombre de colonnes renvoyées par la requête initiale ? 
+- Qu'avez-vous mis en paramètre pour trouver ce nombre ?
 
 Vous pouvez vous débarrasser des résultats de recherche en ajoutant quelque chose au début de la requête.
 - `asdeqwe')) …`
@@ -400,20 +406,21 @@ Vous avez déjà vu les noms des colonnes contenant le nom et le mot de passe de
 
 Remplacez les nombres que vous avez mis dans `UNION` avec les noms des colonnes contenant le nom et le mot de passe. 
 
-- Avez-vous réussi à récupérer la liste de tous les utilisateurs ?
+- Avez-vous réussi à récupérer la liste de tous les utilisateurs ? 
+- Qu'avez-vous mis en paramètre pour récupérer la liste ?
 - Comment les mots de passe sont-ils stockés dans la base de données ?
 - Quel est le nom de Cris ?
 
+### Broken Access Control - Créer un compte avec des privilèges d'administrateur 
+Dans cette section, vous allez créer un compte avec des privilèges d'administrateur.
+
+Analysez la requête envoyée et la réponse retournée lors de la création d'un compte.
+Trouvez un paramètre dans la réponse qui peut être intéressant dans notre contexte et essayez de forcer ce paramètre lors de l'envoi de la requête.
+
+- Avez-vous réussi à créer un utilisateur avec des privilèges d'administrateur ? Comment avez-vous procédé ?
+
 ## Bonus
 Cette section est destinée aux étudiants qui ont terminé toutes les tâches précédentes et qui souhaitent aller plus loin.
-
-### Broken Access Control - Enregistrez-vous en tant qu'utilisateur avec des privilèges d'administrateur 
-Dans cette section, vous allez vous enregistrer en tant qu'utilisateur avec des privilèges d'administrateur.
-
-Analysez la requête envoyée et la réponse retournée lors de la création de l'utilisateur. 
-Trouvez un paramètre dans la réponse qui peut être intéressant dans notre contexte et essayez de forcer ce paramètre dans la requête.
-
-- Avez-vous réussi à créer un utilisateur avec des privilèges d'administrateur ?
 
 ### Passez une commande qui vous rend riche
 Dans cette section, vous allez exploiter une vulnérabilité qui vous permettra d'obtenir de l'argent sur votre portefeuille numérique.
@@ -426,10 +433,11 @@ Analysez les requêtes et les paramètres envoyés lors du changement de quantit
 Essayez d'exploiter le paramètre envoyé afin de gagner éventuellement de l'argent.
 
 Passez la commande et visualisez votre Digital Wallet.
-- Avez-vous trouvé une vulnérabilité dans le panier ?
-- Avez-vous réussi à gagner de l’argent sur votre Digital Wallet ?
 
-### Déterminer la réponse à la question de sécurité d'Emma
+- Avez-vous trouvé une vulnérabilité dans le panier ? En quoi consiste la vulnérabilité ?
+- Avez-vous réussi à gagner de l’argent sur votre Digital Wallet ? Comment avez-vous procédé ?
+
+### Déterminer la réponse à la question de sécurité d'Emma et voler son identité
 Dans cette section, vous devez trouver la réponse à la question de sécurité d'Emma. 
 Devinez l'adresse e-mail d'Emma et trouvez la question de sécurité via le formulaire de récupération de mot de passe. 
 
@@ -440,7 +448,11 @@ Parfois, les utilisateurs peuvent divulguer des informations importantes sans s'
 - Quelle est la réponse à la question de sécurité d'Emma ? 
 - Où l’avez-vous trouvé ?
 
-### Déterminer la réponse à la question de sécurité de John 
+Modifiez le mot de passe d'Emma et authentifiez-vous en tant qu'Emma.
+
+- Combien de produits Emma a-t-elle dans son panier ?
+
+### Déterminer la réponse à la question de sécurité de John et voler son identité
 Dans cette section, vous devez trouver la réponse à la question de sécurité de John. 
 Devinez l'adresse e-mail de John et trouvez la question de sécurité via le formulaire de récupération de mot de passe.
 
