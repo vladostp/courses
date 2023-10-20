@@ -899,8 +899,8 @@ Afin de créer le service Counter décrit dans l'architecture de déploiement, v
         - A une variable d'environement nomée `REDIS_HOST` contenant le nom du service Redis `redis-service`
         - Monte deux volumes
           - Volume de l'application PHP **Counter** dans le path `/var/www/html`
-          - Volume de Secret `redis-secret` dans le path `/credentials`
-        - A une sonde **Liveness** de type `httpGet` qui sonde le path `/` sur le port `80` pour vérifier si l'application fonctionne correctement
+          - Volume du Secret `redis-secret` dans le path `/credentials`
+        - A une sonde **Liveness** de type `httpGet` qui sonde le chemin `/` sur le port `80` pour vérifier si l'application fonctionne correctement
 
 	- Verifiez le Deployement et les Pods crées
     ```bash
