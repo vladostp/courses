@@ -12,11 +12,11 @@ Dans cette section, vous devez créer trois machines virtuelles dans OpenStack a
 - 20Go d'espace disque
 - Réseau `vlan1383` ou `vlan1368` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
 
-Une machine sera le *Master Node (Control Plane)* et deux autres seront des *Worker Nodes*.
+Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*.
 
-Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **snap-tpkube-2022** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1383` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **snap-docker-ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1383` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
-**Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Master Node* sur Tomuss.
+**Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Control Plane* sur Tomuss.
 
 ------
 
@@ -25,43 +25,44 @@ Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (
 
 ### Préparation de nœuds
 #### SSH
-Avant de commencer le déploiement avec RKE, vous devez vous assurer que la machine **Master** peut se connecter en **ssh** sur toutes les machines du cluster sans aucun mot de passe. 
+Avant de commencer le déploiement avec RKE, vous devez vous assurer que la machine **Control Plane** peut se connecter en **ssh** sur toutes les machines du cluster sans aucun mot de passe. 
 **Pour cela :**
--   Créez une paire de clefs ssh **sans passphrase** sur le nœud Master (commande `ssh-keygen`) 
--   **Ajoutez** la clef publique (`.ssh/id_rsa.pub`) du **Master** au fichier des clefs autorisées (`.ssh/authorized_keys`) sur tous les nœuds (y compris sur le nœud Master).
+-   Créez une paire de clefs ssh **sans passphrase** sur le nœud Control Plane (commande `ssh-keygen`) 
+-   **Ajoutez** la clef publique (`.ssh/id_rsa.pub`) du **Control Plane** au fichier des clefs autorisées (`.ssh/authorized_keys`) sur tous les nœuds (y compris sur le nœud Control Plane).
 	 - **Attention !** Conservez les clefs déjà présentes dans `.ssh/authorized_keys` (sinon vous ne pourrez plus vous connecter aux nœuds).
-- Testez si le nœud **Master** arrive à se connecter en ssh sur tous les nœuds (**y compris sur lui-même**)
+- Testez si le nœud **Control Plane** arrive à se connecter en ssh sur tous les nœuds (**y compris sur lui-même**)
 
 #### Proxy
 - **Ajoutez la variable NO_PROXY dans les variables d'environnement sur toutes les machines**
-    - Ajoutez la ligne à la fin du fichier `/etc/environment`
+    - Ajoutez la ligne **à la fin** du fichier `/etc/environment`
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
     ```
-- **Redémarrez toutes les machines**
+- **Redémarrez toutes les machines!**
 
 ### Déploiement de Kubernetes avec RKE
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
-	- **Attention !** Vous devez choisir une version stable (release) et non un pre-release !
+	- **Attention !** Vous devez choisir une version stable (release) et non une pre-release !
 - Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`), renommez le fichier en `rke` et lancez la configuration
 	```bash
 	$ ./rke config
 	```
-	- Créez un cluster de 3 machines. Avec un Master ayant les rôles  `control-plane` et `etcd` et les deux Workers ayant le rôle de `worker`.
+	- Créez un cluster de 3 machines avec la machine Control Plane ayant les rôles `control-plane` et `etcd` et les deux Worker nodes ayant le rôle de `worker`.
 	- Mettez les adresses IP de vos machines en tant que `SSH Address of host`.
-	- Laissez toutes les autres valeurs par défaut
+	- Laissez toutes les autres paramètres aux valeurs par défaut
 	- Cette commande va créer le fichier de configuration du cluster `cluster.yml` qui peut être changé à la main si vous souhaitez modifier la configuration du cluster.
-- Démarrez le cluster Kubernetes avec RKE
+- Déployez le cluster Kubernetes avec **RKE**
 	```bash
 	$ ./rke up
 	```
-	- Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire pour avoir un cluster Kubernetes fonctionnel.
+	- Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire sur tous les nœuds pour avoir un cluster Kubernetes fonctionnel.
 	- Si vous voyez "Finished building Kubernetes cluster successfully", le cluster a été déployé avec succès
 		- Si ce n'est pas le cas, essayez de supprimer et de redéployer le cluster
 		```bash
 		$ ./rke remove
 		$ ./rke up
 		```
+- Après avoir déployé le cluster avec **RKE**, un fichier `kube_config_cluster.yml` est créé, ce fichier contient les détails de connexion et d'authentification pour interagir avec le cluster déployé.
 
 ### Installation et configuration de kubectl
 - Téléchargez et installez la dernière version de **kubectl**
@@ -91,7 +92,7 @@ $ kubectl apply -f nom_du_fichier.yml
 ```
 
 ### Création d'un pod
-Vous allez commencer par créer un Pod qui est la plus petite unité que vous pouvez déployer dans le cluster K8s.
+Vous allez commencer par créer un Pod qui est la plus petite unité que vous pouvez déployer dans un cluster K8s.
 
 Créez le fichier `nginx_pod.yml`:
 ```yaml
@@ -134,14 +135,14 @@ Ce fichier décrit un Pod qui a les caractéristiques suivantes :
 	```bash
 	$ kubectl logs NOM_DU_POD
 	```
-	- Avec cette commande, vous pouvez consulter depuis le nœud Master les logs de tout Pod lancé sur le cluster K8s. 
+	- Avec cette commande, vous pouvez consulter depuis le nœud Control Plane les logs de tout Pod lancé sur le cluster K8s. 
     - Vous n'avez donc plus besoin de vous connecter en **ssh** au Worker exécutant le Pod.
 	- Vous pouvez également exécuter une commande dans n'importe quel Pod du cluster avec `kubectl exec`.
 
 ### Création d'un deployment
-Dans la section précédente, vous avez créé un Pod avec l'application **Nginx**. Dans la vraie vie, vous ne manipulez jamais directement les Pods. Vous passerez toujours par des objets contrôleurs (**Workload Resources**), qui créeront et géreront des Pods pour vous. Ces objets assurent la réplication, le déploiement et le self-healing automatique de vos Pods.
+Dans la section précédente, vous avez créé un Pod avec l'application **Nginx**. Dans la vraie vie, vous ne manipulez jamais directement les Pods. Vous passez toujours par des objets contrôleurs (**Workload Resources**), qui créent et gérent les Pods pour vous. Ces objets assurent la réplication, le déploiement et le self-healing automatique de vos Pods.
 
-Dans cette section, vous allez déployer une application hautement disponible et vous allez essayer les mécanismes de mises à jour déclaratives et rollbacks.
+Dans cette section, vous allez déployer une application hautement disponible et vous allez manipuler les mécanismes de mises à jour déclaratives et de rollback.
 
 Pour commencer, vous allez créer un objet de type "Deployment". 
 
@@ -175,7 +176,7 @@ spec:
     - Quels rôles jouent les labels et les sélecteurs ? 
     - Sur quelle image seront basés les conteneurs créés ?
 
-- **Vous pouvez suivre le processus de déploiement et visualiser l'état des déploiements avec les commandes**
+- **Vous pouvez suivre le processus de déploiement et visualiser l'état des déploiements avec les commandes suivantes**
     ```bash
     $ kubectl rollout status deployments nginx-deployment
     $ kubectl get deployments
@@ -204,7 +205,8 @@ spec:
     ```
     - Comment sont distribués les pods entre les nœuds Workers? (utilisez l'option `-o wide`)
 
-Jusqu'à maintenant, vous avez créé un objet de type **Deployment** qui crée et maintient un nombre des Pods demandées. **Deployment** peut être vu comme un regroupement des Pods dont le nombre est garanti par K8s.
+Jusqu'à présent, vous avez créé un objet de type **Deployment** qui crée et maintient un nombre des Pods demandées. 
+**Deployment** peut être vu comme un regroupement des Pods dont le nombre est garanti par K8s.
 
 ### Creation d'une service
 Pour rendre votre **Deployment** accessible, vous allez créer un objet de type **Service**.
@@ -226,7 +228,7 @@ spec:
     port: 80
     targetPort: 80
 ```
-- Quel est l'intérêt de la section `selector` dans le fichier yaml?
+- Quel est l'intérêt de la section `selector` dans la description du service?
 - Que permet de faire un **Service** de type `NodePort`?
 
 - **Créez le service dans le cluster**
@@ -323,8 +325,8 @@ Kubernetes vous donne la possibilité de revenir en arrière avec le mécanisme 
     $ watch -n 1 curl -I 127.0.0.1:[node_port]
     ```
 
-Avec Kubernetes, vous pouvez spécifier la version de déploiement à laquelle vous souhaitez revenir. 
-Pour cela, vous devez récupérer l'historique de déploiement et choisir la révision à laquelle vous souhaitez revenir.
+Avec Kubernetes, vous pouvez spécifier la version de déploiement vers laquelle vous souhaitez revenir. 
+Pour cela, vous devez récupérer l'historique de déploiement et choisir la révision vers laquelle vous souhaitez revenir.
 
 - **Récupérez l'historique du déploiement**
     ```bash
@@ -502,8 +504,7 @@ data:
   password: NDI=
 ```
 
-- **Modifiez le secret** pour que les champs `username` et `password` soient 
-`Lyon1`. Pour cela, vous devez convertir la chaîne en base64 (commande `base64`)
+- **Modifiez le secret** pour que les champs `username` et `password` contiennent `Lyon1`. Pour cela, vous devez convertir la chaîne en base64 (commande `base64`)
     - Quel est le contenu du fichier `secret.yml` après les modifications?
     - N'hésitez pas à utiliser la [documentation officielle](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/).
 - **Créez le secret dans le cluster**
@@ -540,9 +541,10 @@ spec:
     $ kubectl logs NOM_DU_POD
     ```
     - Que voyez-vous dans les logs du Pod?
+    - Que contiennent les fichiers du répertoire `/secret` ?
 
 ### Init containers
-L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur d'application. 
+L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur principal. 
 Ces conteneurs peuvent être utilisés pour télécharger du code, effectuer une configuration ou initialiser une base de données avant le démarrage de l'application principale. 
 Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur principal. 
 Comme le `initContainer` et le conteneur principal sont deux conteneurs distincts, il faudra créer un volume partagé par les deux conteneurs. 
@@ -594,19 +596,19 @@ spec:
   ```bash
   $ curl 127.0.0.1:8081
   ```
-  - Que vous renvoie la commande `curl` ?
+  - Que pouvez-vous constater?
 
 
 ### Sondes de Liveness et Readiness
 Par défaut, si un **Pod** est en cours d'exécution (Running), il est considéré comme opérationnel par Kubernetes. 
-Cela peut créer un problème, car même si le **Pod** est en cours d'exécution, l'application peut être bloquée ou pas prête à recevoir les demandes des utilisateurs. 
-Pour résoudre ce problème, Kubernetes propose trois mécanismes : sondes de **Liveness**, **Readiness** et **Startup**.
+Cela peut être problématique dans le cas où le **Pod** est en cours d'exécution mais l'application est bloquée ou n'est pas prête à recevoir les demandes des utilisateurs. 
+Pour pallier à ce problème, Kubernetes propose trois mécanismes des sondes: **Liveness**, **Readiness** et **Startup**.
 
 Dans cette section, vous allez déployer des Pods avec les sondes **Liveness** et **Readiness**.
 
 #### Liveness probe
 Kubernetes est capable de vérifier automatiquement si vos applications répondent aux demandes des utilisateurs avec des sondes **Liveness**. 
-Si votre application est bloquée et ne répond pas, K8s la détecte et relance ou recrée le conteneur.
+Si votre application est bloquée et ne répond pas, K8s le détecte et redémarre ou recrée le conteneur.
 
 Créez le fichier `liveness_pod.yml`
 ```yaml
@@ -629,11 +631,11 @@ spec:
     $ kubectl apply -f liveness_pod.yml
     ```
 
-- **Supprimez le répertoire `/usr/share/nginx` à l'intérieur du Pod `liveness-pod`**
+- **Provoquer une erreur d'application en supprimant le répertoire `/usr/share/nginx` dans le Pod `liveness-pod`**
 	```bash
 	$ kubectl exec -it liveness-pod -- rm -r /usr/share/nginx
 	```
-	- Cette commande provoque l'échec de la sonde Liveness du **Pod** car le serveur `nginx` ne peut plus trouver la page d'index et répond avec une erreur 404.
+	- Après avoir exécuté cette commande, la sonde Liveness du **Pod** échouera car le serveur `nginx` ne peut plus trouver la page d'index et répond par une erreur 404.
 
 - **Surveillez les événements et le comportement du Pod `liveness-pod`**
   ```bash
@@ -721,7 +723,7 @@ spec:
   ```
   - Comment pouvez-vous expliquer un tel comportement?
 
-- **Trouvez et corrigez l'erreur**
+- **Trouvez et corrigez l'erreur introduite dans la description du Pod `nginx-nogood`**
   - Utilisez la commande
     ```bash
     $ kubectl edit pod nginx-nogood
@@ -737,7 +739,7 @@ spec:
 
 ### Création d'un Ingress
 **Ingress** est un objet K8s qui gère l'accès externe (**HTTP** ou **HTTPS**) aux services. 
-Ingress peut acheminer le trafic vers un seul service (Single Service Ingress), s'appuyer sur l'URI HTTP pour acheminer le trafic vers différents services (Simple Fanout) ou acheminer le trafic en fonction de différents noms d'hôte (Name based virtual hosting).
+Ingress peut acheminer le trafic vers un seul service (`Single Service Ingress`), s'appuyer sur l'URI HTTP pour acheminer le trafic vers différents services (`Simple Fanout`) ou acheminer le trafic en fonction de différents noms d'hôte (`Name based virtual hosting`).
 
 Pour qu'un **Ingress** soit fonctionel, un nom DNS doit être ajouté sur la plate-forme **OpenStack**. 
 L'**OpenStack** de l'université dispose d'un service qui vous permet de générer un nom DNS fonctionnel sur le réseau de l'université. 
@@ -779,26 +781,24 @@ spec:
 ------
 
 ## Un déploiement plus complexe
-Dans la section précédente, vous avez manipulé de nombreux objets et mécanismes de Kubernetes. Vous pouvez désormais effectuer un déploiement plus complexe avec Kubernetes.
-
+Dans la section précédente, vous avez manipulé de nombreux objets et mécanismes de Kubernetes. Vous pouvez désormais créer des déploiements plus complexes.
 Dans cette section, vous rassemblerez toutes les connaissances acquises précédemment pour déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
 ### Architecture de déploiement
 L'application sera composée des deux services :
-- **Le premier service est la base de données Redis**
+- **Le premier service est la base de données clé-valeur Redis**
 	- Il sera utilisé pour stocker un compteur utilisé et mis à jour par l'application
 	- Il stockera ses données sur un volume persistant
-	- Il sera configuré avec un **initContainer** pour demander une authentification avec un mot de passe qui sera fourni par un **Secret** K8s
+	- Il sera configuré avec un **initContainer** pour demander une authentification avec un mot de passe qui sera fourni par un **Secret**
 	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
 	- Il sera accessible via un **Service**
-- **Le deuxième service est une application simple Counter que nous avons développée pour ce TP**
-	- Ce service lit et incrémente le compteur stocké dans la base de données Redis
-	- Il sera initialisé en récupérant un code source depuis un dépôt Git avec **initContainer**
-	- Le service aura 3 instances
+- **Le deuxième service est une application simple Counter que nous avons développé pour ce TP**. Cette application lit et incrémente le compteur stocké dans la base de données Redis.
+	- Le service sera initialisé en récupérant un code source depuis un dépôt Git avec **initContainer**
+	- Il aura 3 instances
 	- Le `hostname` de Redis sera fourni par une variable d'environnement
 	- Le mot de passe d'authentification **Redis** sera fourni en montant le Secret **Redis** en tant que volume
 	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
-	- Il sera accessible via un **Ingress**
+	- Il sera accessible de l'exterieur via un **Ingress**
 
 ### Service Redis
 Afin de créer le service Redis décrit dans l'architecture de déploiement, vous devez créer les objets K8s suivants :
@@ -814,24 +814,23 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
 	  ```
   
 - **Secret**
-	- Créez le **Secret** avec le nom `redis-secret` qui a un champ nommé `password`. Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authetification **Redis**. N'oubliez pas que les secrets doivent être encodés en `base64`.
+	- Créez le **Secret** avec le nom `redis-secret` qui a un champ nommé `password`. Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authentification **Redis**. N'oubliez pas que les secrets doivent être encodés en `base64`.
 
 - **Deployment**
-	- Créez un déploiement avec le nom `redis-deployment` qui
-		- Crée un seul replica du **Pod**
-		- A le label `app: redis`
-		- A deux volumes
-			- Volume avec le nom `redis-config` de type `emptyDir` qui sera utilisé pour stocker la configuration **Redis**
-			- Volume avec le nom `redis-data` de `PersistantVolumeClaim` crée précédemment qui sera utilisé pour stocker les données **Redis** 
-		- A deux conteneurs : un d'initialisation et un principal
-      - Le conteneur d'initilisation `initContainer`
+	- Créez un déploiement portant le nom `redis-deployment` qui crée un seul replica du **Pod** avec
+		- Le label `app: redis`
+		- Deux volumes
+			- Volume `redis-config` de type `emptyDir` qui sera utilisé pour stocker la configuration **Redis**
+			- Volume `redis-data` qui utilisera `PersistantVolumeClaim` crée précédemment et qui servira à stocker les données **Redis** 
+		- Deux conteneurs: un d'initialisation et un principal
+      - Le conteneur d'initilisation `initContainer` qui
         - A le nom `redis-config-init`
         - Utilise l'image `busybox`
         - Execute la commande `["sh", "-c", "echo requirepass $PASSWORD > /etc/redis/redis.conf"]`
         - Expose le champ `password` du secret `redis-secret` comme variable d'enviromenet nommée `PASSWORD`
         - Monte le volume de configuration **Redis** dans le path `/etc/redis/`
-      - Le conteneur principal
-        - A le nom et utilise l'image  `redis`
+      - Le conteneur principal qui
+        - A le nom `redis` et utilise l'image `redis:7.0.2`
         - Execute la commande `["redis-server", "/etc/redis/redis.conf"]`
         - Monte deux volumes
           - Volume de configuration **Redis** dans le path `/etc/redis/`
@@ -865,7 +864,7 @@ Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonction
 	$ kubectl exec -it PODNAME -- sh
 	```
 
-- Connectez-vous avec `telnet` sur le **Redis** à partir de **Pod** `busybox` et testez si **Redis** fonctionne correctement
+- Connectez-vous avec `telnet` au **Redis** à partir de **Pod** `busybox` et testez si **Redis** fonctionne correctement
 	```bash
 	$ telnet redis-service 6379
 	$ GET counter
@@ -877,27 +876,26 @@ Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonction
 	$-1
 	$ QUIT
 	```
-	- Si vous avez exécuté toutes les commandes et que vous voyez ces résultats, Redis et son authentification ont été correctement configurés
+	- Si vous avez exécuté toutes les commandes et que vous voyez ces résultats, **Redis** et son authentification ont été correctement configurés
 
 ### Service Counter
 Afin de créer le service Counter décrit dans l'architecture de déploiement, vous devez créer les objets K8S suivants :
 
 - **Deployment**
-	- Créez un déploiement avec le nom `counter-deployment` qui
-		- Crée un trois replicas des **Pods**
-		- A le label `app: counter`
-		- A deux volumes
-			- Volume avec le nom `counter-app` de type `emptyDir` qui sera utilisé pour stocker l'application PHP **Counter**
-			- Volume avec le nom `redis-secret` de type **Secret**  qui va utiliser le Secret `redis-secret`
-		- A deux conteneurs : un d'initialisation et un principal
-      - Le conteneur d'initilisation `initContainers`
+	- Créez un déploiement avec le nom `counter-deployment` qui crée un trois replicas des **Pods** avec
+		- Le label `app: counter`
+		- Deux volumes
+			- Volume `counter-app` de type `emptyDir` qui sera utilisé pour stocker l'application PHP **Counter**
+			- Volume `redis-secret` de type **Secret**  qui va utiliser le Secret `redis-secret`
+		- Deux conteneurs : un d'initialisation et un principal
+      - Le conteneur d'initilisation `initContainers` qui
         - A le nom `counter-app-init`
-        - Utilise l'image `busybox`
+        - Utilise l'image `alpine`
         - Execute la commande `['wget', 'https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php', '-O', '/var/www/html/index.php']`
         - Monte le volume de l'application PHP **Counter** dans le path `/var/www/html`
-      - Le conteneur principal
+      - Le conteneur principal qui
         - A le nom `counter-app`
-        - Utilise l'image  `vladost/php:7.2-apache-redis`
+        - Utilise l'image `vladost/php:7.2-apache-redis`
         - A une variable d'environement nomée `REDIS_HOST` contenant le nom du service Redis `redis-service`
         - Monte deux volumes
           - Volume de l'application PHP **Counter** dans le path `/var/www/html`
@@ -935,7 +933,7 @@ Pour vérifier le fonctionnement de l'application, vous pouvez essayer d'y accé
   - Pour rappel, vous avez créé précédemment un nom DNS de la forme `votrenom.xxxxx.os.univ-lyon1.fr`.
 
 Pour accéder au service `counter-service`, vous devez ajouter le préfixe `/counter` au nom DNS.
-Si tout a été configuré correctement, vous devriez voir un compteur d'utilisation du service et le nom de l'instance de **Pod** que vous utilisez actuellement sur la page Web de l'application. 
+Si tout a été configuré correctement, vous devriez voir un compteur d'utilisation du service et le nom de **Pod** qui vous repond sur la page Web de l'application. 
 Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et le changement de nom de l'instance de **Pod**.
 
 - **Surveillez la valeur du compteur, attendez une minute et mettez à jour la page.**
