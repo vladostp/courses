@@ -14,7 +14,7 @@ Dans cette section, vous devez créer trois machines virtuelles dans OpenStack a
 
 Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*.
 
-Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **snap-docker-ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1383` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1383` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
 **Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Control Plane* sur Tomuss.
 
@@ -65,6 +65,9 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 - Après avoir déployé le cluster avec **RKE**, un fichier `kube_config_cluster.yml` est créé, ce fichier contient les détails de connexion et d'authentification pour interagir avec le cluster déployé.
 
 ### Installation et configuration de kubectl
+Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
+**kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
+
 - Téléchargez et installez la dernière version de **kubectl**
   ```bash
   $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
