@@ -10,11 +10,11 @@ Dans cette section, vous devez créer trois machines virtuelles dans OpenStack a
 - 2 vCPU
 - 4Go RAM
 - 20Go d'espace disque
-- Réseau `vlan1383` ou `vlan1368` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
+- Réseau `vlan1372` ou `vlan1368` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
 
 Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*.
 
-Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1383` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1372` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
 **Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Control Plane* sur Tomuss.
 
@@ -68,9 +68,9 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
 **kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
 
-- Téléchargez et installez la dernière version de **kubectl**
+- Téléchargez et installez la version `1.26.8` de **kubectl**
   ```bash
-  $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  $ curl -LO "https://dl.k8s.io/release/v1.26.8/bin/linux/amd64/kubectl"
   $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   ```
 - Copiez la configuration de `kubectl` crée par **RKE**
@@ -255,10 +255,11 @@ spec:
     $ curl -I 127.0.0.1:[node_port]
     ```
 
-- **Vérifier que le service est accessible depuis le Pod `nginx-pod` créé précédemment**
+- **Vérifiez si le service est accessible depuis le Pod `nginx-pod` créé précédemment**
     - Le service doit être accessible en utilisant son nom `nginx-service` comme un nom DNS depuis le **Pod** `nginx-pod` 
-    - Vous pouvez faire une requête avec `curl` sur `http://nginx-service` depuis le **Pod** `nginx-pod`
-	  - Pour exécuter une commande dans le **Pod** `nginx-pod`, vous pouvez utiliser `kubectl exec -it nginx-pod -- sh`
+    - Vous pouvez faire une requête HTTP avec `curl` sur `http://nginx-service` depuis le **Pod** `nginx-pod`
+	  - Pour exécuter une commande dans le **Pod** `nginx-pod`, vous pouvez utiliser `kubectl exec`
+    - Quelle commande avez-vous utilisée pour effectuer la requête HTTP avec `curl ` à partir du **Pod** `nginx-pod`? Que pouvez-vous conclure?
 
 ### Rolling Updates
 Imaginez que vous avez une nouvelle version de l'application à déployer et vous voulez le faire sans aucune interruption de service.
@@ -328,6 +329,8 @@ Kubernetes vous donne la possibilité de revenir en arrière avec le mécanisme 
     $ watch -n 1 curl -I 127.0.0.1:[node_port]
     ```
 
+- Que pouvez-vous conclure?
+
 Avec Kubernetes, vous pouvez spécifier la version de déploiement vers laquelle vous souhaitez revenir. 
 Pour cela, vous devez récupérer l'historique de déploiement et choisir la révision vers laquelle vous souhaitez revenir.
 
@@ -341,14 +344,16 @@ Vous pouvez revenir à une révision particulière du déploiement en utilisant 
 
 - **Revenez à la révision 2 du déploiement**
     - Quelle commande avez-vous utilisé ?
-
+    
+- **Récupérez l’historique du déploiement avec la commande vue précédemment**
+    - Expliquez comment les numéros de révision ont changé une fois que vous êtes revenu à la version 2 du déploiement.
 
 ### Volumes
 Certaines applications ont besoin d'un stockage permanent. 
 Dans cette section, vous allez manipuler le mécanisme des volumes persistants proposé par Kubernetes.
 
 La création d'un volume et son attribution à un **Pod** se font en plusieurs étapes.
-Tout d'abord, un objet "Persistent Volume" doit être créé. Cette tâche est généralement effectuée par l'administrateur du cluster.
+Tout d'abord, un objet `Persistent Volume` doit être créé. Cette tâche est généralement effectuée par l'administrateur du cluster.
 Dans le cadre de ce TP, vous allez créer un volume persistant de type `local` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de 200Mi.
 
 Créez le fichier `pv.yml`
@@ -531,7 +536,7 @@ spec:
 
 - Modifiez la description du **Pod** afin que le répertoire `/secret` soit monté en tant que volume du secret et que la variable d'environement `SECRET_USERNAME` contienne la valeur `username` du secret.
     - N'hésitez pas à utiliser la [documentation officielle](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/).
-- Quelle sera la nouvelle description du Pod avec des secrets?
+- Quelle sera la description du Pod avec des secrets?
 
 - **Créez le Pod dans le cluster**
     ```bash
@@ -544,7 +549,7 @@ spec:
     $ kubectl logs NOM_DU_POD
     ```
     - Que voyez-vous dans les logs du Pod?
-    - Que contiennent les fichiers du répertoire `/secret` ?
+    - Que contiennent les fichiers du répertoire `/secret`?
 
 ### Init containers
 L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur principal. 
@@ -645,7 +650,7 @@ spec:
   $ kubectl describe pod liveness-pod
   $ kubectl get pods
   ```
-	- **Que fait Kubernetes en cas d'échec de la Liveness probe?**
+	- Que fait Kubernetes en cas d'échec de la Liveness probe?
 
 
 #### Readiness probe
@@ -942,7 +947,47 @@ Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et
 - **Surveillez la valeur du compteur, attendez une minute et mettez à jour la page.**
   - Que remarquez-vous ? Comment pouvez-vous l'expliquer?
 
-Bravo! Vous avez terminé le TP!
+- **Mettez à l'échelle le déploiement `counter-deployment` pour avoir 6 replicas**
+  - Quelle commande avez-vous utilisé ?
+
+------
+
+## BONUS: Déploiement du cluster Kubernetes avec `kubeadm`
+Si vous avez terminé le TP et s'il vous reste du temps, vous pouvez déployer le cluster Kubernetes avec l'outil `kubeadm`.
+
+- Pour cela, supprimez le cluster déployé avec **RKE**
+```bash
+$ ./rke remove
+```
+
+- Votre cluster utilisera Docker Engine comme CRI (Container Runtime Interface). Pour pouvoir utiliser Docker Engine comme CRI Kubernetes, vous devez installer le service `cri-dockerd` sur toutes les machines du cluster (N'hésitez pas à utiliser le package Debian pour l'installateur `cri-dockerd`)
+  - https://github.com/Mirantis/cri-dockerd
+
+- Installez `kubeadm`, `kubelet` et `kubectl` sur tous les noeuds à l'aide du tutoriel suivant
+  - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
+
+- Ajoutez la variable `NO_PROXY` dans les variables d'environnement sur toutes les machines
+    - Ajoutez la ligne **à la fin** du fichier `/etc/environment`
+    ```bash
+    NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
+    ```
+    - Redémarrez tous les nœuds
+
+- Creez le cluster Kubernetes avec `kubeadm` à l'aide du tutoriel suivant
+  - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+  - Vous allez initialiser le noeud Control Plane avec la commande `kubeadm init`. 
+    - N'oubliez pas de spécifier le socket CRI avec l'option  `--cri-socket` sur le socket `cri-dockerd` `unix:///var/run/cri-dockerd.sock` 
+    - Le réseau utilisé par les Pods doit être `10.244.0.0/16` pour le spécifier, utilisez l'option `--pod-network-cidr`
+    - Quelle commande avez-vous utilisée pour initialiser le nœud Control Plane ?
+  - Rejoignez le cluster par les deux nœuds Workers
+    - La commande pour ce faire sera affichée dans la sortie de la commande `kubeadm init`
+    - N'oubliez pas d'ajouter l'option `--cri-socket` à la commande `kubeadm join`
+- Configurez l'outil `kubectl` comme expliqué dans le résultat de la commande `kubeadm init`
+- Déployez le `flannel` comme le CNI, comme expliqué dans
+  - https://github.com/flannel-io/flannel
+
+- Verifiez l'etat du cluser avec `kubectl get nodes`
+  - Si tout a été déployé correctement, tous les nœuds doivent avoir l'état `Ready`
 
 --------
 
