@@ -960,7 +960,7 @@ Si vous avez terminé le TP et s'il vous reste du temps, vous pouvez déployer l
 $ ./rke remove
 ```
 
-- Votre cluster utilisera Docker Engine comme CRI (Container Runtime Interface). Pour pouvoir utiliser Docker Engine comme CRI Kubernetes, vous devez installer le service `cri-dockerd` sur toutes les machines du cluster (N'hésitez pas à utiliser le package Debian pour l'installateur `cri-dockerd`)
+- Votre cluster utilisera Docker Engine comme CRI (Container Runtime Interface). Pour pouvoir utiliser Docker Engine comme CRI Kubernetes, vous devez installer le service `cri-dockerd` sur toutes les machines du cluster (N'hésitez pas à utiliser le package Debian pour installer le `cri-dockerd`)
   - https://github.com/Mirantis/cri-dockerd
 
 - Installez `kubeadm`, `kubelet` et `kubectl` sur tous les noeuds à l'aide du tutoriel suivant
