@@ -977,11 +977,12 @@ $ ./rke remove
   - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
   - Vous allez initialiser le noeud Control Plane avec la commande `kubeadm init`. 
     - N'oubliez pas de spécifier le socket CRI avec l'option  `--cri-socket` sur le socket `cri-dockerd` `unix:///var/run/cri-dockerd.sock` 
-    - Le réseau utilisé par les Pods doit être `10.244.0.0/16` pour le spécifier, utilisez l'option `--pod-network-cidr`
+    - Le réseau utilisé par les Pods doit être `10.244.0.0/16`. Pour le spécifier, utilisez l'option `--pod-network-cidr`
     - Quelle commande avez-vous utilisée pour initialiser le nœud Control Plane ?
   - Rejoignez le cluster par les deux nœuds Workers
     - La commande pour ce faire sera affichée dans la sortie de la commande `kubeadm init`
     - N'oubliez pas d'ajouter l'option `--cri-socket` à la commande `kubeadm join`
+    - Quelle commande avez-vous utilisée sur chaque noeud Worker pour rejoindre le cluster ?
 - Configurez l'outil `kubectl` comme expliqué dans le résultat de la commande `kubeadm init`
 - Déployez le `flannel` comme le CNI, comme expliqué dans
   - https://github.com/flannel-io/flannel
