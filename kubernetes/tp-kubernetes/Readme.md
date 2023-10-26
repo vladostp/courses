@@ -953,9 +953,11 @@ Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et
 ------
 
 ## BONUS: Déploiement du cluster Kubernetes avec `kubeadm`
-Si vous avez terminé le TP et s'il vous reste du temps, vous pouvez déployer le cluster Kubernetes avec l'outil `kubeadm`.
+Si vous avez terminé le TP et s'il vous reste du temps, vous pouvez déployer le cluster Kubernetes avec l'outil `kubeadm`. 
 
-- Pour cela, supprimez le cluster déployé avec **RKE**
+`kubeadm` est un outil officiel qui vous permet de créer et de gérer des clusters Kubernetes. Cet outil effectue les actions nécessaires pour qu'un cluster minimum viable soit opérationnel.
+
+- **Avant de commencer**, supprimez le cluster déployé avec **RKE**
 ```bash
 $ ./rke remove
 ```
