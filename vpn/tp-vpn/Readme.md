@@ -35,7 +35,7 @@ L'architecture de déploiement est composée des composants suivants :
 **Activez le routage et configurez NAT sur les deux routeurs afin que les hôtes des deux réseaux puissent communiquer avec l'extérieur**
 
 **Vérifiez que les hôtes des deux réseaux peuvent communiquer avec l'extérieur, mais ne peuvent pas communiquer entre eux**
-- Si vous rencontrez un problème avec la résolution DNS, supprimez les entrées de la table de routage pour les adresses `10.10.10.10` et `10.10.10.11` sur tous les machines.
+- Si vous rencontrez des problèmes avec la résolution DNS, supprimez les entrées de la table de routage pour les adresses `10.10.10.10` et `10.10.10.11` sur tous les machines.
 
 ## 2 - Tunnel GRE
 **Configurez un tunnel GRE entre Router 1 et Router 2.**
@@ -62,12 +62,15 @@ L'architecture de déploiement est composée des composants suivants :
 
 **Visualisez avec Wireshark via SSH les paquets échangés entre le Router 1 et le Router 2. Que pouvez-vous conclure?**
 
-**Vérifiez que les machines du réseau A puissent communiquer avec les machines du réseau B.**
+**Vérifiez que les machines du réseau A peuvent communiquer avec les machines du réseau B.**
 
 ## 4 - IPsec - IKE avec strongSwan
-La configuration manuelle des clés de chiffrement convient à des fins de démonstration, mais dans la vie réelle, la gestion et la configuration des clés se font de manière automatisée avec un démon IKE. Dans cette section, vous allez déployer un **VPN IPsec avec IKE** en utilisant **strongSwan**.
+La configuration manuelle des clés de chiffrement convient à des fins de démonstration, mais dans la vie réelle, la gestion et la configuration des clés se font de manière automatisée avec un démon IKE. 
+
+Dans cette section, vous allez déployer un **VPN IPsec avec IKE** en utilisant **strongSwan**.
 
 **Supprimez le tunnel GRE et l’IPSec entre les routeurs 1 et 2.**
+- Pour ce faire, utilisez les commandes `ip xfrm ... flush` et `ip tunnel del`
 
 **Configurez IPsec en mode tunnel entre Router 1 et 2 avec strongSwan.** 
 - Avec IKEv2 comme mécanisme d'échange des clés et le Pre-shared key (PSK) pour l’authentification
