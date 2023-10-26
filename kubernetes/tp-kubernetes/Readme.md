@@ -1002,9 +1002,9 @@ $ ./rke remove
 
 - Déployez les objets `nginx-deployment` et `nginx-service` vus précédemment et vérifiez s'ils fonctionnent correctement.
 
+--------
 
 **Bravo! Vous avez fini le TP! :tada:**
-
 
 --------
 
