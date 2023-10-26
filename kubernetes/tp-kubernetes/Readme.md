@@ -960,11 +960,14 @@ Si vous avez terminé le TP et s'il vous reste du temps, vous pouvez déployer l
 $ ./rke remove
 ```
 
-- Votre cluster utilisera Docker Engine comme CRI (Container Runtime Interface). Pour pouvoir utiliser Docker Engine comme CRI Kubernetes, vous devez installer le service `cri-dockerd` sur toutes les machines du cluster (N'hésitez pas à utiliser le package Debian pour installer le `cri-dockerd`)
-  - https://github.com/Mirantis/cri-dockerd
+- Votre cluster doit utiliser Docker Engine comme CRI (Container Runtime Interface)
+  - Pour ce faire, vous devez installer le service `cri-dockerd` sur toutes les machines du cluster 
+    - https://github.com/Mirantis/cri-dockerd
+    - **N.B.**: N'hésitez pas à utiliser le package Debian pour installer le `cri-dockerd`
 
 - Installez `kubeadm`, `kubelet` et `kubectl` sur tous les noeuds à l'aide du tutoriel suivant
   - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
+  - Quels sont les rôles de chaque composant installé ?
 
 - Ajoutez la variable `NO_PROXY` dans les variables d'environnement sur toutes les machines
     - Ajoutez la ligne **à la fin** du fichier `/etc/environment`
@@ -975,20 +978,24 @@ $ ./rke remove
 
 - Creez le cluster Kubernetes avec `kubeadm` à l'aide du tutoriel suivant
   - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
-  - Vous allez initialiser le noeud Control Plane avec la commande `kubeadm init`. 
+  - Tout d'abord, vous devez initialiser le nœud Control Plane avec la commande `kubeadm init`.
     - N'oubliez pas de spécifier le socket CRI avec l'option  `--cri-socket` sur le socket `cri-dockerd` `unix:///var/run/cri-dockerd.sock` 
     - Le réseau utilisé par les Pods doit être `10.244.0.0/16`. Pour le spécifier, utilisez l'option `--pod-network-cidr`
     - Quelle commande avez-vous utilisée pour initialiser le nœud Control Plane ?
-  - Rejoignez le cluster par les deux nœuds Workers
+  - Ensuite, faites en sorte que les deux nœuds Worker rejoignent le cluster
     - La commande pour ce faire sera affichée dans la sortie de la commande `kubeadm init`
-    - N'oubliez pas d'ajouter l'option `--cri-socket` à la commande `kubeadm join`
-    - Quelle commande avez-vous utilisée sur chaque noeud Worker pour rejoindre le cluster ?
+    - N'oubliez pas d'ajouter l'option `--cri-socket` à la commande `kubeadm join` pour spécifier le CRI
+    - Quelle commande avez-vous utilisée sur chaque nœud Worker pour rejoindre le cluster ?
+
 - Configurez l'outil `kubectl` comme expliqué dans le résultat de la commande `kubeadm init`
-- Déployez le `flannel` comme le CNI, comme expliqué dans
+
+- Déployez le CNI (Container Network Interface) `flannel`, comme expliqué dans
   - https://github.com/flannel-io/flannel
 
-- Verifiez l'etat du cluser avec `kubectl get nodes`
-  - Si tout a été déployé correctement, tous les nœuds doivent avoir l'état `Ready`
+- Verifiez l'etat du cluser avec la commande `kubectl get nodes`
+  - Si tout a été déployé correctement, tous les nœuds doivent être dans l'état `Ready`
+
+- Déployez les objets `nginx-deployment` et `nginx-service` vus précédemment et vérifiez s'ils fonctionnent correctement.
 
 --------
 
