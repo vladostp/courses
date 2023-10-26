@@ -38,7 +38,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
     ```
-    - Par conséquent, le trafic destiné aux adresses du sous-réseau `192.168.0.0/16` ne passera pas par le proxy de l'université et l'outil **RKE** pourra atteindre directement tous les nœuds du cluster.
+    - De cette façon, le trafic destiné aux adresses du sous-réseau `192.168.0.0/16` ne passera pas par le proxy de l'université et l'outil **RKE** pourra atteindre directement tous les nœuds du cluster.
 - **Redémarrez toutes les machines!**
 
 ### Déploiement de Kubernetes avec RKE
