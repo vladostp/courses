@@ -16,8 +16,6 @@ Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*.
 
 Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1372` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
-**Attention!** Après avoir créé les machines virtuelles, mettez l'adresse IP du *Control Plane* sur Tomuss.
-
 ------
 
 ## Déploiement du cluster
