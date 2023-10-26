@@ -1,41 +1,49 @@
 # TP VPN/IPsec
-Au cours de ce TP, vous allez interconnecter deux réseaux avec différentes solutions VPN. Vous allez commencer par la mise en place d’un tunnel non sécurisé avec **GRE**. Ensuite, vous le protégerez avec **IPsec** en gérant les clés de chiffrement et d’authentification manuellement. Puis, vous allez configurer un tunnel **IPsec** avec **IKE** en utilisant **strongSwan**. Vous configurerez également un **OpenVPN** avec une autorité de certification et des certificats. Si vous avez suffisamment de temps, vous mettrez également en place un VPN **Wireguard**.
+Au cours de ce TP, vous allez interconnecter deux réseaux avec différentes solutions VPN. Vous allez commencer par la mise en place d’un tunnel non sécurisé avec **GRE**. Ensuite, vous le protégerez avec **IPsec** en gérant les clés de chiffrement et d’authentification manuellement. Puis, vous allez configurer un tunnel **IPsec** avec **IKE** en utilisant **strongSwan**. Vous configurerez également un **OpenVPN** avec une autorité de certification et des certificats. S'il vous reste du temps, vous mettrez également en place un VPN **Wireguard**.
 
-## Rendu: 
-Afin d'être évalué, vous devez rédiger un rapport dans lequel vous placez toutes les commandes exécutées sur toutes les machines, tous les fichiers de configuration créés et les réponses aux questions.
+## Rendu
+Afin d'être évalué, vous devez rédiger un rapport dans lequel vous mettez toutes les commandes exécutées sur toutes les machines, tous les fichiers de configuration créés et les réponses aux questions posées.
 
 ## 1 - Creation de l’infrastructure
-Afin de pouvoir réaliser ce TP, vous allez commencer par créer l'infrastructure nécessaire. L’ensemble du TP se fera sur la plateforme OpenStack de l'université. 
+Afin de pouvoir réaliser ce TP, vous allez utiliser la plateforme OpenStack de l'université.
 
 ### L'architecture de déploiement
 ![Architecture de déploiement](./vpn_archi.png)
+L'architecture de déploiement est composée des composants suivants :
+- 2 routeurs et 3 hôtes qui seront des VM sur Openstack
+- 2 réseaux privés A et B qui seront des réseaux OpenStack
+- 1 réseau public qui sera le réseau par défaut (***vlanXXXX***) déjà présent dans l'Openstack
 
-Chaque routeur et chaque host seront des VMs sur Openstack. Les réseaux privés A et B seront des réseaux OpenStack. Le réseau par défaut (***vlanXXXX***) jouera le rôle du réseau public.
-
-Créez les éléments suivants :
+**Créez les éléments suivants :**
 - Une clé SSH qui sera utilisée uniquement pour ce TP
-- 2 réseaux sur OpenStack
-    - 1 réseau pour le **Network A** avec le sous réseau ***172.18.{Numéro de groupe}.0/24***. Nommez le réseau ***network-a-{numéro de groupe}***
-    - 1 réseau pour le **Network B** avec le sous réseau ***172.19.{Numéro de groupe}.0/24***. Nommez le réseau ***network-b-{numéro de groupe}***
-- 5 machines virtuelles avec 1 vCPU, 2 GB de RAM, l’image Ubuntu 22.04, les interfaces réseau qui font partie des réseaux respectant l'architecture de déploiement et la clé SSH créée précédemment. Nommez les machines en suivant la même logique que pour les réseaux.
-
-**Désactivez dans l’OpenStack la sécurité des ports sur tous les ports des réseaux A et B.**
+- 2 réseaux OpenStack
+    - 1 réseau pour le **Network A** avec le sous réseau ***172.18.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé. Vous pouvez choisir librement le pool d'attribution d’adresses de DHCP. Nommez le réseau ***network-a-{numéro de groupe}***
+    - 1 réseau pour le **Network B** avec le sous réseau ***172.19.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé. Vous pouvez choisir librement le pool d'attribution d’adresses de DHCP. Nommez le réseau ***network-b-{numéro de groupe}***
+- 5 machines virtuelles avec 
+    - 1 vCPU, 2 GB de RAM, l’image Ubuntu 22.04.3
+    - Interfaces réseau faisant partie des réseaux respectant l'architecture de déploiement
+    - La clé SSH créée précédemment
+    - Nommez les machines en suivant la même logique que pour nommer les réseaux
+    - Sur les deux routeurs, installez le noyau Linux `linux-image-5.19.0-50-generic` avec `apt` et redémarrez-les. Vérifiez avec `uname -r` que la  version `5.19.0-50-generic` du noyau est utilisée.
+**Désactivez dans l’OpenStack la sécurité des ports sur tous les ports des réseaux A et B**
 - *Network -> Networks -> {Nom du réseau} -> Ports -> Edit Port -> Décochez Port Security*
-- Si vous ne faites pas cela, Openstack bloquera tout le trafic avec des adresses IP qui ne sont pas incluses dans les sous-réseaux précédemment configurés.
+- Si vous ne faites pas cela, Openstack bloquera tout le trafic avec des adresses IP qui ne sont pas incluses dans les sous-réseaux précédemment configurés
 
-**Configurez le Router 1 et le Router 2 comme passerelles par défaut sur les hôtes des deux réseaux.**
-- Pour vous connecter aux hôtes, mettez la clé privée SSH précédemment créée sur le Router 1 et le Router 2 et connectez-vous aux hôtes en passant par les routeurs.
+**Configurez le Router 1 et le Router 2 comme passerelles par défaut sur les hôtes des deux réseaux**
+- Pour vous connecter aux hôtes, placez la clé privée SSH précédemment créée sur le Router 1 et le Router 2 et connectez-vous aux hôtes en passant par les routeurs
 
-**Activez le routage et configurez NAT sur les deux routeurs afin que les hôtes des deux réseaux puissent communiquer avec l'extérieur.**
+**Activez le routage et configurez NAT sur les deux routeurs afin que les hôtes des deux réseaux puissent communiquer avec l'extérieur**
 
-**Vérifiez que les hôtes des deux réseaux peuvent communiquer avec l'extérieur, mais ne peuvent pas communiquer entre eux.**
+**Vérifiez que les hôtes des deux réseaux peuvent communiquer avec l'extérieur, mais ne peuvent pas communiquer entre eux**
+- Si vous rencontrez un problème avec la résolution DNS, supprimez les entrées de la table de routage pour les adresses `10.10.10.10` et `10.10.10.11` sur tous les machines.
 
 ## 2 - Tunnel GRE
 **Configurez un tunnel GRE entre Router 1 et Router 2.**
 - Vous pouvez vous inspirer du tutoriel suivant : 
     - https://www.xmodulo.com/create-gre-tunnel-linux.html
+    - **Important!** N'utilisez pas le sous-réseau `10.10.10.0/24` pour les devices du tunnel comme indiqué dans le tutoriel car cela risque de casser la résolution DNS. Utilisez plutôt le réseau `172.42.{Group Number}.0/24`.
 
-**Mettez à jour les règles de routage afin que les machines du réseau A puissent communiquer avec les machines du réseau B via le tunnel GRE.**
+**Mettez à jour les règles de routage sur les routeurs afin que les machines du réseau A puissent communiquer avec les machines du réseau B via le tunnel GRE.**
 
 **Visualisez avec Wireshark via SSH les paquets échangés entre le Router 1 et le Router 2. Que pouvez-vous conclure?**
 - Vous pouvez utiliser le Wireshark via SSH avec la commande suivante:
