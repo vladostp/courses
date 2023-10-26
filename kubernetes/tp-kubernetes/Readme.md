@@ -974,12 +974,11 @@ $ ./rke remove
 
 - Ajoutez la variable `NO_PROXY` dans les variables d'environnement sur toutes les machines.
     - Ajoutez la ligne **à la fin** du fichier `/etc/environment`
-    ```bash
-    NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
-    ```
-    
-      - `10.244.0.0/16`​ - la plage d'adresses qui sera utilisée pour les **Pods** dans votre cluster
-      - `10.96.0.0/12`​ - la plage d'adresses système de Kubernetes
+      ```bash
+      NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
+      ```
+      - `10.244.0.0/16`​ correspond à la plage d'adresses qui sera utilisée pour les **Pods** dans votre cluster
+      - `10.96.0.0/12`​ correspond à la plage d'adresses système de Kubernetes
     - Redémarrez tous les nœuds
 
 - Creez le cluster Kubernetes avec `kubeadm` à l'aide du tutoriel suivant
