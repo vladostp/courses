@@ -38,6 +38,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,192.168.0.0/16
     ```
+    - Par conséquent, le trafic destiné aux adresses du sous-réseau `192.168.0.0/16` ne passera pas par le proxy de l'université.
 - **Redémarrez toutes les machines!**
 
 ### Déploiement de Kubernetes avec RKE
@@ -971,11 +972,13 @@ $ ./rke remove
   - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
   - Quels sont les rôles de chaque composant installé ?
 
-- Ajoutez la variable `NO_PROXY` dans les variables d'environnement sur toutes les machines
+- Ajoutez la variable `NO_PROXY` dans les variables d'environnement sur toutes les machines.
     - Ajoutez la ligne **à la fin** du fichier `/etc/environment`
     ```bash
     NO_PROXY=univ-lyon1.fr,127.0.0.1,localhost,10.244.0.0/16,10.96.0.0/12,192.168.0.0/16
     ```
+      - `10.244.0.0/16`​ - la plage d'adresses qui sera utilisée pour les **Pods** dans votre cluster
+      - `10.96.0.0/12`​ - la plage d'adresses système de Kubernetes
     - Redémarrez tous les nœuds
 
 - Creez le cluster Kubernetes avec `kubeadm` à l'aide du tutoriel suivant
