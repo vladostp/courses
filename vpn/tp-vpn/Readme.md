@@ -140,8 +140,10 @@ Dans cette section, vous allez mettre en place un VPN Wireguard entre les routeu
 
 **Configurez un VPN Wireguard entre deux routeurs**
 - Vous pouvez-vous inspirer de la documentation officielle de WireGuard https://www.wireguard.com/#conceptual-overview et de l’article https://www.ericlight.com/wireguard-part-one-installation.html
+    - Générez une paire de clés publique/privée sur chaque routeur avec la commande `wg`
+    - Configurez et activez les interfaces `wg0`
 
-**Vérifiez que les hôtes des deux réseaux peuvent communiquer via VPN WireGuard.**
+**Vérifiez que les hôtes des deux réseaux peuvent communiquer via VPN Wireguard.**
 
 **Vérifiez avec WireShark que l'échange entre le Router 1 et le Router 2 est bien sécurisé.**
 
