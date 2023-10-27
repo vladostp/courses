@@ -137,6 +137,7 @@ Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 co
 Dans cette section, vous allez mettre en place un VPN Wireguard entre les routeurs 1 et 2.
 
 **Supprimez le VPN OpenVPN.**
+- Pour ce faire, arrêtez les services OpenVPN sur toutes les machines
 
 **Configurez un VPN Wireguard entre deux routeurs**
 - Vous pouvez-vous inspirer de la documentation officielle de WireGuard https://www.wireguard.com/#conceptual-overview et de l’article https://www.ericlight.com/wireguard-part-one-installation.html
