@@ -74,16 +74,18 @@ Dans cette section, vous allez déployer un **VPN IPsec avec IKE** en utilisant 
 
 **Configurez IPsec en mode tunnel entre Router 1 et 2 avec strongSwan.** 
 - Avec IKEv2 comme mécanisme d'échange des clés et le Pre-shared key (PSK) pour l’authentification
-- Vous pouvez vous inspirer du tutoriel suivant
+- Vous pouvez vous inspirer des tutoriels suivants
     - https://www.tecmint.com/setup-ipsec-vpn-with-strongswan-on-debian-ubuntu/
+    - https://blog.ruanbekker.com/blog/2018/02/11/setup-a-site-to-site-ipsec-vpn-with-strongswan-and-preshared-key-authentication/
+
 
 **Vérifiez que les hôtes des deux réseaux puissent se parler.**
-<!---
 - Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.)
 - Pourquoi y a-t-il des problèmes avec le NAT dans cette configuration ?
---->
+
 
 **Vérifiez la sécurité des paquets échangés entre les routeurs avec Wireshark.**
+- Que pouvez-vous remarquer ?
 
 ## 5 - OpenVPN
 Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 comme serveur et le Router 2 et le Host EXT comme clients.
