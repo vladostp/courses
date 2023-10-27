@@ -73,40 +73,44 @@ Dans cette section, vous allez déployer un **VPN IPsec avec IKE** en utilisant 
 - Pour ce faire, utilisez les commandes `ip xfrm ... flush` et `ip tunnel del`
 
 **Configurez IPsec en mode tunnel entre Router 1 et 2 avec strongSwan.** 
-- Avec IKEv2 comme mécanisme d'échange des clés et le Pre-shared key (PSK) pour l’authentification
+- Utilisez le IKEv2 comme mécanisme d'échange des clés et le Pre-shared key (PSK) pour l’authentification
 - Vous pouvez vous inspirer des tutoriels suivants
     - https://www.tecmint.com/setup-ipsec-vpn-with-strongswan-on-debian-ubuntu/
     - https://blog.ruanbekker.com/blog/2018/02/11/setup-a-site-to-site-ipsec-vpn-with-strongswan-and-preshared-key-authentication/
 
-
-**Vérifiez que les hôtes des deux réseaux puissent se parler.**
-- Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.)
+**Vérifiez que les hôtes des deux réseaux peuvent communiquer entre eux.**
+- Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.
 - Pourquoi y a-t-il des problèmes avec le NAT dans cette configuration ?
 
-
-**Vérifiez la sécurité des paquets échangés entre les routeurs avec Wireshark.**
+**Visualisez les paquets échangés entre les routeurs avec Wireshark.**
 - Que pouvez-vous remarquer ?
 
 ## 5 - OpenVPN
 Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 comme serveur et le Router 2 et le Host EXT comme clients.
 
-**Supprimez IPSec strongSwan entre les routeurs 1 et 2.**
-- Pour ce faire, restaurez le contenu du fichier ***/etc/ipsec.conf*** depuis ***/etc/ipsec.conf.orig*** et redémarrez ***ipsec***. Si vous n'avez pas sauvegardé la configuration IPsec par défaut, supprimez le fichier ***/etc/ipsec.conf*** et redémarrez ***ipsec***.
+**Supprimez IPSec strongSwan entre les routeurs.**
+- Pour ce faire, restaurez le contenu du fichier `/etc/ipsec.conf` depuis `/etc/ipsec.conf.orig` et redémarrez `ipsec`. Si vous n'avez pas sauvegardé la configuration IPsec par défaut, supprimez le fichier `/etc/ipsec.conf` et redémarrez `ipsec`. 
+    - Vérifiez avec `ipsec status` que toutes les associations de sécurité ont été supprimées.
 
 **Configurez le serveur OpenVPN sur le Router 1**
 - Le serveur doit être configuré en **mode TUN**, utiliser le protocole **UDP** pour la communication et les certificats pour l'authentification.
 - Commencez par créer l'autorité de certification sur le Router 1, vous pouvez vous inspirer du tutoriel suivant (jusqu'à l'étape 3) :
     - https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04
-- Pour la configuration de la partie serveur, vous pouvez vous inspirer du tutoriel suivant :
-    - https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-an-openvpn-server-on-ubuntu-20-04
-    - Si vous utilisez ce tutoriel, ne changez pas l'utilisateur et le groupe du serveur OpenVPN
-- Générez les clés et les certificats pour deux clients
 
-**Configurez le serveur OpenVPN pour qu’il annonce la route du réseau A pour chaque client.**
+- Pour configurer la partie serveur et générer les clés et certificats pour les clients, vous pouvez vous inspirer du tutoriel suivant (à partir de l'étape 3):
+    - https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-an-openvpn-server-on-ubuntu-20-04
+    - Comme toutes les actions sont effectuées sur le Routeur 1, vous n'avez pas besoin de transmettre des clés, des demandes de signature et des certificats entre les machines
+    - Tout d’abord, créez une clé privée et un certificat pour le serveur
+    - Ensuite, générez des clés et des certificats pour deux clients (Router 2 et Host EXT)
+    - Finalement, configurez et démarrez le serveur OpenVPN
+        - Ne modifiez pas l'utilisateur et le groupe dans la configuration du serveur OpenVPN
+
+**Configurez le serveur OpenVPN pour qu’il annonce la route du réseau A à ses clients.**
 - Pour cela, vous devez configurer une ***push "route"*** dans **server.conf**
+    - N'oubliez pas de redémarrer le serveur OpenVPN
 
 **Configurez le Router 2 et le Host EXT comme clients OpenVPN**
-- Mettez **ta.key**, les clés et les certificats des clients sur le Router 2 et le Host EXT
+- Mettez **ta.key**, **ca.crt**, les clés et les certificats des clients sur le Router 2 et le Host EXT
 - Configurez les clients en mode démon. Vous pouvez vous inspirer de la partie "Configuration client simple" de ce tutoriel :
     - https://guide.ubuntu-fr.org/server/openvpn.html
 - Dans la configuration du client mettez la même configuration d'encryption et d'authentification que sur le serveur
@@ -120,6 +124,8 @@ Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 co
 **Configurez le serveur OpenVPN pour que le réseau B soit accessible par tous les clients OpenVPN via le Router 2.**
 - Vous pouvez vous inspirer de la section “Including multiple machines on the client side when using a routed VPN (dev tun)” de ce tutoriel: 
     - https://openvpn.net/community-resources/how-to/
+    - Toutes les actions doivent être effectuées sur le serveur OpenVPN (Router 1).
+    - N'oubliez pas de redémarrer le serveur OpenVPN
 
 **Vérifiez que le Router 1 et le Host EXT sont capables de communiquer avec les hôtes du réseau B.**
 
