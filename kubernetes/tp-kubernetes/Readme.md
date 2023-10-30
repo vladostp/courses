@@ -638,7 +638,7 @@ spec:
     $ kubectl apply -f liveness_pod.yml
     ```
 
-- **Provoquer une erreur d'application en supprimant le répertoire `/usr/share/nginx` dans le Pod `liveness-pod`**
+- **Provoquez une erreur d'application en supprimant le répertoire `/usr/share/nginx` dans le Pod `liveness-pod`**
 	```bash
 	$ kubectl exec -it liveness-pod -- rm -r /usr/share/nginx
 	```
