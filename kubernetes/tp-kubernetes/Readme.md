@@ -690,13 +690,14 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-nogood
+  name: nginx-slow
   labels:
     app: nginx-readiness
 spec:
   containers:
   - name: nginx
-    image: nginx:1.222
+    image: nginx
+    command: ["sh", "-c", "sleep 300 && nginx -g 'daemon off;'"]
     readinessProbe:
       httpGet:
           path: /
@@ -711,7 +712,7 @@ spec:
     ```
 
 - **Etudiez le comportement des Pods avec une sonde Readiness**
-  - Surveillez les pods
+  - **Surveillez les pods déployés**
   ```bash
   $ kubectl get pods -o wide
   ```
@@ -723,26 +724,19 @@ spec:
     ```
     - Que remarquez-vous?
 
-- **Est-ce que le service répond aux requêtes?**
+- **Le service répond-il aux requêtes?**
   ```bash
   $ kubectl get services # Trouvez sur quel port le service est exposé
   $ curl 127.0.0.1:<NODE_PORT>
   ```
   - Comment pouvez-vous expliquer un tel comportement?
 
-- **Trouvez et corrigez l'erreur introduite dans la description du Pod `nginx-nogood`**
-  - Utilisez la commande
-    ```bash
-    $ kubectl edit pod nginx-nogood
-    ```
-
-- **Surveillez l'état des pods et la liste des endpoints du service**
+- **Attendez 5 minutes et réétudiez le comportement des Pods et la liste des endpoints du service**
   ```bash
   $ kubectl get pods
   $ kubectl get endpoints
   ```
-  - Que remarquez-vous?
-
+  - Que remarquez-vous? Comment pouvez-vous expliquer un tel comportement?
 
 ### Création d'un Ingress
 **Ingress** est un objet K8s qui gère l'accès externe (**HTTP** ou **HTTPS**) aux services. 
