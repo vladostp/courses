@@ -713,10 +713,10 @@ spec:
 
 - **Etudiez le comportement des Pods avec une sonde Readiness**
   - **Surveillez les pods déployés**
-  ```bash
-  $ kubectl get pods -o wide
-  ```
-  - Que remarquez-vous?
+    ```bash
+    $ kubectl get pods -o wide
+    ```
+    - Que remarquez-vous?
 
   - **Surveillez la liste des endpoints du service**
     ```bash
