@@ -5,10 +5,11 @@ Au cours de ce TP, vous allez interconnecter deux réseaux avec différentes sol
 Afin d'être évalué, vous devez rédiger un rapport dans lequel vous mettez toutes les commandes exécutées sur toutes les machines, tous les fichiers de configuration créés et les réponses aux questions posées.
 
 ## 1 - Creation de l’infrastructure
-Afin de pouvoir réaliser ce TP, vous allez utiliser la plateforme OpenStack de l'université.
+Pour réaliser ce TP, vous allez utiliser la plateforme OpenStack de l'université.
 
 ### L'architecture de déploiement
 ![Architecture de déploiement](./vpn_archi.png)
+
 L'architecture de déploiement est composée des composants suivants :
 - 2 routeurs et 3 hôtes qui seront des VM sur Openstack
 - 2 réseaux privés A et B qui seront des réseaux OpenStack
@@ -17,11 +18,14 @@ L'architecture de déploiement est composée des composants suivants :
 **Créez les éléments suivants :**
 - Une clé SSH qui sera utilisée uniquement pour ce TP
 - 2 réseaux OpenStack
-    - 1 réseau pour le **Network A** avec le sous réseau ***172.18.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé. Vous pouvez choisir librement le pool d'attribution d’adresses de DHCP. Nommez le réseau ***network-a-{numéro de groupe}***
-    - 1 réseau pour le **Network B** avec le sous réseau ***172.19.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé. Vous pouvez choisir librement le pool d'attribution d’adresses de DHCP. Nommez le réseau ***network-b-{numéro de groupe}***
+    - 1 réseau nommé ***network-a-{numéro de groupe}*** pour le **Network A** avec le sous-réseau ***172.18.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé
+    - 1 réseau nommé ***network-b-{numéro de groupe}***pour le **Network B** avec le sous-réseau ***172.19.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé
+    - **Dans la configuration DHCP des deux sous-réseaux**, vous pouvez choisir librement le pool d'attribution d’adresses de DHCP
+    - **Attention!** Vous devrez également **supprimer les serveurs DNS mis par défaut** dans la configuration DHCP des sous-réseaux!
 - 5 machines virtuelles avec 
     - 1 vCPU, 2 GB de RAM, l’image Ubuntu 22.04.3
     - Interfaces réseau faisant partie des réseaux respectant l'architecture de déploiement
+        - **Attention!** Pour éviter les problèmes de DNS, lors de la création des VMs routeurs, sélectionnez le réseau par défaut (***vlanXXXX***) comme première interface
     - La clé SSH créée précédemment
     - Nommez les machines en suivant la même logique que pour nommer les réseaux
     - Sur les deux routeurs, installez le noyau Linux `linux-image-5.19.0-50-generic` avec `apt` et redémarrez-les. Vérifiez avec `uname -r` que la  version `5.19.0-50-generic` du noyau est utilisée.
@@ -35,7 +39,9 @@ L'architecture de déploiement est composée des composants suivants :
 **Activez le routage et configurez NAT sur les deux routeurs afin que les hôtes des deux réseaux puissent communiquer avec l'extérieur**
 
 **Vérifiez que les hôtes des deux réseaux peuvent communiquer avec l'extérieur, mais ne peuvent pas communiquer entre eux**
+<!---
 - Si vous rencontrez des problèmes avec la résolution DNS, supprimez les entrées de la table de routage pour les adresses `10.10.10.10` et `10.10.10.11` sur tous les machines.
+--->
 
 ## 2 - Tunnel GRE
 **Configurez un tunnel GRE entre Router 1 et Router 2.**
@@ -51,8 +57,8 @@ L'architecture de déploiement est composée des composants suivants :
     ssh ubuntu@ADRESSE_IP_DU_ROUTEUR "sudo tcpdump -s0 -U -n -w - -i enp2s0 'not port 22'" | wireshark -i -
     ```
 
-## 3 - IPsec - Gestion des clés manuelle
-**Mettez en place l’IPsec entre le Router 1 et le Router 2 en mode transport et avec le mécanisme de sécurité ESP.**
+## 3 - Protection du tunnel GRE avec IPsec - Gestion des clés manuelle
+**Mettez en place l’IPsec entre le Router 1 et le Router 2 en mode transport et avec le mécanisme de sécurité ESP avec chiffrement et authentification.**
 - Utilisez le framework IP XFRM pour configurer l’IPsec
 - Générez et configurez les clés manuellement
 - Vous pouvez vous inspirer de la page suivante:
@@ -64,10 +70,10 @@ L'architecture de déploiement est composée des composants suivants :
 
 **Vérifiez que les machines du réseau A peuvent communiquer avec les machines du réseau B.**
 
-## 4 - IPsec - IKE avec strongSwan
+## 4 - Tunnel IPsec - IKE avec strongSwan
 La configuration manuelle des clés de chiffrement convient à des fins de démonstration, mais dans la vie réelle, la gestion et la configuration des clés se font de manière automatisée avec un démon IKE. 
 
-Dans cette section, vous allez déployer un **VPN IPsec avec IKE** en utilisant **strongSwan**.
+Dans cette section, vous allez déployer un **VPN IPsec en mode tunnel avec IKE** en utilisant **strongSwan**.
 
 **Supprimez le tunnel GRE et l’IPSec entre les routeurs 1 et 2.**
 - Pour ce faire, utilisez les commandes `ip xfrm ... flush` et `ip tunnel del`
@@ -107,6 +113,8 @@ Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 co
 
 **Configurez le serveur OpenVPN pour qu’il annonce la route du réseau A à ses clients.**
 - Pour cela, vous devez configurer une ***push "route"*** dans **server.conf**
+    - Vous pouvez vous inspirer de la section "Including multiple machines on the server side when using a routed VPN (dev tun)" de ce tutoriel:
+        - https://openvpn.net/community-resources/how-to/
     - N'oubliez pas de redémarrer le serveur OpenVPN
 
 **Configurez le Router 2 et le Host EXT comme clients OpenVPN**
