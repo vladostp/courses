@@ -99,7 +99,7 @@ Dans cette section, vous allez configurer un VPN **OpenVPN** avec le Router 1 co
     - Vérifiez avec `ipsec status` que toutes les associations de sécurité ont été supprimées.
 
 **Configurez le serveur OpenVPN sur le Router 1**
-- Le serveur doit être configuré en **mode TUN**, utiliser le protocole **UDP** pour la communication et les certificats pour l'authentification.
+- Le serveur doit être configuré en **mode TUN**, utiliser la topologie réseau **Subnet**, utiliser le protocole **UDP** pour la communication et les certificats pour l'authentification
 - Commencez par créer l'autorité de certification sur le Router 1, vous pouvez vous inspirer du tutoriel suivant (jusqu'à l'étape 3) :
     - https://www.digitalocean.com/community/tutorials/how-to-set-up-and-configure-a-certificate-authority-ca-on-ubuntu-20-04
 
