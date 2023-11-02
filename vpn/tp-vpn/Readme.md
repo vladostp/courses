@@ -29,6 +29,7 @@ L'architecture de déploiement est composée des composants suivants :
     - La clé SSH créée précédemment
     - Nommez les machines en suivant la même logique que pour nommer les réseaux
     - Sur les deux routeurs, installez le noyau Linux `linux-image-5.19.0-50-generic` avec `apt` et redémarrez-les. Vérifiez avec `uname -r` que la  version `5.19.0-50-generic` du noyau est utilisée.
+    
 **Désactivez dans l’OpenStack la sécurité des ports sur tous les ports des réseaux A et B**
 - *Network -> Networks -> {Nom du réseau} -> Ports -> Edit Port -> Décochez Port Security*
 - Si vous ne faites pas cela, Openstack bloquera tout le trafic avec des adresses IP qui ne sont pas incluses dans les sous-réseaux précédemment configurés
