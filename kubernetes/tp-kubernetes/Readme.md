@@ -39,7 +39,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
     - De cette façon, le trafic destiné aux adresses du sous-réseau `192.168.0.0/16` ne passera pas par le proxy de l'université et l'outil **RKE** pourra atteindre directement toutes les machines du cluster.
 - **Redémarrez toutes les machines!**
 
-### Déploiement de Kubernetes avec RKE
+### Déploiement de Kubernetes avec RKE (Depuis le noeud Control Plane)
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
 	- **Attention !** Vous devez choisir une version stable (release) et non une pre-release !
 - Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`), renommez le fichier en `rke` et lancez la configuration
