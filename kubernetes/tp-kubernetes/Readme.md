@@ -213,7 +213,7 @@ Jusqu'à présent, vous avez créé un objet de type **Deployment** qui crée et
 ### Creation d'une service
 Pour rendre votre **Deployment** accessible, vous allez créer un objet de type **Service**.
 Le **Service** peut être vu comme un Load Balancer qui distribue le trafic vers un ensemble des **Pods**.
-Le nom du **Service** peut être utilisé comme nom DNS pour contacter tous les Pods référencés par ce **Service** depuis n'importe quel **Pod** dans le même **namespace**.
+Le nom du **Service** peut être utilisé comme nom DNS pour contacter tous les Pods référencés par ce **Service** depuis n'importe quel **Pod** du même **namespace**.
 
 Créez le fichier `nginx_service.yml`
 ```yaml
