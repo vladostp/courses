@@ -25,9 +25,9 @@ Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (
 #### SSH
 Avant de commencer le déploiement avec RKE, vous devez vous assurer que la machine **Control Plane** peut se connecter en **ssh** sur toutes les machines du cluster sans aucun mot de passe. 
 **Pour cela :**
--   Créez une paire de clefs ssh **sans passphrase** sur le nœud Control Plane (commande `ssh-keygen`) 
--   **Ajoutez** la clef publique (`.ssh/id_rsa.pub`) du **Control Plane** au fichier des clefs autorisées (`.ssh/authorized_keys`) sur tous les nœuds (y compris sur le nœud Control Plane).
-	 - **Attention !** Conservez les clefs déjà présentes dans `.ssh/authorized_keys` (sinon vous ne pourrez plus vous connecter aux nœuds).
+-   Créez une paire de clés ssh **sans passphrase** sur le nœud Control Plane (commande `ssh-keygen`) 
+-   **Ajoutez** la clé publique (`.ssh/id_rsa.pub`) du **Control Plane** au fichier des clés autorisées (`.ssh/authorized_keys`) sur tous les nœuds (y compris sur le nœud Control Plane).
+	 - **Attention !** Conservez les clés déjà présentes dans `.ssh/authorized_keys` (sinon vous ne pourrez plus vous connecter aux nœuds).
 - Testez si le nœud **Control Plane** arrive à se connecter en ssh sur tous les nœuds (**y compris sur lui-même**)
 
 #### Proxy
