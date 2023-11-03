@@ -194,7 +194,7 @@ spec:
     ```bash
     $ kubectl describe deployment nginx-deployment
     ```
-    - Que voyez-vous dans la liste des événements de déploiement ?
+    - Que voyez-vous dans la liste des événements du déploiement ?
 
 - **Vérifiez que votre déploiement a lancé un bon nombre des replicas**
     ```bash
