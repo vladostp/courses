@@ -554,7 +554,7 @@ spec:
     $ kubectl logs NOM_DU_POD
     ```
     - Que voyez-vous dans les logs du Pod?
-    - Que contiennent les fichiers du répertoire `/secret`?
+    - Que contiennent les fichiers du répertoire `/secret` du **Pod**?
 
 ### Init containers
 L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur principal. 
