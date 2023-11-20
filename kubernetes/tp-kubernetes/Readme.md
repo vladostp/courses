@@ -799,7 +799,7 @@ L'application sera composée des deux services :
 - **Le premier service est la base de données clé-valeur Redis**
 	- Il sera utilisé pour stocker un compteur utilisé et mis à jour par l'application
 	- Il stockera ses données sur un volume persistant
-	- Il sera configuré avec un **initContainer** pour demander une authentification avec un mot de passe qui sera fourni par un **Secret**
+	- Il sera configuré avec un **initContainer** pour mettre en place une authentification avec un mot de passe qui sera fourni par un **Secret**
 	- Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
 	- Il sera accessible via un **Service**
 - **Le deuxième service est une application simple Counter que nous avons développé pour ce TP**. Cette application lit et incrémente le compteur stocké dans la base de données Redis.
