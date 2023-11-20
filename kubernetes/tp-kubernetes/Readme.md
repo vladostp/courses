@@ -745,6 +745,7 @@ spec:
   ```
   - Que remarquez-vous? Comment pouvez-vous expliquer un tel comportement?
 
+
 ### Création d'un Ingress
 **Ingress** est un objet K8s qui gère l'accès externe (**HTTP** ou **HTTPS**) aux services. 
 Ingress peut acheminer le trafic vers un seul service (`Single Service Ingress`), s'appuyer sur l'URI HTTP pour acheminer le trafic vers différents services (`Simple Fanout`) ou acheminer le trafic en fonction de différents noms d'hôte (`Name based virtual hosting`).
