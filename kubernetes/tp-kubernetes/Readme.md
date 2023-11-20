@@ -306,7 +306,7 @@ Pour déployer la nouvelle version de l'application, vous allez mettre à jour l
     ```
 
 - **Édition interactive**
-      ```bash
+    ```bash
     $ kubectl edit deployment nginx-deployment
     ```
 
