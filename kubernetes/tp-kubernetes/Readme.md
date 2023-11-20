@@ -337,7 +337,7 @@ Kubernetes vous donne la possibilité de revenir en arrière avec le mécanisme 
 - Que pouvez-vous conclure?
 
 Avec Kubernetes, vous pouvez spécifier la version de déploiement vers laquelle vous souhaitez revenir. 
-Pour cela, vous devez récupérer l'historique de déploiement et choisir la révision vers laquelle vous souhaitez revenir.
+Pour cela, vous devez récupérer l'historique du déploiement et choisir la révision vers laquelle vous souhaitez revenir.
 
 - **Récupérez l'historique du déploiement**
     ```bash
@@ -396,7 +396,7 @@ spec:
 Vous ne pouvez pas attacher directement un volume persistant à votre **Pod**. 
 Kubernetes ajoute une couche d'abstraction - l'objet **PersistentVolumeClaim**. 
 Cet objet peut être vu comme une demande de stockage et peut être attaché à un **Pod**. 
-Cette abstraction permet de découpler les volumes mis à disposition par les administrateurs K8s et les demandes d'espace de stockage des développeurs pour leurs applications.
+Cette abstraction permet de découpler les volumes mis à disposition par les administrateurs K8s et les demandes d'espace de stockage faites par les développeurs pour leurs applications.
 
 Vous allez demander 100 Mi de stockage qui peut être monté en lecture-écriture par un seul nœud en créant un objet **PersistentVolumeClaim**.
 
@@ -464,8 +464,8 @@ spec:
     $ kubectl get pods
     ```
 
-    - **Trouvez un moyen de vérifier que le volume persistent fonctionne correctement**
-        - Comment l'avez-vous vérifié ?
+- **Trouvez un moyen de vérifier que le volume persistent fonctionne correctement**
+    - Comment l'avez-vous vérifié ?
 
 
 ### Variables d'environnement
