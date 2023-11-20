@@ -262,16 +262,17 @@ spec:
 
 ### Rolling Updates
 Imaginez que vous avez une nouvelle version de l'application à déployer et vous voulez le faire sans aucune interruption de service.
-Pour simuler ce scénario et pouvoir suivre le processus de déploiement, nous allons changer la version de l'image **nginx** et ralentir le processus de déploiement. 
+Pour simuler ce scénario et pouvoir suivre le processus de déploiement, nous allons d'abord ralentir le processus de déploiement puis changer la version de l'image **nginx** du déploiement.
 
-Nous allons modifier les paramètres de déploiement pour faire une pause de 10 secondes après le déploiement de chaque nouveau **Pod**
+
+Nous allons commencer par modifier les paramètres de déploiement afin d'attendre 10 secondes après le déploiement de chaque nouveau **Pod** avant de déployer le suivant.
 ```bash
 $ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 10}}' 
 ```
 
-Pour déployer la nouvelle version de l'application, vous mettrez à jour le **Déploiement**.
+Pour déployer la nouvelle version de l'application, vous allez mettre à jour le **Déploiement**.
 
-**Vous avez deux moyens pour faire cela :**
+**Vous avez trois moyens pour faire cela :**
 - **En modifiant le fichier `yaml` du Deployment `nginx_deployment.yml`**
     ```yaml
     apiVersion: apps/v1
@@ -302,6 +303,11 @@ Pour déployer la nouvelle version de l'application, vous mettrez à jour le **D
 - **Inline (en utilisant uniquement la ligne de commande)**
     ```bash
     $ kubectl set image deployments/nginx-deployment nginx=nginx:1.16.0
+    ```
+
+- **Édition interactive**
+      ```bash
+    $ kubectl edit deployment nginx-deployment
     ```
 
 - **Mettez-à-jour le déploiement et suivez le processus de déploiement**
