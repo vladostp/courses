@@ -791,6 +791,7 @@ spec:
 
 ## Un déploiement plus complexe
 Dans la section précédente, vous avez manipulé de nombreux objets et mécanismes de Kubernetes. Vous pouvez désormais créer des déploiements plus complexes.
+
 Dans cette section, vous rassemblerez toutes les connaissances acquises précédemment pour déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
 ### Architecture de déploiement
