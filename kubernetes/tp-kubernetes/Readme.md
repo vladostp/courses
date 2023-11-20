@@ -559,6 +559,7 @@ spec:
 ### Init containers
 L'utilisation de conteneurs d'initialisation (initContainers) est utile lorsque vous souhaitez initialiser un **Pod** avant l'exécution du conteneur principal. 
 Ces conteneurs peuvent être utilisés pour télécharger du code, effectuer une configuration ou initialiser une base de données avant le démarrage de l'application principale. 
+
 Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContainer` basé sur l'image `busybox` qui modifie la page d'accueil `index.html` avant le démarrage du conteneur principal. 
 Comme le `initContainer` et le conteneur principal sont deux conteneurs distincts, il faudra créer un volume partagé par les deux conteneurs. 
 Grâce à ce volume le `initContainer` pourra modifier la page d'accueil du conteneur principal. Vous allez utiliser un volume de type `emptyDir`.
