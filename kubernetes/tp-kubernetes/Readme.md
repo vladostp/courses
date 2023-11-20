@@ -853,7 +853,7 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
     ```
 
 - **Service**
-	- Créez un service de type `ClusterIP` avec le nom `redis-service`  qui
+	- Créez un service de type `ClusterIP` avec le nom `redis-service` qui
 		- Utilise un selector sur le label `app: redis`
 		- Transfére le trafic envoyé au port TCP `6379` du **Service** sur le port `6379` du **Pod** 
 	 - Verifiez le **Service** et les **Endpoints**
