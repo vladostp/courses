@@ -2,6 +2,10 @@
 In this repository you will find all my courses, presentations and labs.
 
 ## Kubernetes
+### IUT
+- [CM Kubernetes](./kubernetes-iut/cm-kubernetes.pdf) - French
+- [TP Kubernetes](./kubernetes-iut/tp-kubernetes) - French
+
 ### M2 TIW and SRS
 - [CM Kubernetes](./kubernetes/cm-kubernetes.pdf) - French
 - [TP Kubernetes](./kubernetes/tp-kubernetes) - French
