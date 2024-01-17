@@ -30,6 +30,7 @@ Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (
 ### Préparation de machines
 
 #### Configuration du système d'exploitation
+Dans cette section, vous allez exécuter le script fourni qui installe Docker et configure tout ce qui est nécessaire au bon fonctionnement du TP (configuration du proxy, configuration de Docker, etc.).
 
 - **Exécutez la commande suivante sur toutes les machines précédemment créées**
     ```bash
