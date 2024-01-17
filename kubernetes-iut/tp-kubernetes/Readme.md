@@ -8,7 +8,7 @@ Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outi
 ## Openstack
 ### Configuration des regles de securité reseau
 Afin de configurer les règles de sécurité réseau nécessaires au bon fonctionnement du TP, dans l'interface Openstack
-- Allez dans `Réseau` -> `Groupes de sécurité` -> `default` -> `Gérer les régles` -> `Ajouter une régle``
+- Allez dans `Réseau` -> `Groupes de sécurité` -> `default` -> `Gérer les régles` -> `Ajouter une régle`
 - Ajoutez les règles Ingress pour les ports suivants
   - `22`, `80`, `443`, `8080`
 
