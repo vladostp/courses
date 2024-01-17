@@ -245,7 +245,7 @@ spec:
     $ kubectl apply -f nginx_service.yml
     ```
 
-- **Détectez quel port est exposé sur les nœuds pour atteindre le service**
+- **Trouvez quel port est exposé sur les nœuds pour atteindre le service**
     ```bash
     $ kubectl get services
     ```
@@ -260,6 +260,7 @@ spec:
     ```bash
     $ curl -I 127.0.0.1:[node_port]
     ```
+    - Quel port allez-vous contacter pour effectuer la vérification ?
 
 - **Vérifiez si le service est accessible depuis le Pod `nginx-pod` créé précédemment**
     - Le service doit être accessible en utilisant son nom `nginx-service` comme un nom DNS depuis le **Pod** `nginx-pod` 
@@ -323,6 +324,7 @@ Pour déployer la nouvelle version de l'application, vous allez mettre à jour l
     $ watch -n 1 curl -I 127.0.0.1:[node_port]
     ```
     - Comme nous avons ralenti le processus de déploiement, vous pouvez suivre le déploiement de la nouvelle version en temps réel.
+    - Que pouvez-vous conclure ?
 
 Comme vous pouvez le constater, la mise à jour s'est déroulée de manière progressive et sans aucune interruption de service.
 
