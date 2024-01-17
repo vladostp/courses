@@ -324,7 +324,8 @@ Pour déployer la nouvelle version de l'application, vous allez mettre à jour l
     $ watch -n 1 curl -I 127.0.0.1:[node_port]
     ```
     - Comme nous avons ralenti le processus de déploiement, vous pouvez suivre le déploiement de la nouvelle version en temps réel.
-    - Que pouvez-vous conclure ?
+
+- Que pouvez-vous conclure ?
 
 Comme vous pouvez le constater, la mise à jour s'est déroulée de manière progressive et sans aucune interruption de service.
 
@@ -449,7 +450,7 @@ metadata:
   name: mongodb-pvc
 spec:
   containers:
-    - image: mongo
+    - image: mongo:4.4.6
       name: mongodb
       volumeMounts:
         - name: mongodb-data
