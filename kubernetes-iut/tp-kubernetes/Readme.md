@@ -8,17 +8,17 @@ Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outi
 ## Openstack
 ### Configuration des regles de securité reseau
 Afin de configurer les règles de sécurité réseau nécessaires au bon fonctionnement du TP, dans l'interface Openstack
-- Allez dans Réseau -> Groupes de sécurité -> default -> Gérer les régles -> Ajouter une régle
+- Allez dans `Réseau` -> `Groupes de sécurité` -> `default` -> `Gérer les régles` -> `Ajouter une régle``
 - Ajoutez les règles Ingress pour les ports suivants
   - `22`, `80`, `443`, `8080`
 
 ### Creation de l'infrastructure
 Dans cette section, vous devez créer trois machines virtuelles dans OpenStack avec les caractéristiques suivantes:
-- Image source Ubuntu-22.04 avec taille du volume 20Go (Mettez "Oui" pour l'option "Supprimer le volume après terminaison de l’instance")
-- Gabarit avec 2 vCPUs, 4Go RAM et 20Go d'espace disque
+- Image source `Ubuntu-22.04` avec taille du volume `20Go` (Mettez `Oui` pour l'option "Supprimer le volume après terminaison de l’instance")
+- Gabarit avec `2 vCPUs`, `4Go RAM` et `20Go d'espace disque`
 
 Pour créer une machine virtuelle dans l'interface Openstack
-- Allez dans Compute -> Instances -> Launch Instance
+- Allez dans `Compute` -> `Instances` -> `Launch Instance`
 
 Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*. Nommez les machines afin de pouvoir les différencier facilement.
 
@@ -30,12 +30,12 @@ Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (
 ### Préparation de machines
 
 #### Configuration du système d'exploitation
+
 - **Exécutez la commande suivante sur toutes les machines précédemment créées**
-    - 
     ```bash
     https_proxy=http://proxy.univ-lyon1.fr:3128 curl -fsSL https://raw.githubusercontent.com/vladostp/courses/master/kubernetes-iut/tp-kubernetes/init.sh | sudo bash
     ```
-    - A la fin de l'exécution les machines seront automatiquement redémarrées!
+    - A la fin de l'exécution les machines seront automatiquement redémarrées !
 
 #### SSH
 Avant de commencer le déploiement avec RKE, vous devez vous assurer que la machine **Control Plane** peut se connecter en **ssh** sur toutes les machines du cluster sans aucun mot de passe. 
