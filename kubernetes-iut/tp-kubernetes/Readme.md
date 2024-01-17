@@ -1,7 +1,7 @@
 # TP Kubernetes
 Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outil RKE (Rancher Kubernetes Engine). Ensuite, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc). Vous finirez par déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
-**Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées et la description de tous les objets créés au cours du TP. Veillez à bien utiliser les noms demandés pour les objets Kubernetes. 
+**Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées et la description de tous les objets (contenu des fichiers yaml) créés au cours du TP. Veillez à bien utiliser les noms demandés pour les objets Kubernetes. 
 
 --------
 
