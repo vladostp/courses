@@ -1,28 +1,57 @@
 # TP Kubernetes
-Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outil RKE (Rancher Kubernetes Engine). Ensuite, vous allez manipuler différents objets K8S (Workloads, Pods, Volumes etc). Vous finirez par déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
+Au cours de ce TP, vous allez deployer un cluster Kubernetes et vous allez manipuler différents objets Kubernetes (Workloads, Pods, Volumes etc).
 
-**Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées et la description de tous les objets (contenu des fichiers yaml) créés au cours du TP. Veillez à bien utiliser les noms demandés pour les objets Kubernetes. 
+Vous allez commencer par la création de l'infrastructure nécessaire sur Openstack. 
+Vous allez poursuivre avec l'installation et la configuration d'un cluster K8S avec l'outil RKE (Rancher Kubernetes Engine). 
+Ensuite, vous allez manipuler des objets Kubernetes afin de comprendre leur fonctionnement.
+Vous allez finir par déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
---------
+**Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées et la description de tous les objets (fichiers yaml) créés au cours du TP. Veillez à bien utiliser les noms demandés pour les objets Kubernetes. 
 
 ## Openstack
-### Configuration des regles de securité reseau
-Afin de configurer les règles de sécurité réseau nécessaires au bon fonctionnement du TP, dans l'interface Openstack
-- Allez dans `Réseau` -> `Groupes de sécurité` -> `default` -> `Gérer les régles` -> `Ajouter une régle`
-- Ajoutez les règles Ingress pour les ports suivants
-  - `22`, `80`, `443`, `8080`
+
+### Création d'une paire de clés SSH
+Dans ce TP, vous allez vous connecter à vos machines via SSH (Secure Shell Protocol). 
+SSH utilise le mécanisme des clés pour authentifier un client auprès d'un serveur SSH.
+Donc pour utiliser SSH, vous devez créer une paire de clés (public/privé).
+Vous pouvez créer cette paire de clés sur votre machine et l'importer dans Openstack ou utiliser Openstack directement pour la création de clés.
+Dans cette section, vous allez créer une paire de clés directement dans Openstack.
+
+Pour cela, dans l'interface Openstack
+- Allez dans `Compute` -> `Paires des clés` -> `Créer une paire de clés`
+- Openstack vous proposera de télécharger la clé, faites-le !
+  - **Attention!** Vous ne pouvez pas télécharger la clé deux fois car Openstack ne conserve pas la clé !
 
 ### Creation de l'infrastructure
 Dans cette section, vous devez créer trois machines virtuelles dans OpenStack avec les caractéristiques suivantes:
-- Image source `Ubuntu-22.04` avec taille du volume `20Go` (Mettez `Oui` pour l'option "Supprimer le volume après terminaison de l’instance")
+- Image source `Ubuntu-22.04` avec taille du volume `20Go` (Mettez `Oui` pour l'option `Supprimer le volume après terminaison de l’instance`)
 - Gabarit avec `2 vCPUs`, `4Go RAM` et `20Go d'espace disque`
+- La paire de clés SSH générée précédemment
+
+Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*. 
+Nommez les machines afin de pouvoir les différencier facilement.
 
 Pour créer une machine virtuelle dans l'interface Openstack
-- Allez dans `Compute` -> `Instances` -> `Launch Instance`
+- Allez dans `Compute` -> `Instances` -> `Lancer une instance`
 
-Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*. Nommez les machines afin de pouvoir les différencier facilement.
+### Configuration des règles de sécurité réseau
+Par défaut, Openstack n'autorise aucun trafic réseau entrant vers vos machines virtuelles.
+Afin de pouvoir vous connecter aux machines, contacter les services déployés et réaliser ce TP, vous devez configurer les règles de sécurité réseau dans Openstack.
 
-------
+Pour ce faire, dans l’interface Openstack
+- Allez dans `Réseau` -> `Groupes de sécurité` -> `default` -> `Gérer les Règles` -> `Ajouter une règle`
+- Ajoutez les règles `Règle TCP personnalisée` avec la `Direction` `Entrée` qui ouvrent les ports suivants
+  - `22`, `80`, `443`, `8080`
+
+### Vérification de la connexion SSH
+Essayez de vous connecter aux machines précédemment créées via SSH.
+- Les adresses IP des machines sont affichées sur l'interface Openstack dans la liste des instances
+  - `Compute` -> `Instances` -> `Adresse IP`
+- L'utilisateur par défaut dans l'image `Ubuntu-22.04` est `ubuntu`, utilisez-le
+- Vous devez utiliser la clé téléchargée précédemment dans la section `Création d'une paire de clés SSH`
+
+Si vous êtes sous Linux, vous pouvez utiliser directement la commande `ssh` avec l'option `-i` pour spécifier la clé..
+Sous Windows, vous pouvez utiliser `PuTTY`.
 
 ## Déploiement du cluster
 Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (Rancher Kubernetes Engine).
@@ -30,7 +59,10 @@ Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (
 ### Préparation de machines
 
 #### Configuration du système d'exploitation
-Dans cette section, vous allez exécuter le script fourni qui installe Docker et configure tout ce qui est nécessaire au bon fonctionnement du TP (configuration du proxy, configuration de Docker, etc.).
+Par défaut, l'image `Ubuntu-22.04`, choisie lors de la création de la machine virtuelle, ne contient aucune configuration de proxy nécessaire pour accéder au réseau externe et n'a pas Docker installé.
+Comme le but de ce TP est d'expérimenter avec Kubernetes, afin de gagner du temps, nous avons préparé un script qui configure le proxy et installe Docker pour vous.
+
+Vous allez donc exécuter le script qui installe Docker et configure tout ce qui est nécessaire au bon fonctionnement du TP (configuration du proxy, configuration de Docker, etc.).
 
 - **Exécutez la commande suivante sur toutes les machines précédemment créées**
     ```bash
@@ -38,30 +70,36 @@ Dans cette section, vous allez exécuter le script fourni qui installe Docker et
     ```
     - A la fin de l'exécution les machines seront automatiquement redémarrées !
 
-#### SSH
-Avant de commencer le déploiement avec RKE, vous devez vous assurer que la machine **Control Plane** peut se connecter en **ssh** sur toutes les machines du cluster sans aucun mot de passe. 
-**Pour cela :**
--   Créez une paire de clés ssh **sans passphrase** sur le nœud Control Plane (commande `ssh-keygen`) 
--   **Ajoutez** la clé publique (`.ssh/id_rsa.pub`) du **Control Plane** au fichier des clés autorisées (`.ssh/authorized_keys`) sur tous les nœuds (y compris sur le nœud Control Plane).
-   - **Attention !** Conservez les clés déjà présentes dans `.ssh/authorized_keys` (sinon vous ne pourrez plus vous connecter aux nœuds).
-- Testez si le nœud **Control Plane** arrive à se connecter en ssh sur tous les nœuds (**y compris sur lui-même**)
+Une fois les machines redémarrées, elles peuvent accéder au réseau externe sans aucune configuration supplémentaire et le Docker est installé et configuré correctement.
 
-### Déploiement de Kubernetes avec RKE (Depuis le noeud Control Plane)
+Vous pouvez visualiser le contenu du script [ici](./init.sh).
+
+#### SSH
+Avant de commencer le déploiement avec RKE, vous devez vous assurer que la machine **Control Plane** peut se connecter en **SSH** sur toutes les machines du cluster sans aucun mot de passe (**y compris sur lui-même**). 
+**Pour cela :**
+-   Créez une paire de clés ssh **sans passphrase** sur la machine Control Plane (commande `ssh-keygen`) 
+-   **Ajoutez** la clé publique (`.ssh/id_rsa.pub`) du **Control Plane** au fichier des clés autorisées (`.ssh/authorized_keys`) sur tous les machines (y compris sur la machine Control Plane).
+   - **Attention !** Conservez les clés déjà présentes dans `.ssh/authorized_keys` (sinon vous ne pourrez plus vous connecter aux machines).
+- Testez si la machine **Control Plane** arrive à se connecter en ssh sur tous les machines (**y compris sur lui-même**)
+
+### Déploiement de Kubernetes avec RKE (Depuis la machine Control Plane)
 - Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
   - **Attention !** Vous devez choisir une version stable (release) et non une pre-release !
-- Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`), renommez le fichier en `rke` et lancez la configuration
+- Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`), renommez le fichier en `rke` et lancez la création du fichier de configuration
   ```bash
   $ ./rke config
   ```
-  - Créez un cluster de 3 machines avec la machine Control Plane ayant les rôles `control-plane` et `etcd` et les deux Worker nodes ayant le rôle de `worker`.
-  - Mettez les adresses IP de vos machines en tant que `SSH Address of host`.
+  - Le cluster comprendra 3 nœuds avec la machine Control Plane ayant les rôles `control-plane` et `etcd` et les deux Worker nodes ayant le rôle de `worker`
+  - Mettez les adresses IP de vos machines en tant que `SSH Address of host`
   - Laissez toutes les autres paramètres aux valeurs par défaut
-  - Cette commande va créer le fichier de configuration du cluster `cluster.yml` qui peut être changé à la main si vous souhaitez modifier la configuration du cluster.
+  - Cette commande va créer le fichier de configuration du cluster `cluster.yml` 
+    - Vous pouvez éditer ce fichier à la main si vous souhaitez modifier la configuration du cluster
+
 - Déployez le cluster Kubernetes avec **RKE**
   ```bash
   $ ./rke up
   ```
-  - Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire sur tous les nœuds pour avoir un cluster Kubernetes fonctionnel.
+  - Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire sur tous les machines pour avoir un cluster Kubernetes fonctionnel.
   - Si vous voyez "Finished building Kubernetes cluster successfully", le cluster a été déployé avec succès
     - Si ce n'est pas le cas, essayez de supprimer et de redéployer le cluster
     ```bash
@@ -974,7 +1012,7 @@ $ ./rke remove
     - https://github.com/Mirantis/cri-dockerd
     - **N.B.**: N'hésitez pas à utiliser le package `.deb` pour installer le `cri-dockerd`
 
-- Installez `kubeadm`, `kubelet` et `kubectl` sur tous les noeuds à l'aide du tutoriel suivant
+- Installez `kubeadm`, `kubelet` et `kubectl` sur tous les machines à l'aide du tutoriel suivant
   - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#installing-kubeadm-kubelet-and-kubectl
   - Quels sont les rôles de chaque composant installé ?
 

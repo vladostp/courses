@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+DOCKER_VERSION=5:24.0.7-1~ubuntu.22.04~jammy
+
 echo "Initilization started..."
 
 echo "Configuring apt..."
@@ -43,7 +45,7 @@ echo \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+apt-get install -y docker-ce=$DOCKER_VERSION docker-ce-cli=$DOCKER_VERSION containerd.io docker-buildx-plugin docker-compose-plugin
 
 echo "Configuring docker daemon..."
 
