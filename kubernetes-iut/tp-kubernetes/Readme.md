@@ -8,6 +8,8 @@ Vous allez finir par déployer une application hautement disponible et auto-rép
 
 **Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées et la description de tous les objets (fichiers yaml) créés au cours du TP. Veillez à bien utiliser les noms demandés pour les objets Kubernetes. 
 
+---
+
 ## Openstack
 
 ### Création d'une paire de clés SSH
@@ -52,6 +54,8 @@ Essayez de vous connecter aux machines précédemment créées via SSH.
 
 Si vous êtes sous Linux, vous pouvez utiliser directement la commande `ssh` avec l'option `-i` pour spécifier la clé..
 Sous Windows, vous pouvez utiliser `PuTTY`.
+
+---
 
 ## Déploiement du cluster
 Dans cette section, vous allez deployer un cluster Kubernetes avec l'outil RKE (Rancher Kubernetes Engine).
@@ -99,17 +103,17 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
   ```bash
   $ ./rke up
   ```
-  - Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire sur tous les machines pour avoir un cluster Kubernetes fonctionnel.
+  - Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire sur tous les machines pour avoir un cluster Kubernetes fonctionnel
   - Si vous voyez "Finished building Kubernetes cluster successfully", le cluster a été déployé avec succès
     - Si ce n'est pas le cas, essayez de supprimer et de redéployer le cluster
     ```bash
     $ ./rke remove
     $ ./rke up
     ```
-- Après avoir déployé le cluster avec **RKE**, un fichier `kube_config_cluster.yml` est créé, ce fichier contient les détails de connexion et d'authentification pour interagir avec le cluster déployé.
+- Après avoir déployé le cluster avec **RKE**, un fichier `kube_config_cluster.yml` est créé, ce fichier contient les détails de connexion et d'authentification pour interagir avec le cluster déployé
 
 ### Installation et configuration de kubectl
-Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
+Afin de manipuler les objets de votre cluster, vous allez utiliser **kubectl**.
 
 **kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
 
@@ -133,8 +137,9 @@ Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kube
 -------------
 
 ## Utilisation du cluster
-Dans cette section, vous allez déployer quelques objets Kubernetes sur votre cluster. 
-Pour cela, vous allez créer des fichiers **yml** contenant la description des objets K8s. Ensuite vous allez créer ces objets avec la commande :
+Dans cette section, vous allez déployer quelques objets Kubernetes sur votre cluster. Pour cela, vous allez créer des fichiers **yml** contenant la description des objets K8s. 
+
+Ensuite vous allez créer ces objets avec la commande :
 ```bash
 $ kubectl apply -f nom_du_fichier.yml
 ```
@@ -142,7 +147,7 @@ $ kubectl apply -f nom_du_fichier.yml
 ### Création d'un pod
 Vous allez commencer par créer un Pod qui est la plus petite unité que vous pouvez déployer dans un cluster K8s.
 
-Créez le fichier `nginx_pod.yml`:
+Créez le fichier `nginx_pod.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -194,7 +199,7 @@ Dans cette section, vous allez déployer une application hautement disponible et
 
 Pour commencer, vous allez créer un objet de type "Deployment". 
 
-Créez le fichier `nginx_deployment.yml`
+Créez le fichier `nginx_deployment.yml` avec le contenu suivant :
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -258,10 +263,11 @@ Jusqu'à présent, vous avez créé un objet de type **Deployment** qui crée et
 
 ### Creation d'une service
 Pour rendre votre **Deployment** accessible, vous allez créer un objet de type **Service**.
+
 Le **Service** peut être vu comme un Load Balancer qui distribue le trafic vers un ensemble des **Pods**.
 Le nom du **Service** peut être utilisé comme nom DNS pour contacter tous les Pods référencés par ce **Service** depuis n'importe quel **Pod** du même **namespace**.
 
-Créez le fichier `nginx_service.yml`
+Créez le fichier `nginx_service.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Service
@@ -305,14 +311,13 @@ spec:
     - Le service doit être accessible en utilisant son nom `nginx-service` comme un nom DNS depuis le **Pod** `nginx-pod` 
     - Vous pouvez faire une requête HTTP avec `curl` sur `http://nginx-service` depuis le **Pod** `nginx-pod`
     - Pour exécuter une commande dans le **Pod** `nginx-pod`, vous pouvez utiliser `kubectl exec`
-    - Quelle commande avez-vous utilisée pour effectuer la requête HTTP avec `curl ` à partir du **Pod** `nginx-pod`? Que pouvez-vous conclure?
+    - Quelle commande avez-vous utilisée pour effectuer la requête HTTP avec `curl` à partir du **Pod** `nginx-pod`? Que pouvez-vous conclure?
 
 ### Rolling Updates
 Imaginez que vous avez une nouvelle version de l'application à déployer et vous voulez le faire sans aucune interruption de service.
-Pour simuler ce scénario et pouvoir suivre le processus de déploiement, nous allons d'abord ralentir le processus de déploiement puis changer la version de l'image **nginx** du déploiement.
+Pour simuler ce scénario et pouvoir suivre le processus de déploiement, vous allez d'abord ralentir le processus de déploiement puis changer la version de l'image **nginx** du déploiement.
 
-
-Nous allons commencer par modifier les paramètres de déploiement afin d'attendre 10 secondes après le déploiement de chaque nouveau **Pod** avant de déployer le suivant.
+Nous allez commencer par modifier les paramètres de déploiement afin d'attendre 10 secondes après le déploiement de chaque nouveau **Pod** avant de déployer le suivant.
 ```bash
 $ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 10}}' 
 ```
@@ -320,7 +325,7 @@ $ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 10}
 Pour déployer la nouvelle version de l'application, vous allez mettre à jour le **Déploiement**.
 
 **Vous avez trois moyens pour faire cela :**
-- **En modifiant le fichier `yaml` du Deployment `nginx_deployment.yml`**
+- **En modifiant le fichier `yml` du Deployment `nginx_deployment.yml`**
     ```yaml
     apiVersion: apps/v1
     kind: Deployment
@@ -371,6 +376,7 @@ Comme vous pouvez le constater, la mise à jour s'est déroulée de manière pro
 ### Rollbacks
 Imaginez que la mise à jour de l'application ne se soit pas déroulée comme prévu. 
 L'application ne fonctionne plus ou la nouvelle version n'est plus compatible avec d'autres éléments de la pile applicative. 
+
 Kubernetes vous donne la possibilité de revenir en arrière avec le mécanisme de Rollback.
 
 - **Effectuez le Rollback de déploiement `nginx-deployment`**
@@ -386,6 +392,7 @@ Kubernetes vous donne la possibilité de revenir en arrière avec le mécanisme 
 - Que pouvez-vous conclure?
 
 Avec Kubernetes, vous pouvez spécifier la version de déploiement vers laquelle vous souhaitez revenir. 
+
 Pour cela, vous devez récupérer l'historique du déploiement et choisir la révision vers laquelle vous souhaitez revenir.
 
 - **Récupérez l'historique du déploiement**
@@ -403,14 +410,17 @@ Vous pouvez revenir à une révision particulière du déploiement en utilisant 
     - Expliquez comment les numéros de révision ont changé une fois que vous êtes revenu à la version 2 du déploiement.
 
 ### Volumes
-Certaines applications ont besoin d'un stockage permanent. 
+Certaines applications ont besoin d'un stockage persistant. 
+
 Dans cette section, vous allez manipuler le mécanisme des volumes persistants proposé par Kubernetes.
 
 La création d'un volume et son attribution à un **Pod** se font en plusieurs étapes.
-Tout d'abord, un objet `Persistent Volume` doit être créé. Cette tâche est généralement effectuée par l'administrateur du cluster.
-Dans le cadre de ce TP, vous allez créer un volume persistant de type `local` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de 200Mi.
 
-Créez le fichier `pv.yml`
+Tout d'abord, un objet `Persistent Volume` doit être créé. Cette tâche est généralement effectuée par l'administrateur du cluster.
+
+Dans le cadre de ce TP, vous allez créer un volume persistant de type `hostPath` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de `200Mi` et un accès mode `ReadWriteOnce`.
+
+Créez le fichier `pv.yml` avec le contenu suivant :
 ```yaml
 kind: PersistentVolume
 apiVersion: v1
@@ -432,7 +442,7 @@ spec:
     ```bash
     $ kubectl apply -f pv.yml
     ```
-    - Que signifie l'accès mode "ReadWriteOnce"?
+    - Que signifie l'accès mode `ReadWriteOnce`?
 
 - **Visualisez les volumes persistants**
     ```bash
@@ -443,13 +453,13 @@ spec:
 
 
 Vous ne pouvez pas attacher directement un volume persistant à votre **Pod**. 
-Kubernetes ajoute une couche d'abstraction - l'objet **PersistentVolumeClaim**. 
+Pour pouvoir utiliser votre le volume persistant dans un **Pod**, vous devez passer par un objet **PersistentVolumeClaim**.
 Cet objet peut être vu comme une demande de stockage et peut être attaché à un **Pod**. 
 Cette abstraction permet de découpler les volumes mis à disposition par les administrateurs K8s et les demandes d'espace de stockage faites par les développeurs pour leurs applications.
 
-Vous allez demander 100 Mi de stockage qui peut être monté en lecture-écriture par un seul nœud en créant un objet **PersistentVolumeClaim**.
+Vous allez demander `100Mi` de stockage qui peut être monté en lecture-écriture par un seul nœud en créant un objet **PersistentVolumeClaim**.
 
-Créez le fichier `pvc.yml`
+Créez le fichier `pvc.yml` avec le contenu suivant :
 ```yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -479,9 +489,9 @@ spec:
 - **Est-ce que deux claims peuvent utiliser le même volume persistant ?**
     - Vous pouvez tester cela en créant une autre **Persistent Volume Claim** avec les mêmes caractéristiques mais un nom différent et voir si cette claim sera **Bound**.
 
-Maintenant, vous pouvez attacher le `PersistantVolumeClaim` à un **Pod**.
+Maintenant, vous allez creér un **Pod** qui utilize le `PersistantVolumeClaim` créé précédemment.
 
-Créez le fichier `pvc_pod.yml`
+Créez le fichier `pvc_pod.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -519,9 +529,10 @@ spec:
 
 ### Variables d'environnement
 L'utilisation de variables d'environnement est le moyen le plus simple d'injecter des données dans vos applications.
+
 Dans cette section, vous allez créer un **Pod** qui utilise une variable d'environnement et affiche sa valeur au démarrage.
 
-Créez le fichier `env_var_pod.yml`:
+Créez le fichier `env_var_pod.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -547,15 +558,16 @@ spec:
     $ kubectl get pods
     $ kubectl logs NOM_DU_POD
     ```
-    - Que voyez-vous dans les logs du Pod?
+    - Que voyez-vous dans les logs du Pod ? Que pouvez-vous conclure ?
 
 ### Secrets
 Les secrets sont utilisés pour sécuriser les données sensibles qui peuvent être mises à disposition dans vos Pods. 
-Les secrets peuvent être fournis à vos pods de deux manières différentes : en tant que variables d'environnement ou en tant que volumes contenant les secrets.
 
-Dans cette section, vous allez créer un secret et l'utiliser dans un pod de deux manières différentes.
+Les secrets peuvent être fournis à vos pods de deux manières différentes : en tant que **variables d'environnement** ou en tant que **volumes** contenant les secrets.
 
-Créez le fichier `secret.yml`
+Dans cette section, vous allez créer un secret et l'utiliser dans un Pod de ces deux manières.
+
+Créez le fichier `secret.yml` en adaptant le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -575,7 +587,7 @@ data:
     $ kubectl get secrets
     ```
 
-Créez le fichier `pod_with_secret.yml`
+Créez le fichier `pod_with_secret.yml` en adaptant le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -613,7 +625,7 @@ Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContain
 Comme le `initContainer` et le conteneur principal sont deux conteneurs distincts, il faudra créer un volume partagé par les deux conteneurs. 
 Grâce à ce volume le `initContainer` pourra modifier la page d'accueil du conteneur principal. Vous allez utiliser un volume de type `emptyDir`.
 
-Créez le fichier `nginx_pod_with_init.yml`:
+Créez le fichier `nginx_pod_with_init.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -659,12 +671,13 @@ spec:
   ```bash
   $ curl 127.0.0.1:8081
   ```
-  - Que pouvez-vous constater?
+  - Que pouvez-vous constater ?
 
 
 ### Sondes de Liveness et Readiness
 Par défaut, si un **Pod** est en cours d'exécution (Running), il est considéré comme opérationnel par Kubernetes. 
-Cela peut être problématique dans le cas où le **Pod** est en cours d'exécution mais l'application est bloquée ou n'est pas prête à recevoir les demandes des utilisateurs. 
+Cela peut être problématique dans le cas où le **Pod** est en cours d'exécution mais l'application à l'intérieur du **Pod** est bloquée ou n'est pas prête à recevoir les demandes des utilisateurs. 
+
 Pour pallier à ce problème, Kubernetes propose trois mécanismes des sondes: **Liveness**, **Readiness** et **Startup**.
 
 Dans cette section, vous allez déployer des Pods avec les sondes **Liveness** et **Readiness**.
@@ -673,7 +686,7 @@ Dans cette section, vous allez déployer des Pods avec les sondes **Liveness** e
 Kubernetes est capable de vérifier automatiquement si vos applications répondent aux demandes des utilisateurs avec des sondes **Liveness**. 
 Si votre application est bloquée et ne répond pas, K8s le détecte et redémarre ou recrée le conteneur.
 
-Créez le fichier `liveness_pod.yml`
+Créez le fichier `liveness_pod.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -705,14 +718,15 @@ spec:
   $ kubectl describe pod liveness-pod
   $ kubectl get pods
   ```
-  - Que fait Kubernetes en cas d'échec de la Liveness probe?
+  - Que fait Kubernetes en cas d'échec de la Liveness probe ?
 
 
 #### Readiness probe
 Kubernetes peut également retenir le trafic entrant jusqu'à ce que votre service soit en mesure de recevoir les demandes des utilisateurs avec des sondes **Readiness**.
+
 Les sondes **Readiness** permettent de vérifier si un conteneur peut recevoir les demandes des utilisateurs. Si la vérification échoue, le trafic ne sera pas dirigé vers ce Pod.
 
-Créez le fichier `nginx_readiness.yml`
+Créez le fichier `nginx_readiness.yml` avec le contenu suivant :
 ```yaml
 apiVersion: v1
 kind: Service
@@ -766,6 +780,7 @@ spec:
     ```bash
     $ kubectl apply -f nginx_readiness.yml
     ```
+    - Comment le service `nginx-readiness` trouve-t-il les Pods à contacter ?
 
 - **Etudiez le comportement des Pods avec une sonde Readiness**
   - **Surveillez les pods déployés**
@@ -797,14 +812,15 @@ spec:
 
 ### Création d'un Ingress
 **Ingress** est un objet K8s qui gère l'accès externe (**HTTP** ou **HTTPS**) aux services. 
+
 Ingress peut acheminer le trafic vers un seul service (`Single Service Ingress`), s'appuyer sur l'URI HTTP pour acheminer le trafic vers différents services (`Simple Fanout`) ou acheminer le trafic en fonction de différents noms d'hôte (`Name based virtual hosting`).
 
 Pour qu'un **Ingress** soit fonctionel, un nom DNS doit être crée. 
-Demandez à votre enseignant de créer un nom DNS pour vous en lui donnant les adresses IP de vos machines Workers.
+**Demandez à votre enseignant de créer un nom DNS pour vous en lui donnant les adresses IP de vos machines Workers.**
 
 Une fois le nom DNS créé par l'enseignant, vous pouvez créer l'objet **Ingress** qui redirigera le trafic vers le service `nginx-service` créé précédemment.
 
-Créez le fichier `nginx_ingress.yml`
+Créez le fichier `nginx_ingress.yml` avec le contenu suivant :
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -827,7 +843,7 @@ spec:
   ```
   $ kubectl get ingress
   ```
-  - Quelles adresses se trouvent dans le colonne `ADDRESS` ? Si vous n'avez rien dans cette colonne, attendez un peu et réexécutez la commande.
+  - Quelles adresses se trouvent dans le colonne `ADDRESS` ? Si vous n'avez rien dans cette colonne, attendez un peu (1-2 minutes) et réexécutez la commande.
   
 - **Essayez d'accéder au **Service** en utilisant le nom DNS créé par l'enseignant à parir de votre navigateur ou en executant la commande `curl`**
   - Que pouvez-vous constater ?
@@ -847,21 +863,24 @@ L'application sera composée des deux services :
   - Il sera configuré avec un **initContainer** pour mettre en place une authentification avec un mot de passe qui sera fourni par un **Secret**
   - Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
   - Il sera accessible via un **Service**
-- **Le deuxième service est une application simple Counter que nous avons développé pour ce TP**. Cette application lit et incrémente le compteur stocké dans la base de données Redis.
-  - Le service sera initialisé en récupérant un code source depuis un dépôt Git avec **initContainer**
+- **Le deuxième service est une application simple Counter que nous avons développé pour ce TP** 
+  - Cette application lit et incrémente le compteur stocké dans la base de données Redis. Vous pouvez trouver son code source [ici](https://forge.univ-lyon1.fr/vladimir.ostapenco/counter-application/-/raw/main/index.php)
+  - Le service sera initialisé en récupérant le code source de l'application depuis un dépôt Git avec **initContainer**
   - Il aura 3 instances
-  - Le `hostname` de Redis sera fourni par une variable d'environnement
+  - Le `hostname` du service Redis sera fourni par une variable d'environnement
   - Le mot de passe d'authentification **Redis** sera fourni en montant le Secret **Redis** en tant que volume
   - Il sera configuré avec une sonde **Liveness** pour assurer son bon fonctionnement
   - Il sera accessible de l'exterieur via un **Ingress**
 
 ### Service Redis
 Afin de créer le service Redis décrit dans l'architecture de déploiement, vous devez créer les objets K8s suivants :
+
 - **PersistantVolume**
-  - Créez un volume persistant avec le nom `redis-pv` , de type `hostPath`,  avec une capacité de stockage de `500Mi` , le mode d'accès `ReadWriteOnce` et un point de montage `/mnt/redis`. Vous pouvez vous inspirer du volume persistant créé précédemment et de la documentation officielle de Kubernetes.
+  - Créez un volume persistant avec le nom `redis-pv` , de type `hostPath`,  avec une capacité de stockage annoncée de `500Mi` , le mode d'accès `ReadWriteOnce` et le point de montage `/mnt/redis`
+  - Vous pouvez vous inspirer du volume persistant créé précédemment et de la documentation officielle de Kubernetes
 
 - **PersistantVolumeClaim**
-  - Créez un **PersistantVolumeClaim** avec le nom `redis-pvc` qui demande un stockage avec une capacité de `500Mi` et le mode d'accès `ReadWriteOnce`.
+  - Créez un **PersistantVolumeClaim** avec le nom `redis-pvc` qui demande un stockage avec une capacité de `500Mi` et le mode d'accès `ReadWriteOnce`
   - Verifiez que les états de **PersistantVolume** et **PersistantVolumeClaim** sont `Bound`
     ```bash
     $ kubectl get pv
@@ -869,7 +888,9 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
     ```
 
 - **Secret**
-  - Créez le **Secret** avec le nom `redis-secret` qui a un champ nommé `password`. Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authentification **Redis**. N'oubliez pas que les secrets doivent être encodés en `base64`.
+  - Créez le **Secret** avec le nom `redis-secret` qui a un champ nommé `password`
+  - Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authentification **Redis**
+  - N'oubliez pas que les secrets doivent être encodés en `base64`
 
 - **Deployment**
   - Créez un déploiement portant le nom `redis-deployment` qui crée un seul replica du **Pod** avec
@@ -931,6 +952,7 @@ Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonction
   $-1
   $ QUIT
   ```
+  - Pourquoi le service Redis est-il disponible avec le nom DNS `redis-service` depuis le **Pod** busybox ?
   - Si vous avez exécuté toutes les commandes et que vous voyez ces résultats, **Redis** et son authentification ont été correctement configurés
 
 ### Service Counter
@@ -988,10 +1010,13 @@ Pour vérifier le fonctionnement de l'application, vous pouvez essayer d'y accé
 
 Pour accéder au service `counter-service`, vous devez ajouter le préfixe `/counter` au nom DNS.
 Si tout a été configuré correctement, vous devriez voir un compteur d'utilisation du service et le nom de **Pod** qui vous repond sur la page Web de l'application. 
+
 Mettez à jour la page plusieurs fois pour voir l'incrémentation du compteur et le changement de nom de l'instance de **Pod**.
 
+- Qu'est-ce qui s'affiche comme `Current service instance` ? Pourquoi cette valeur change-t-elle lors du rafraîchissement de la page ?
+
 - **Surveillez la valeur du compteur, attendez une minute et mettez à jour la page.**
-  - Que remarquez-vous ? Comment pouvez-vous l'expliquer?
+  - Que remarquez-vous ? Comment pouvez-vous l'expliquer ?
 
 - **Mettez à l'échelle le déploiement `counter-deployment` pour avoir 6 replicas**
   - Quelle commande avez-vous utilisé ?
