@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOCKER_VERSION=5:24.0.7-1~ubuntu.22.04~jammy
+DOCKER_VERSION=5:24.0.6-1~ubuntu.22.04~jammy
 
 echo "Initilization started..."
 
