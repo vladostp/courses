@@ -83,7 +83,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 - Testez si la machine **Control Plane** arrive à se connecter en ssh sur tous les machines (**y compris sur lui-même**)
 
 ### Déploiement de Kubernetes avec RKE (Depuis la machine Control Plane)
-- Téléchargez la dernière version stable de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
+- Téléchargez la version `v1.5.2` de RKE depuis le dépôt officiel [RKE](https://github.com/rancher/rke/releases/). 
   - **Attention !** Vous devez choisir une version stable (release) et non une pre-release !
 - Rendez le fichier téléchargé exécutable (`chmod +x <NOM_DU_FICHIER>`), renommez le fichier en `rke` et lancez la création du fichier de configuration
   ```bash
@@ -110,6 +110,7 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 
 ### Installation et configuration de kubectl
 Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
+
 **kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
 
 - Téléchargez et installez la version `1.27.8` de **kubectl**
