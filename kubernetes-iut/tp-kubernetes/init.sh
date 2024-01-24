@@ -48,6 +48,13 @@ apt-get update
 apt-get install -y --allow-downgrades docker-ce=$DOCKER_VERSION docker-ce-cli=$DOCKER_VERSION containerd.io docker-buildx-plugin docker-compose-plugin
 
 echo "Configuring docker daemon..."
+mkdir -p /etc/systemd/system/docker.service.d
+cat > /etc/systemd/system/docker.service.d/http-proxy.conf <<EOL
+[Service]
+Environment="HTTP_PROXY=http://proxy.univ-lyon1.fr:3128"
+Environment="HTTPS_PROXY=http://proxy.univ-lyon1.fr:3128"
+Environment="NO_PROXY=forge.univ-lyon1.fr,*.univ-lyon1.fr"
+EOL
 
 cat > /etc/docker/daemon.json <<EOL
 {
