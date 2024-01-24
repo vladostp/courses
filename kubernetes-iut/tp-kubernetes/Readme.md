@@ -1064,6 +1064,9 @@ $ ./rke remove
 
 - Configurez l'outil `kubectl` comme expliqué dans le résultat de la commande `kubeadm init`
 
+- Verifiez l'etat du cluser avec la commande `kubectl get nodes`
+  - Quel est l'état des nœuds du cluster ? Comment pouvez-vous l'expliquer ?
+
 - Déployez le CNI (Container Network Interface) `flannel`, comme expliqué dans
   - https://github.com/flannel-io/flannel
 

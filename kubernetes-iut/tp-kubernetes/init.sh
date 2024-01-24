@@ -71,6 +71,7 @@ cat > /etc/docker/daemon.json <<EOL
     }
 }
 EOL
+systemctl daemon-reload
 groupadd -f docker
 usermod -aG docker ubuntu
 
