@@ -52,8 +52,10 @@ Essayez de vous connecter aux machines précédemment créées via SSH.
 - L'utilisateur par défaut dans l'image `Ubuntu-22.04` est `ubuntu`, utilisez-le
 - Vous devez utiliser la clé téléchargée précédemment dans la section `Création d'une paire de clés SSH`
 
-Si vous êtes sous Linux, vous pouvez utiliser directement la commande `ssh` avec l'option `-i` pour spécifier la clé..
-Sous Windows, vous pouvez utiliser `PuTTY`.
+Afin de vous connecter aux machines, vous pouvez utiliser la commande `ssh` avec l'option `-i` pour spécifier la clé.
+```bash
+ssh -i VOTRE_CLE.pem ubuntu@ADDRESSE_IP_DE_LA_MACHINE
+```
 
 ---
 
