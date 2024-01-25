@@ -54,7 +54,7 @@ Essayez de vous connecter aux machines précédemment créées via SSH.
 
 Afin de vous connecter aux machines, vous pouvez utiliser la commande `ssh` avec l'option `-i` pour spécifier la clé.
 ```bash
-ssh -i VOTRE_CLE.pem ubuntu@ADDRESSE_IP_DE_LA_MACHINE
+ssh -i VOTRE_CLE.pem ubuntu@ADRESSE_IP_DE_LA_MACHINE
 ```
 
 ---
