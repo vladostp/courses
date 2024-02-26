@@ -66,10 +66,10 @@ Envoyez le log contenant la phrase `Hello world` à l’espace de logs du noyau 
 - Quelle commande utiliserez-vous pour faire cela?
 
 Vérifiez si le log a été bien écrit dans le fichier `/var/log/syslog` par `rsyslog` en tant que log du noyau.
-- Quel module de `rsyslog` est responsable de l'écriture des logs de l’espace noyau dans ce fichier?
+- Quel module `rsyslog` est responsable de la récupération des logs de l'espace noyau afin de les écrire dans ce fichier ?
 
 #### Logs espace utilisateur
-Envoyez la phrase `Hello world` au journal de `systemd`. (pour cela vous pouvez utiliser la commande `systemd-cat`). 
+Envoyez la phrase `Hello world` au journal de `systemd` (Pour ce faire, vous pouvez utiliser la commande `systemd-cat`). 
 
 Visualisez ces logs avec la commande `journalctl` et vérifiez que `rsyslog` a bien écrit ce log dans le fichier `/var/log/syslog`.
 - Quel module de `rsyslog` est responsable de l'écriture des logs de journal `systemd` dans ce fichier?
