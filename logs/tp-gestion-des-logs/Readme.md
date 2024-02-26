@@ -3,34 +3,38 @@ Au cours de ce TP, vous explorerez et implémenterez la gestion des logs sur des
 Vous commencerez par préparer l'infrastructure, puis vous manipulerez et configurerez les logs sur les machines Linux et Windows.
 Vous finirez par installer et configurer les trois solutions de centralisation de logs vues en cours: **Elastic Stack**, **Graylog** et **Grafana Loki**. 
 
-**Attention!** Afin d'être évalué, vous devez rédiger un rapport où vous mettrez les réponses aux questions posées au cours du TP.
+## Rendu
+**Attention!** Afin d'être évalué, vous devez rédiger un rapport dans lequel vous mettez les commandes exécutées sur les machines, les fichiers de configuration créés et les réponses aux questions posées. N'hésitez pas à inclure des captures d'écran pour étayer vos réponses.
 
 ## Préparation de l’infrastructure
-Dans cette section, vous devrez créer 5 machines virtuelles dans OpenStack.
+Dans cette section, vous devez créer 5 machines virtuelles dans OpenStack.
 
 Ces machines doivent avoir les noms d'hôte et les caractéristiques suivants :
-- `[num]-nginx-server` (Ubuntu 22.04.1, 2vCPU, 4GB RAM, 10GB d’espace disque)
-- `[num]-graylog` (Ubuntu 22.04.1, 2vCPU, 8GB RAM, 20GB d’espace disque)
-- `[num]-elastic` (Ubuntu 22.04.1, 4vCPU, 16GB RAM, 20GB d’espace disque)
-- `[num]-loki` (Ubuntu 22.04.1 - Docker Ready, 2vCPU, 4GB RAM, 10GB d’espace disque)
+- `[num]-nginx-server` (Ubuntu Server 22.04.3, 2vCPU, 4GB RAM, 10GB d’espace disque)
+- `[num]-graylog` (Ubuntu Server 22.04.3, 2vCPU, 8GB RAM, 20GB d’espace disque)
+- `[num]-elastic` (Ubuntu Server 22.04.3, 4vCPU, 16GB RAM, 20GB d’espace disque)
+- `[num]-loki` (**Ubuntu Server 22.04.3 - Docker Ready**, 2vCPU, 4GB RAM, 10GB d’espace disque)
 - `[num]-windows-web-server` (Windows 10, 2vCPU, 8GB RAM, 50GB d’espace disque) (BONUS)
   - Pour la machine Windows, créez un volume séparé avec 50 Go de stockage et l'image Windows 10 comme source de volume.
-  - Ensuite, créez l'instance Windows avec le volume créé auparavant comme source de démarrage.
+  - Ensuite, créez l'instance Windows avec le volume créé précédemment comme source de démarrage.
 
 Où `[num]` est votre numéro d'étudiant ou votre numero de groupe.
 
 ## Logs Linux
-Dans cette section, vous manipulerez les logs Linux. Vous allez visualiser, configurer et générer les logs sur la machine `nginx-server`.
-Pour commencer, vous devez installer un serveur `nginx` via le gestionnaire de packages `apt`. Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes des utilisateurs.
+Dans cette section, vous manipulerez les logs Linux. 
+Vous allez visualiser, configurer et générer les logs sur la machine `nginx-server`.
+Pour commencer, vous devez installer un serveur `nginx` via le gestionnaire de packages `apt`. 
+Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes des utilisateurs.
 
 ### Rappel: Architecture des logs de l'espace utilisateur Linux
 
 ![L’architecture des logs de l’espace utilisateur](./linux_logs_arch.jpg)
 
 ### Rsyslog
-`Rsyslog` est une implémentation du protocol `syslog` et est fourni par défaut sur la plupart des systèmes Linux modernes. `Syslog` est utilisé comme un standard pour produire, transmettre et collecter des logs.
+`Rsyslog` est une implémentation du protocole `syslog` et est fourni par défaut sur la plupart des systèmes Linux modernes. 
+`Syslog` est utilisé comme standard pour produire, transmettre et collecter des logs.
 
-`Rsyslog` récupère les logs de l’espace noyau et du journal de systemd et les persiste dans des fichiers.
+`Rsyslog` récupère les logs de l’espace noyau et du journal de systemd et les enregistre dans des fichiers.
 
 Analysez les fichiers de configuration de `rsyslog` (`/etc/rsyslog.conf` et les fichiers dans `/etc/rsyslog.d/`). 
 - Quels modules sont activés par défaut et que font-ils?
@@ -44,19 +48,22 @@ Configurez `rsyslog` pour qu’il envoie tous les logs contenant le mot `ssh` da
 Vérifiez si le fichier `/var/log/ssh.log` existe et contient des entrées avec le mot `ssh`.
 
 ### Systemd Journal
-Le `systemd` est un gestionnaire de processus et de services qui implémente son propre service de journalisation appelé `systemd-journald` (`journald`). Les services `systemd` envoient les logs directement au `journald`. Les fichiers logs du `journald` sont stockés dans `/var/log/journal`. 
-Essayez de visualiser les fichiers logs du journal avec la commande `cat`.
+Le `systemd` est un gestionnaire de systèmes et de services qui implémente son propre service de journalisation appelé `systemd-journald` (`journald`). 
+Les services `systemd` envoient les logs directement au `journald`. 
+Les fichiers logs du `journald` sont stockés par défaut dans `/var/log/journal`. 
+
+Essayez de visualiser les fichiers logs `journald` avec la commande `cat`.
 - Les logs sont-ils lisibles? Expliquez le résultat.
-- Quelle commande permet de visualiser les logs du journald?
+- Quelle commande permet d'afficher les logs `journald`?
 - Quelle commande permet de visualiser les logs enregistrés au cours de la dernière heure?
 - Quel est l’avantage de stocker des logs de cette manière?
 
 ### Generation des logs
-Dans cette section, vous allez générer les logs avec la ligne de commande.
+Dans cette section, vous allez générer des logs avec la ligne de commande.
 
 #### Logs noyau
-Envoyez la phrase `Hello world` à l’espace des logs du noyau et visualisez-la via la commande `dmesg`. (Envoyez les logs en tant qu'utilisateur root dans `/dev/kmsg`). 
-- Quelle commande utiliserez-vous pour le faire ?
+Envoyez le log contenant la phrase `Hello world` à l’espace de logs du noyau et visualisez-la via la commande `dmesg` (Pour ce faire, vous pouvez écrire le log en tant qu'utilisateur root dans `/dev/kmsg`). 
+- Quelle commande utiliserez-vous pour faire cela?
 
 Vérifiez si le log a été bien écrit dans le fichier `/var/log/syslog` par `rsyslog` en tant que log du noyau.
 - Quel module de `rsyslog` est responsable de l'écriture des logs de l’espace noyau dans ce fichier?
