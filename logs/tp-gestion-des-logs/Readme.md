@@ -22,7 +22,9 @@ Où `[num]` est votre numéro d'étudiant ou votre numero de groupe.
 
 ## Logs Linux
 Dans cette section, vous manipulerez les logs Linux. 
+
 Vous allez visualiser, configurer et générer les logs sur la machine `nginx-server`.
+
 Pour commencer, vous devez installer un serveur `nginx` via le gestionnaire de packages `apt`. 
 Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes des utilisateurs.
 
@@ -69,84 +71,109 @@ Vérifiez si le log a été bien écrit dans le fichier `/var/log/syslog` par `r
 - Quel module `rsyslog` est responsable de la récupération des logs de l'espace noyau afin de les écrire dans ce fichier ?
 
 #### Logs espace utilisateur
-Envoyez la phrase `Hello world` au journal de `systemd` (Pour ce faire, vous pouvez utiliser la commande `systemd-cat`). 
+Envoyez le log contenant la phrase `Hello world` au journal de `systemd` (Pour ce faire, vous pouvez utiliser la commande `systemd-cat`). 
+- Quelle commande utiliserez-vous pour faire cela?
 
-Visualisez ces logs avec la commande `journalctl` et vérifiez que `rsyslog` a bien écrit ce log dans le fichier `/var/log/syslog`.
-- Quel module de `rsyslog` est responsable de l'écriture des logs de journal `systemd` dans ce fichier?
+Vérifiez si le log a été bien enregistré avec la commande `journalctl` et vérifiez que `rsyslog` a bien écrit ce log dans le fichier `/var/log/syslog`.
+- Quel module `rsyslog` est responsable de la récupération des logs du journal `systemd` afin de les écrire dans ce fichier?
 
 ### Suppression des logs
-Dans les systèmes Linux, vous pouvez facilement supprimer les logs.
+Sur les systèmes Linux, vous pouvez facilement supprimer les logs.
 
-Pour supprimer les logs écrits dans des fichiers avec `rsyslog`, il vous suffit de purger, supprimer ou éditer le fichier.
+Pour supprimer les logs écrits dans des fichiers avec `rsyslog`, il suffit de purger, supprimer ou éditer le fichier.
 
 Supprimez tous les logs du fichier `/var/log/syslog`. (***Attention!*** Ne supprimez pas le fichier lui-même!)
-- Quelle commande utiliserez-vous pour le faire ?
+- Quelle commande utiliserez-vous pour faire cela?
 
-Pour supprimer les logs du journal `systemd`, il suffit d’utiliser les options `--rotate` et `--vacuum-time` de la commande `journalctl`. Supprimez tous les logs du journal `systemd`.
-- Quelle commande utiliserez-vous pour le faire ?
+Vérifiez que les anciens logs ont été bien supprimés et que les nouveaux logs continuent d'être écrits dans le fichier `/var/log/syslog`.
+
+Pour supprimer les logs du journal `systemd`, il suffit d’utiliser les options `--rotate` et `--vacuum-time` de la commande `journalctl`. 
+
+Supprimez tous les logs du journal `systemd`.
+- Quelle commande utiliserez-vous pour faire cela?
+
+Vérifiez que les anciens logs ont été bin supprimés.
 
 ### Logrotate
-`Logrotate` est un outil système qui gère la rotation, la compression et la suppression automatique des fichiers log. Sans ces mécanismes, les logs pourraient éventuellement consommer tout l'espace disque disponible sur un système et rendre le système inutilisable.
+`Logrotate` est un outil système qui gère la rotation, la compression et la suppression automatique des fichiers log. 
+Sans ces mécanismes, les logs pourraient éventuellement consommer tout l'espace disque disponible sur un système et le rendre inutilisable.
 
-Visualisez le fichier de configuration de `logrotate` et trouvez la configuration de la rotation des logs pour le fichier `/var/log/syslog`. 
-- Comment fonctionne la rotation des logs pour le fichier `/var/log/syslog` (la fréquence de rotation, la durée de rétention, la compression)?
+Visualisez le fichier de configuration de `logrotate` et trouvez la configuration de rotation des logs pour le fichier `/var/log/syslog`. 
+- Comment fonctionne la rotation des logs pour le fichier `/var/log/syslog` (fréquence de rotation, durée de rétention, compression)?
 
-Configurez la rotation pour le fichier `/var/log/ssh.log`. La rotation doit avoir lieu tous les jours, les 7 derniers fichiers doivent être conservés, la compression doit être activée.
+Configurez la rotation pour le fichier `/var/log/ssh.log`. 
+La rotation doit avoir lieu tous les jours, les 7 derniers fichiers doivent être conservés, la compression doit être activée.
 - Que mettez-vous dans le fichier de configuration?
 
 Vérifiez si votre configuration est correcte et est prise en compte avec la commande `sudo logrotate /etc/logrotate.conf --debug`. 
-- Que renvoie cette commande ?
-- Trouvez un moyen de forcer le `logrotate` et vérifiez que la rotation pour le fichier `/var/log/ssh.log` a été bien effectuée.
-  - Quelle commande utiliserez-vous pour le faire ?
-  - Le fichier `/var/log/ssh.log` a-t-il été compressé ?
-- Generez des logs contenant `ssh` et exécutez à nouveau le `logrotate` forcé. Que pouvez-vous remarquer ?
+- Que renvoie cette commande ? Comment avez-vous pu vérifier que votre configuration était bien prise en compte ?
+
+Trouvez un moyen de forcer la rotation pour le fichier `/var/log/ssh.log` avec `logrotate` et vérifiez que la rotation a été bien effectuée.
+- Quelle commande utiliserez-vous pour faire cela?
+- Que pouvez-vous remarquer ? Le fichier `/var/log/ssh.log` a-t-il été compressé ?
+
+Generez des logs contenant le mot `ssh` et exécutez à nouveau le `logrotate` forcé. 
+- Que pouvez-vous remarquer ? Expliquez le résultat.
 
 ### Fail2ban
-Dans cette section, vous allez installer et configurer l’outil `fail2ban`. Cet outil analyse les fichiers logs et interdit les adresses IP qui montrent les signes malveillants. 
+Dans cette section, vous allez installer et configurer l’outil `fail2ban`. 
+Cet outil analyse les fichiers logs et interdit les adresses IP qui montrent des signes de comportement malveillant. 
 
 Installez l’outil `fail2ban` via le gestionnaire des packages `apt`.
 
 #### Les filtres
 `Fail2ban` est fourni par défaut avec plusieurs filtres.
-Les filtres sont généralement des expressions régulières qui sont utilisées pour détecter les tentatives d'effraction, les échecs de mot de passe, etc. Les filtres sont stockés dans `/etc/fail2ban/filter.d`. 
+Les filtres sont généralement des expressions régulières utilisées pour détecter les tentatives d'effraction, les échecs de mot de passe, etc. 
+
+Les filtres sont stockés dans `/etc/fail2ban/filter.d`. 
 
 #### Les actions
-Une action définit une ou plusieurs commandes qui sont exécutées à des moments différents: lors du démarrage / de l'arrêt d'un jail, de l'interdiction / de la suppression d'un hôte, etc. Les actions sont stockés dans `/etc/fail2ban/action.d`.
+Une action définit une ou plusieurs commandes qui sont exécutées à différents moments: lors du démarrage/arrêt d'un jail, de l'interdiction/suppression d'un hôte, etc.
+
+Les actions sont stockés dans `/etc/fail2ban/action.d`.
 
 #### Les jails
-Un jail est une combinaison d'un filtre et d'une ou plusieurs actions. Les configurations des jails sont stockés dans `/etc/fail2ban/jail.d`
-- Quel jail est activé par défaut?
-- Confirmez que le jail est bien activé en utilisant le client fail2ban `fail2ban-client`. Quelle commande utiliserez-vous pour le faire?
+Un jail est une combinaison d'un filtre et d'une ou plusieurs actions. 
 
-Demandez à un de vos collègues de faire plusieurs tentatives de connexion avec le mauvais mot de passe à la machine via SSH jusqu'à ce qu'il soit bloqué par `fail2ban`.  
-- Après combien de tentatives de connexion échouées, `fail2ban` a bloqué l'accès? 
+Les configurations des jails sont stockés dans `/etc/fail2ban/jail.d`.
+- Quel jail est activé par défaut?
+
+Confirmez que le jail est bien activé en utilisant le client fail2ban `fail2ban-client`. 
+- Quelle commande utiliserez-vous pour faire cela?
+
+Demandez à l'un de vos collègues de tenter plusieurs fois de se connecter à la machine `nginx` avec un mot de passe erroné ou un utilisateur inexistant via SSH jusqu'à ce qu'il soit bloqué par `fail2ban`.  
+- Après combien de tentatives de connexion échouées `fail2ban` a-t-il bloqué l'accès? 
 
 Visualisez les iptables avec la commande `iptables -L`.
 - Quelle règle a été créé par `fail2ban`?
 
-Visualisez l'état du jail sshd avec le client `fail2ban` `fail2ban-client`. 
-- Quelle commande utiliserez-vous pour le faire ?
+Visualisez l'état du jail `sshd` avec le client `fail2ban` `fail2ban-client`. 
+- Quelle commande utiliserez-vous pour faire cela?
 
 Supprimez l’adresse IP de votre collègue de jail avec le client `fail2ban`.
-- Quelle commande utiliserez-vous pour le faire ?
+- Quelle commande utiliserez-vous pour faire cela?
 
 ## Logs Windows - BONUS
-Dans cette section, vous allez visualiser et manipuler les logs Windows.
+Dans cette section, vous allez visualiser et manipuler les logs Windows sur la machine `windows-web-server`.
 
-`Windows Event Logs` contient les logs du système d'exploitation et des applications. Les logs utilisent un format de données structuré, cela facilite la recherche et l’analyse des logs.
+Pour vous connecter à la machine Windows via RDP, vous pouvez utiliser l'outil `Remmina`.
+L'utilisateur et le mot de passe par défaut dans l'image `Windows 10` disponible sur Openstack sont `etuinfo`.
+
+`Windows Event Logs` contient les logs du système d'exploitation et des applications. 
+Les logs utilisent un format de données structuré, ce qui facilite la recherche et l’analyse des logs.
 
 Utilisez `Windows Event Viewer` afin de visualiser les logs Windows.
-- Quelles sont les catégories de logs disponibles dans Event Viewer? 
-- Quelles logs contiennent chaque catégorie ?
-- Dans quel dossier sont stockées les Event Logs?
+- Quelles catégories de logs sont disponibles dans Event Viewer? 
+- Quels logs chaque catégorie contient-elle?
+- Dans quel dossier les Event Logs sont-ils stockées?
 - Est-il possible de supprimer une seule entrée des logs Windows?
 
 Créez un `Custom View` avec les logs de démarrage du noyau (provenant de la source `Kernel-Boot`).
-- Que permettent de faire les `Custom Views` dans `Windows Event Viewer`?
+- Qu'est-ce que les `Custom Views` vous permettent de faire?
 
 Sauvegardez et effacez les logs de sécurité, puis ouvrez le fichier sauvegardé avec `Windows Event Viewer`.
 - Quel log de sécurité est créé lorsque vous effacez les logs?
-- Dans quelle catégorie le fichier de logs ouvert apparaît-il?
+- Sous quelle catégorie le fichier de logs ouvert apparaît-il?
 
 ## Centralisation des logs
 Dans cette section, vous allez planifier et configurer la centralisation des logs de toutes les machines en utilisant les 3 solutions de centralisation des logs vues en cours.
