@@ -273,7 +273,7 @@ Vous pouvez le récupérer via `journalctl`.
 
 Authentifiez-vous avec l'utilisateur `elastic` et le mot de passe généré lors de l'installation de `elasticsearch`.
 
-Visualisez la page `http://IP_ADDR_MACHINE_ELASITC:8080/status` pour vérifier que Kibana fonctionne correctement.
+Visualisez la page `http://IP_ADDR_MACHINE_ELASTIC:8080/status` pour vérifier que Kibana fonctionne correctement.
 - Avez-vous réussi à faire fonctionner Kibana ?
 
 ##### Installation et configuration de Logstash
@@ -544,14 +544,6 @@ $ sudo apt-key add myKey
 $ echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 $ sudo apt update && sudo apt install -y elasticsearch-oss
 ```
-<!---
-Pour améliorer la sécurité de `Elasticsearch`, vous allez en restreindre l'accès. 
-
-Pour ce faire, dans `/etc/elasticsearch/elasticsearch.yml`, recherchez la ligne qui spécifie `network.host`, décommentez-la et remplacez sa valeur par `localhost` comme ceci:
-```
-network.host: localhost
-```
---->
 
 Configurez Elasticseach pour une utilisation avec Graylog en modifiant `cluster.name` et en ajoutant la ligne `action.auto_create_index: false` à la fin du fichier de configuration `/etc/elasticsearch/elasticsearch.yml`.
 ```
@@ -567,8 +559,10 @@ Activez le démarrage automatique et rédemarrez le service `elasticsearch`.
 $ sudo systemctl daemon-reload
 $ sudo systemctl enable elasticsearch.service
 $ sudo systemctl restart elasticsearch.service
-$ sudo systemctl --type=service --state=active | grep elasticsearch
 ```
+
+Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a démarré sans erreur.
+- Quelles commandes utiliserez-vous pour faire cela?
 
 Vérifiez que `Elasticsearch` est fonctionnel en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
 ```
@@ -788,7 +782,7 @@ Dans cette section, vous allez extraire l’adresse IP du client avec une expres
 
 Pour ce faire, trouvez un log `nginx` dans la section `Search` de l’interface web `Graylog`. 
 Cliquez ensuite sur le log trouvé pour visualiser le message en détail. 
-Dans le champ `message`, cliquez sur la petite flèche, puis `Create extractor`.
+Sur le champ `message`, cliquez sur la petite flèche, puis `Create extractor`.
 
 Créez un extracteur de type `Regular expression` et dans le champ `Regular expression` mettez l’expression régulière suivante :
 ```
@@ -844,7 +838,7 @@ Configurez la période de rétention dans la section `Index Retention Configurat
 Dans cette section, vous avez installé, configuré et manipulé le `Graylog` avec `Sidecar`. 
 
 Ayant un temps très limité, même si vous en avez fait beaucoup, vous n'avez pas pu voir toutes les fonctionnalités de `Graylog`.
-Je vous conseille fortement de regarder la documentation officielle `Graylog` et d'essayer d'aller plus loin (`Alerts`, `Streams`, `Users`, `Groups`, `Roles`, `Content Packs`).
+Vous pouvez consulter la documentation officielle de `Graylog` et d'essayer d'aller plus loin (`Alerts`, `Streams`, `Users`, `Groups`, `Roles`, `Content Packs`).
 
 Pour un déploiement en production, il faudra au moins penser à sécuriser les entrées, passer l’API et l’interface Web à `HTTPS` et créer un cluster `Elasticsearch`. Vous pouvez également déployer plusieurs instances du serveur `Graylog` et de les placer derrière un `load balancer`.
 
@@ -857,13 +851,14 @@ Et si vous automatisez le déploiement des agents collecteurs et de `Graylog Sid
 ### Grafana Loki (PLG Stack)
 `Grafana Loki` est une solution simple, légère et facile à utiliser. 
 La principale différence avec les solutions vues précédemment est que `Grafana Loki` n'utilise pas `Elasticsearch` pour le stockage des logs. 
+
 Cette solution n'indexe que les métadonnées et n'indexe pas le contenu des logs donc nécessite moins de ressources. 
 Cette solution est largement utilisée pour centraliser les logs dans l'environment Kubernetes et peut utiliser le stockage objet, qui est un type de stockage relativement peu coûteux.
 
 Dans cette section, vous allez déployer et configurer la solution de centralisation des logs `Grafana Loki` en mode monolithique avec `Docker`.
 
+#### Architecture de Grafana Loki
 ![Architecture de Grafana Loki](./loki_arch.jpg)
-**Architecture de Grafana Loki**
 
 #### Installation et configuration
 Dans cette section, vous allez lancer `Grafana Loki` et `Grafana` dans des containers `Docker` sur la machine `loki`. Ensuite, vous allez installer et lancer le `Promtail` sur chaque machine créée précédemment.
@@ -926,8 +921,6 @@ Vérifiez si le conteneur `Loki` a été démarré
 $ docker ps
 ```
 
-Vérifiez si le port `3100` est bien ouvert sur la machine `loki` dans `Openstack`, sinon ouvrez-le.
-
 ##### Grafana
 `Grafana` est un outil de visualisation (Web UI) qui affiche les données stockées par Loki.
 
@@ -966,7 +959,7 @@ Vérifiez si le port `3100` est bien ouvert sur la machine `loki` dans `Openstac
 Sur chaque machine Linux, exécutez les commandes suivantes
 ```
 $ sudo apt install -y unzip
-$ wget https://github.com/grafana/loki/releases/download/v2.7.3/promtail-linux-amd64.zip
+$ wget https://github.com/grafana/loki/releases/download/v2.9.4/promtail-linux-amd64.zip
 $ unzip promtail-linux-amd64.zip
 $ sudo mv promtail-linux-amd64 /usr/local/bin/promtail
 ```
