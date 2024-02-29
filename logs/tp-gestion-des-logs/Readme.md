@@ -453,7 +453,8 @@ Pour ce faire, interrogez `Elasticsearch` depuis la machine `elastic` avec la co
 ```
 sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
 ```
-- `Elasticsearch` reçoit-il des logs? 
+- Cette commande doit renvoyer les logs `filebeat` enregistrés dans elasticsearch. Si vous ne voyez aucun log, vérifiez que la configuration a été correctement effectuée et que tous les services ont été lancés sans erreur.
+- `Elasticsearch` reçoit-il des logs?
 
 ##### Configuration des agents collecteurs sur Windows - Bonus
 Installez et configurez le `Winlogbeat` sur la machine `Windows`. 
