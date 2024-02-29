@@ -213,18 +213,18 @@ Dans cette section, vous allez installer `Elasticsearch`, `Kibana` et `Logstash`
 
 Installez `Elasticsearch` avec les commandes suivantes
 ```
-$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
-$ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
-$ sudo apt update
-$ sudo apt install elasticsearch
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+sudo apt update
+sudo apt install elasticsearch
 ```
 **Attention!** Lors de l'installation, `elasticsearch` génère un mot de passe pour le superutilisateur `elastic`. Enregistrez ce mot de passe car vous en aurez besoin plus tard!
 
 Démarrez Elasticsearch et activez le démarrage automatique au démarrage du système.
 ```
-$ sudo systemctl daemon-reload
-$ sudo systemctl start elasticsearch
-$ sudo systemctl enable elasticsearch
+sudo systemctl daemon-reload
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a démarré sans erreur.
@@ -232,7 +232,7 @@ Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a d
 
 Ensuite, vérifiez que Elasticsearch fonctionne et repond aux requêtes en envoyant une requête HTTP `GET` à l'API REST d'Elasticsearch avec la commande `curl` sur le port `9200`.
 ```
-$ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
+sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
 ```
 - Quel est le résultat de la commande `curl`?
 
@@ -241,9 +241,9 @@ $ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://loc
 
 Installez, démarrez `Kibana` et activez le démarrage automatique au démarrage du système.
 ```
-$ sudo apt install kibana
-$ sudo systemctl start kibana
-$ sudo systemctl enable kibana
+sudo apt install kibana
+sudo systemctl start kibana
+sudo systemctl enable kibana
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `kibana` a démarré sans erreur.
@@ -263,7 +263,7 @@ Accédez à `Kibana` via votre navigateur Web en utilisant l’adresse IP de la 
 
 Kibana vous demandera un enrollment token qui peut être généré en exécutant sur la machine `elastic` la commande
 ```bash
-$ sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+sudo /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
 ```
 
 Générez le enrollment token, fournissez-le à `Kibana`. 
@@ -283,7 +283,7 @@ Dans le cadre de ce TP, `Logstash` va envoyer les données à `Elasticsearch`.
 
 Installez le `Logstash` sur la machine `elastic`.
 ```
-$ sudo apt install logstash
+sudo apt install logstash
 ```
 
 `Logstash` peut également être vu comme un pipeline qui prend des données à une extrémité, les traite d'une manière ou d'une autre et les envoie à une destination.
@@ -338,7 +338,7 @@ output {
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch`.
 - Pour que `logstash` ait accès au certificat `/etc/elasticsearch/certs/http_ca.crt`, vous devez ajouter l'utilisateur `logstash` dans le groupe `elasticsearch` avec la commande.
 ```bash
-$ sudo usermod -a -G elasticsearch logstash
+sudo usermod -a -G elasticsearch logstash
 ```
 
 Avec cette configuration, `Logstash` enverra des logs directement à `Elasticsearch`. 
@@ -347,8 +347,8 @@ Les logs seront stockes dans l'index nommé selon le Beat utilisé et postfixé 
 
 Démarrez le `logstash` et activez le démarrage automatique
 ```
-$ sudo systemctl start logstash
-$ sudo systemctl enable logstash
+sudo systemctl start logstash
+sudo systemctl enable logstash
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `logstash` a démarré sans erreur.
@@ -363,14 +363,14 @@ Vous allez commencer par la machine `elastic`, car sur cette machine vous devrez
 
 Sur toutes les machines **sauf `elastic`** vous devez ajouter les repos `Elastic` dans le gestionnaire des packages `apt`.
 ```
-$ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
-$ echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
-$ sudo apt update
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+sudo apt update
 ```
 
 Installez le `Filebeat`
 ```
-$ sudo apt install filebeat
+sudo apt install filebeat
 ```
 
 Par défaut, `Filebeat` essaye d’envoyer les logs directement à `Elasticsearch`. 
@@ -407,12 +407,12 @@ Dans cette section, vous allez utiliser deux modules `Filebeat` pour specifier l
 
 Vous pouvez activez le module `system` avec la commande:
 ```
-$ sudo filebeat modules enable system
+sudo filebeat modules enable system
 ```
 
 Vous pouvez voir une liste des modules disponibles, activés et désactivés en exécutant la commande:
 ```
-$ sudo filebeat modules list
+sudo filebeat modules list
 ```
 
 Après avoir activé le module `system`, vous devez spécifier dans le fichier de configuration du module `/etc/filebeat/modules.d/system.yml` quels logs collecter. 
@@ -432,16 +432,16 @@ Le template d'index sera automatiquement appliqué lors de la création d'un nou
 
 Pour créer des template d'index et des pipelines de traitement, exécutez les commandes suivantes **sur la machine `elastic`** :
 ```
-$ ELASTIC_PASSWORD="MOT_DE_PASSE"
-$ sudo filebeat setup --index-management -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E 'output.logstash.enabled=false'
-$ sudo filebeat setup --pipelines --modules system,nginx --force-enable-module-filesets -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E 'output.logstash.enabled=false'
+ELASTIC_PASSWORD="MOT_DE_PASSE"
+sudo filebeat setup --index-management -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E 'output.logstash.enabled=false'
+sudo filebeat setup --pipelines --modules system,nginx --force-enable-module-filesets -E output.elasticsearch.password="$ELASTIC_PASSWORD" -E output.elasticsearch.username=elastic -E 'output.elasticsearch.ssl.certificate_authorities="/etc/elasticsearch/certs/http_ca.crt"' -E 'output.elasticsearch.hosts=["https://localhost:9200"]' -E 'output.logstash.enabled=false'
 ```
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch`.
 
 Démarrez le `Filebeat` et activez le démarrage automatique
 ```
-$ sudo systemctl start filebeat
-$ sudo systemctl enable filebeat
+sudo systemctl start filebeat
+sudo systemctl enable filebeat
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `filebeat` a démarré sans erreur.
@@ -451,7 +451,7 @@ Vérifiez si `Elasticsearch` reçoit les logs.
 
 Pour ce faire, interrogez `Elasticsearch` depuis la machine `elastic` avec la commande suivante: 
 ```
-$ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
+sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
 ```
 - `Elasticsearch` reçoit-il des logs? 
 
@@ -475,9 +475,9 @@ Recherchez tous les logs provenant de la machine `nginx-server`.
 
 Vous pouvez importer les dashboards dans Kibana en exécutant la commande suivante **sur la machine `elastic`**. 
 ```
-$ ELASTIC_PASSWORD="MOT_DE_PASSE"
-$ KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC
-$ sudo filebeat setup --dashboards -E setup.kibana.password="$ELASTIC_PASSWORD" -E setup.kibana.host=$KIBANA_HOST:8080 setup -E setup.kibana.username=elastic
+ELASTIC_PASSWORD="MOT_DE_PASSE"
+KIBANA_HOST=ADRESSE_IP_DE_LA_MACHINE_ELASTIC
+sudo filebeat setup --dashboards -E setup.kibana.password="$ELASTIC_PASSWORD" -E setup.kibana.host=$KIBANA_HOST:8080 setup -E setup.kibana.username=elastic
 ```
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
 
@@ -511,25 +511,25 @@ Ensuite, vous allez installer un agent collector `Filebeat` ou `Winlogbeat` et u
 ##### Preparation de la machine `graylog`
 Installez les packages nécessaires qui seront utiles lors de la configuration de `Graylog`.
 ``` 
-$ sudo apt update
-$ sudo apt install -y apt-transport-https uuid-runtime pwgen gnupg curl
+sudo apt update
+sudo apt install -y apt-transport-https uuid-runtime pwgen gnupg curl
 ```
 
 ##### Installation de MongoDB
 Installez la base de données MongoDB utilisée pour stocker la configuration et les paramètres de `Graylog`
 ```
-$ curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
-$ echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-$ sudo apt update
-$ sudo apt install -y mongodb-org
+curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+sudo apt update
+sudo apt install -y mongodb-org
 ```
 
 Activez le démarrage automatique de `MongoDB` lors du démarrage du système et vérifiez qu'il est en cours d'exécution.
 ```
-$ sudo systemctl daemon-reload
-$ sudo systemctl enable mongod.service
-$ sudo systemctl restart mongod.service
-$ sudo systemctl --type=service --state=active | grep mongod
+sudo systemctl daemon-reload
+sudo systemctl enable mongod.service
+sudo systemctl restart mongod.service
+sudo systemctl --type=service --state=active | grep mongod
 ```
 
 ##### Installation et configuration de Data node
@@ -539,10 +539,10 @@ Dans cette section, vous allez configurer `Elasticsearch` en tant que Data node.
 
 `Graylog` ne peut être utilisé qu'avec `Elasticsearch 7.10.2`, vous allez donc installer cette version en exécutant les commandes suivantes :
 ```
-$ wget -q https://artifacts.elastic.co/GPG-KEY-elasticsearch -O myKey
-$ sudo apt-key add myKey
-$ echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-$ sudo apt update && sudo apt install -y elasticsearch-oss
+wget -q https://artifacts.elastic.co/GPG-KEY-elasticsearch -O myKey
+sudo apt-key add myKey
+echo "deb https://artifacts.elastic.co/packages/oss-7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update && sudo apt install -y elasticsearch-oss
 ```
 
 Configurez Elasticseach pour une utilisation avec Graylog en modifiant `cluster.name` et en ajoutant la ligne `action.auto_create_index: false` à la fin du fichier de configuration `/etc/elasticsearch/elasticsearch.yml`.
@@ -556,9 +556,9 @@ Démarrez et configurez le service `Elasticsearch` pour qu'il démarre automatiq
 
 Activez le démarrage automatique et rédemarrez le service `elasticsearch`.
 ``` 
-$ sudo systemctl daemon-reload
-$ sudo systemctl enable elasticsearch.service
-$ sudo systemctl restart elasticsearch.service
+sudo systemctl daemon-reload
+sudo systemctl enable elasticsearch.service
+sudo systemctl restart elasticsearch.service
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a démarré sans erreur.
@@ -566,7 +566,7 @@ Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a d
 
 Vérifiez que `Elasticsearch` est fonctionnel en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
 ```
-$ curl -X GET "localhost:9200"
+curl -X GET "localhost:9200"
 ```
 - Quel est le résultat de la commande `curl`?
 
@@ -576,22 +576,22 @@ $ curl -X GET "localhost:9200"
 
 Installez le version gratuite de `Graylog Server`.
 ```
-$ wget https://packages.graylog2.org/repo/packages/graylog-5.0-repository_latest.deb
-$ sudo dpkg -i graylog-5.0-repository_latest.deb
-$ sudo apt update && sudo apt install -y graylog-server 
+wget https://packages.graylog2.org/repo/packages/graylog-5.0-repository_latest.deb
+sudo dpkg -i graylog-5.0-repository_latest.deb
+sudo apt update && sudo apt install -y graylog-server 
 ```
 
 Pour pouvoir démarrer le serveur, vous devez au moins configurer les valeurs de `password_secret` et `root_password_sha2` dans le fichier de configuration du serveur Graylog `/etc/graylog/server/server.conf`.
 
 Le `password_secret` est utilisé pour le chiffrement de certaines données dans `MongoDB` (mots des passe utilisateur) et peut être généré avec la commande:
 ```
-$ pwgen -N 1 -s 96
+pwgen -N 1 -s 96
 ```
 
 Le `root_password_sha2` est le hash du mot de passe de l’utilisateur root (`admin` par défaut).
 Créez un hash de mot de passe de l’utilisateur root avec la commande:
 ```
-$ echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | cut -d" " -f1
+echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | cut -d" " -f1
 ```
 
 Ajoutez ces deux valeurs dans le fichier de configuration `/etc/graylog/server/server.conf`.
@@ -601,7 +601,7 @@ Vous allez donc installer et configurer un proxy `nginx`.
 
 Installez le package `nginx`
 ```
-$ sudo apt install nginx
+sudo apt install nginx
 ```
 
 Créez le fichier de configuration du reverse proxy `nginx` `/etc/nginx/sites-available/graylog` avec le contenu suivant:
@@ -622,9 +622,9 @@ server {
 
 Supprimez la configuration `nginx` par défaut et activez la nouvelle configuration
 ```
-$ sudo rm /etc/nginx/sites-enabled/default
-$ sudo ln -s /etc/nginx/sites-available/graylog /etc/nginx/sites-enabled/graylog
-$ sudo systemctl reload nginx
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln -s /etc/nginx/sites-available/graylog /etc/nginx/sites-enabled/graylog
+sudo systemctl reload nginx
 ```
 
 Vérifiez si le port `80` de la machine `graylog` est ouvert dans `Openstack`.
@@ -637,9 +637,9 @@ http_external_uri = http://ADRESSE_IP_DE_LA_MACHINE_GRAYLOG/
 
 Activez le démarrage automatique et demarrez le service `graylog-server`.
 ```
-$ sudo systemctl daemon-reload
-$ sudo systemctl enable graylog-server.service
-$ sudo systemctl start graylog-server.service
+sudo systemctl daemon-reload
+sudo systemctl enable graylog-server.service
+sudo systemctl start graylog-server.service
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `graylog-server` a démarré sans erreur.
@@ -675,9 +675,9 @@ Sinon, vous trouverez des instructions pour installer `Filebeat` dans la section
 ##### Installation de Graylog Sidecar
 Installez le `Graylog Sidecar` sur chaque machine avec les commandes :
 ```
-$ wget https://packages.graylog2.org/repo/packages/graylog-sidecar-repository_1-5_all.deb
-$ sudo dpkg -i graylog-sidecar-repository_1-5_all.deb
-$ sudo apt-get update && sudo apt-get install graylog-sidecar
+wget https://packages.graylog2.org/repo/packages/graylog-sidecar-repository_1-5_all.deb
+sudo dpkg -i graylog-sidecar-repository_1-5_all.deb
+sudo apt-get update && sudo apt-get install graylog-sidecar
 ```
 
 Pour que `Graylog Sidecar` puisse contacter l’API REST du serveur `Graylog`, vous devez générer un token accès pour le `Graylog Sidecar`. 
@@ -698,9 +698,9 @@ server_api_token: "VOTRE_TOKEN"
 
 Créez, démarrez et activez le demarrage automatique du service `graylog-sidecar` en utilisant les commandes suivantes :
 ```
-$ sudo graylog-sidecar -service install
-$ sudo systemctl enable graylog-sidecar
-$ sudo systemctl start graylog-sidecar
+sudo graylog-sidecar -service install
+sudo systemctl enable graylog-sidecar
+sudo systemctl start graylog-sidecar
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `graylog-sidecar` a démarré sans erreur.
@@ -871,8 +871,8 @@ Avant de commencer, vous allez créer deux volumes `Docker` pour assurer la pers
 
 Le premier volume contiendra la base de données `Loki` et le second la configuration de l’interface Web `Grafana`.
 ```
-$ docker volume create loki
-$ docker volume create grafana
+docker volume create loki
+docker volume create grafana
 ```
 
 ##### Grafana Loki
@@ -913,17 +913,17 @@ schema_config:
 
 Lancez `Loki` dans un conteneur Docker avec la commande suivante:
 ```
-$ docker run -d --name loki -v $(pwd)/loki-config.yaml:/mnt/config/loki-config.yaml -v loki:/loki -p 3100:3100 grafana/loki:2.7.2 -config.file=/mnt/config/loki-config.yaml
+docker run -d --name loki -v $(pwd)/loki-config.yaml:/mnt/config/loki-config.yaml -v loki:/loki -p 3100:3100 grafana/loki:2.7.2 -config.file=/mnt/config/loki-config.yaml
 ```
 
 Vérifiez que le conteneur `Loki` a été bien démarré avec
 ```
-$ docker ps
+docker ps
 ```
 
 Vérifiez que `Loki` a démarré correcrement et sans erreurs en consultant ses logs
 ```
-$ docker logs loki
+docker logs loki
 ```
 
 
@@ -932,19 +932,19 @@ $ docker logs loki
 
 Avant de lancer le conteneur avec `Grafana`, créez les variables d'environnement suivantes avec le nom d'utilisateur et le mot de passe de l'administrateur
 ```
-$ GF_SECURITY_ADMIN_USER=admin
-$ GF_SECURITY_ADMIN_PASSWORD=admin
+GF_SECURITY_ADMIN_USER=admin
+GF_SECURITY_ADMIN_PASSWORD=admin
 ```
 - Choisissez un mot de passe pour l'administrateur et placez-le dans la variable d'environnement.
 
 Lancez `Grafana` dans un conteneur Docker avec la commande suivante:
 ```
-$ docker run -d --name grafana -e GF_SECURITY_ADMIN_USER=$GF_SECURITY_ADMIN_USER -e GF_SECURITY_ADMIN_PASSWORD=$GF_SECURITY_ADMIN_PASSWORD -v grafana:/var/lib/grafana -p 80:3000 grafana/grafana:10.2.4
+docker run -d --name grafana -e GF_SECURITY_ADMIN_USER=$GF_SECURITY_ADMIN_USER -e GF_SECURITY_ADMIN_PASSWORD=$GF_SECURITY_ADMIN_PASSWORD -v grafana:/var/lib/grafana -p 80:3000 grafana/grafana:10.2.4
 ```
 
 Vérifiez que le conteneur `Grafana` a été bien démarré avec
 ```
-$ docker ps
+docker ps
 ```
 
 Après le démarrage de `Grafana`, son interface Web doit être disponible sur `http://ADRESSE_IP_DE_LA_MACHINE_LOKI/`.
@@ -965,10 +965,10 @@ Dans cette section, vous allez installer et configurer `Promtail` sur toutes les
 ##### Installation de Promtail
 Sur chaque machine Linux, pour installer `Promtail`, exécutez les commandes suivantes:
 ```
-$ sudo apt install -y unzip
-$ wget https://github.com/grafana/loki/releases/download/v2.9.4/promtail-linux-amd64.zip
-$ unzip promtail-linux-amd64.zip
-$ sudo mv promtail-linux-amd64 /usr/local/bin/promtail
+sudo apt install -y unzip
+wget https://github.com/grafana/loki/releases/download/v2.9.4/promtail-linux-amd64.zip
+unzip promtail-linux-amd64.zip
+sudo mv promtail-linux-amd64 /usr/local/bin/promtail
 ```
 
 Créez un service `Promtail` dans `systemd`. 
@@ -1018,10 +1018,10 @@ scrape_configs:
 
 Démarrez le service `Promtail`, activez son démarrage automatique et vérifiez s'il fonctionne correctement
 ```
-$ sudo systemctl daemon-reload
-$ sudo systemctl start promtail
-$ sudo systemctl enable promtail
-$ sudo systemctl status promtail
+sudo systemctl daemon-reload
+sudo systemctl start promtail
+sudo systemctl enable promtail
+sudo systemctl status promtail
 ```
 - Avez-vous réussi à démarrer le `Promtail` ?
 
