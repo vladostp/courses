@@ -64,8 +64,9 @@ Il se place entre vous et l'application web testée, puis intercepte et analyse 
 Donc, pour utiliser Burp Suite vous devez l’installer sur votre machine et l’utiliser comme proxy dans votre navigateur Web.
 
 ### Installation
-- Installez la version Community de Burp Suite sur votre machine (veillez à bien installer la version *Burp Suite Community Edition*)
+- Installez la version Community de Burp Suite sur votre machine
     - https://portswigger.net/burp/releases/professional-community-2024-4-5
+    - **Attention!** Vous devez choisir et installer la version **Burp Suite Community Edition!**
 
 ### Configuration
 Dans cette section, vous allez configurer votre navigateur Web pour qu’il utilise Burp Suite comme serveur proxy.
@@ -485,4 +486,4 @@ Vous devez trouver une photo qui peut potentiellement vous aider à trouver la r
 Analysez les métadonnées de cette photo. 
 Pour cela, vous pouvez utiliser un outil en ligne d'analyse des métadonnées d'image. 
 
-- Quelle est la réponse à la question de sécurité de John ? 
+- Quelle est la réponse à la question de sécurité de John ?
