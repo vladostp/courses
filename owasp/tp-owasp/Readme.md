@@ -254,11 +254,11 @@ Vous allez utiliser cette vulnérabilité pour lire le fichier `/etc/passwd` de 
 
 Un exemple d’exploitation de cette vulnérabilité a été vu pendant le CM. Cet exemple fonctionne également pour l’OWASP Juice Shop. 
 
-Il vous reste à trouver la page qui vous permettra de télécharger un fichier XML et d’exploiter cette vulnérabilité.
+Il vous reste à trouver la page qui vous permettra d'uploader un fichier XML et d’exploiter cette vulnérabilité.
 
 Ne cherchez pas la page trop loin, cette page est accessible depuis la page d'accueil en étant connecté avec n'importe quel utilisateur.
 
-Utilisez le *Burp Suite Repeater* pour visualiser les requêtes et les réponses de l’application web lors du téléchargement du fichier.
+Utilisez le *Burp Suite Repeater* pour visualiser les requêtes et les réponses de l’application web lors du upload du fichier.
 - Avez-vous réussi à exploiter cette vulnérabilité ?
 - Quel fichier avez-vous envoyé à l'application Web ?
 - Quel message d’erreur accompagne le contenu du fichier `/etc/passwd` ?
