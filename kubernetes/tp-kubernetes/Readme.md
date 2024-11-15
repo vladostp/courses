@@ -7,14 +7,14 @@ Au cours de ce TP, vous allez commencer par installer un cluster K8S avec l'outi
 
 ## Creation de l'infrastructure
 Dans cette section, vous devez créer trois machines virtuelles dans OpenStack avec les caractéristiques suivantes:
-- 2 vCPU
-- 4Go RAM
+- 4 vCPU
+- 8Go RAM
 - 20Go d'espace disque
-- Réseau `vlan1372` ou `vlan1368` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
+- Réseau `vlan1374` ou `vlan1368` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
 
 Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*.
 
-Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 2 vCPU, 4 Go de RAM, réseau `vlan1372` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 4 vCPU, 8 Go de RAM, réseau `vlan1374` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
 ------
 
@@ -67,9 +67,9 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
 **kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
 
-- Téléchargez et installez la version `1.26.8` de **kubectl**
+- Téléchargez et installez la version `1.13.2` de **kubectl**
   ```bash
-  $ curl -LO "https://dl.k8s.io/release/v1.26.8/bin/linux/amd64/kubectl"
+  $ curl -LO "https://dl.k8s.io/release/v1.13.2/bin/linux/amd64/kubectl"
   $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   ```
 - Copiez la configuration de `kubectl` crée par **RKE**
@@ -142,7 +142,7 @@ Ce fichier décrit un Pod qui a les caractéristiques suivantes :
 	- Vous pouvez également exécuter une commande dans n'importe quel Pod du cluster avec `kubectl exec`.
 
 ### Création d'un deployment
-Dans la section précédente, vous avez créé un Pod avec l'application **Nginx**. Dans la vraie vie, vous ne manipulez jamais directement les Pods. Vous passez toujours par des objets contrôleurs (**Workload Resources**), qui créent et gérent les Pods pour vous. Ces objets assurent la réplication, le déploiement et le self-healing automatique de vos Pods.
+Dans la section précédente, vous avez créé un Pod avec l'application **Nginx**. Dans la vraie vie, vous ne manipulez jamais directement les Pods. Vous passez toujours par des objets contrôleurs (**Workload objects**), qui créent et gérent les Pods pour vous. Ces objets assurent la réplication, le déploiement et le self-healing automatique de vos Pods.
 
 Dans cette section, vous allez déployer une application hautement disponible et vous allez manipuler les mécanismes de mises à jour déclaratives et de rollback.
 
@@ -183,6 +183,7 @@ spec:
     $ kubectl rollout status deployments nginx-deployment
     $ kubectl get deployments
     $ kubectl get replicasets
+    $ kubectl get pods
     ```
     - Combien de replicas ont été créés par le déploiement ?
 
@@ -194,7 +195,11 @@ spec:
     ```bash
     $ kubectl describe deployment nginx-deployment
     ```
-    - Que voyez-vous dans la liste des événements du déploiement ?
+    - Visualisez les événements Kubernetes avec la commande
+    ```bash
+    $ kubectl get events
+    ```
+    - Quel événement reflète la mise à l’échelle de votre déploiement ?
 
 - **Vérifiez que votre déploiement a lancé un bon nombre des replicas**
     ```bash
@@ -242,12 +247,13 @@ spec:
     ```bash
     $ kubectl get services
     ```
+    - Quel est le port exposé permettant d'accéder au service ?
 
 - **Affichez des endpoints du service**
     ```bash
     $ kubectl get endpoints
     ```
-    - Quelles adresses sont affichées dans la liste des ENDPOINTS?
+    - Quelles adresses sont affichées dans la liste des ENDPOINTS? À quoi correspondent ces adresses?
 
 - **Vérifiez que le déploiement est bien accessible depuis n'importe quel nœud du cluster**
     ```bash
@@ -265,9 +271,9 @@ Imaginez que vous avez une nouvelle version de l'application à déployer et vou
 Pour simuler ce scénario et pouvoir suivre le processus de déploiement, nous allons d'abord ralentir le processus de déploiement puis changer la version de l'image **nginx** du déploiement.
 
 
-Nous allons commencer par modifier les paramètres de déploiement afin d'attendre 10 secondes après le déploiement de chaque nouveau **Pod** avant de déployer le suivant.
+Nous allons commencer par modifier les paramètres de déploiement afin d'attendre 30 secondes après le déploiement de chaque nouveau **Pod** avant de déployer le suivant.
 ```bash
-$ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 10}}' 
+$ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 30}}' 
 ```
 
 Pour déployer la nouvelle version de l'application, vous allez mettre à jour le **Déploiement**.
@@ -464,7 +470,7 @@ spec:
     $ kubectl get pods
     ```
 
-- **Trouvez un moyen de vérifier que le volume persistent fonctionne correctement**
+- **Trouvez un moyen de vérifier que le volume persistant fonctionne correctement (stockage est bien persistant)**
     - Comment l'avez-vous vérifié ?
 
 
@@ -498,10 +504,10 @@ spec:
     $ kubectl get pods
     $ kubectl logs NOM_DU_POD
     ```
-    - Que voyez-vous dans les logs du Pod?
+    - Que voyez-vous dans les logs du Pod? Que pouvez-vous conclure?
 
 ### Secrets
-Les secrets sont utilisés pour sécuriser les données sensibles qui peuvent être mises à disposition dans vos Pods. 
+Les secrets sont utilisés pour fournir les données sensibles aux Pods de manière sécurisée. 
 Les secrets peuvent être fournis à vos pods de deux manières différentes : en tant que variables d'environnement ou en tant que volumes contenant les secrets.
 
 Dans cette section, vous allez créer un secret et l'utiliser dans un pod de deux manières différentes.
@@ -610,7 +616,7 @@ spec:
   ```bash
   $ curl 127.0.0.1:8081
   ```
-  - Que pouvez-vous constater?
+  - Que pouvez-vous constater? Expliquez le résultat.
 
 
 ### Sondes de Liveness et Readiness
@@ -651,9 +657,9 @@ spec:
 	```
 	- Après avoir exécuté cette commande, la sonde Liveness du **Pod** échouera car le serveur `nginx` ne peut plus trouver la page d'index et répond par une erreur 404.
 
-- **Surveillez les événements et le comportement du Pod `liveness-pod`**
+- **Surveillez les événements relatifs au Pod et le comportement du Pod `liveness-pod`**
   ```bash
-  $ kubectl describe pod liveness-pod
+  $ kubectl get events
   $ kubectl get pods
   ```
 	- Que fait Kubernetes en cas d'échec de la Liveness probe?
@@ -704,7 +710,7 @@ spec:
   containers:
   - name: nginx
     image: nginx
-    command: ["sh", "-c", "sleep 300 && nginx -g 'daemon off;'"]
+    command: ["sh", "-c", "sleep 600 && nginx -g 'daemon off;'"]
     readinessProbe:
       httpGet:
           path: /
@@ -712,6 +718,8 @@ spec:
       initialDelaySeconds: 5
       periodSeconds: 5
 ```
+
+**Attention!** Vous devez arriver au dernier points de cette partie (Readiness probe) en moins de 10 minutes. Si cela vous a pris plus de temps, supprimez les objets avec `kubectl delete -f nginx_readiness.yml` et recommencez.
 
 - **Créez ces objets dans le cluster**
     ```bash
@@ -738,7 +746,7 @@ spec:
   ```
   - Comment pouvez-vous expliquer un tel comportement?
 
-- **Attendez 5 minutes et réétudiez le comportement des Pods et la liste des endpoints du service**
+- **Attendez 10 minutes et réétudiez le comportement des Pods et la liste des endpoints du service**
   ```bash
   $ kubectl get pods
   $ kubectl get endpoints
@@ -794,6 +802,8 @@ Dans la section précédente, vous avez manipulé de nombreux objets et mécanis
 
 Dans cette section, vous rassemblerez toutes les connaissances acquises précédemment pour déployer une application hautement disponible et auto-réparatrice composée de deux services distincts qui utilisent des volumes et des secrets.
 
+**Attention!** Vous devez inclure tous les objets créés lors de cette partie dans le rapport!
+
 ### Architecture de déploiement
 L'application sera composée des deux services :
 - **Le premier service est la base de données clé-valeur Redis**
@@ -818,10 +828,10 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
 - **PersistantVolumeClaim**
 	- Créez un **PersistantVolumeClaim** avec le nom `redis-pvc` qui demande un stockage avec une capacité de `500Mi` et le mode d'accès `ReadWriteOnce`.
 	- Verifiez que les états de **PersistantVolume** et **PersistantVolumeClaim** sont `Bound`
-    ```bash
-    $ kubectl get pv
-    $ kubectl get pvc
-	  ```
+  ```bash
+  $ kubectl get pv
+  $ kubectl get pvc
+  ```
   
 - **Secret**
 	- Créez le **Secret** avec le nom `redis-secret` qui a un champ nommé `password`. Ce champ doit contenir le mot `redispassword` qui sera utilisé comme mot de passe d'authentification **Redis**. N'oubliez pas que les secrets doivent être encodés en `base64`.
@@ -980,7 +990,7 @@ $ ./rke remove
       ```
       - `10.244.0.0/16`​ correspond à la plage d'adresses qui sera utilisée pour les **Pods** dans votre cluster
       - `10.96.0.0/12`​ correspond à la plage d'adresses système de Kubernetes
-    - Redémarrez tous les nœuds
+    - Redémarrez tous les machines
 
 - Creez le cluster Kubernetes avec `kubeadm` à l'aide du tutoriel suivant
   - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
