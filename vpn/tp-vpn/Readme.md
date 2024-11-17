@@ -1,8 +1,8 @@
 # TP VPN/IPsec
-Au cours de ce TP, vous allez interconnecter deux réseaux avec différentes solutions VPN. Vous allez commencer par la mise en place d’un tunnel non sécurisé avec **GRE**. Ensuite, vous le protégerez avec **IPsec** en gérant les clés de chiffrement et d’authentification manuellement. Puis, vous allez configurer un tunnel **IPsec** avec **IKE** en utilisant **strongSwan**. Vous configurerez également un **OpenVPN** avec une autorité de certification et des certificats. S'il vous reste du temps, vous mettrez également en place un VPN **Wireguard**.
+Au cours de ce TP, vous allez interconnecter deux réseaux avec différentes solutions VPN. Vous allez commencer par la mise en place d’un tunnel non sécurisé avec **GRE**. Ensuite, vous le protégerez avec **IPsec** en gérant les clés de chiffrement et d’authentification manuellement. Puis, vous allez configurer un tunnel **IPsec** avec **IKE** en utilisant **strongSwan**. Vous configurerez également un **OpenVPN** avec une autorité de certification et des certificats. S'il vous reste du temps, vous mettrez en place un VPN **Wireguard**.
 
 ## Rendu
-Afin d'être évalué, vous devez rédiger un rapport dans lequel vous mettez toutes les commandes exécutées sur toutes les machines, tous les fichiers de configuration créés et les réponses aux questions posées.
+Afin d'être évalué, vous devez rédiger un rapport dans lequel vous mettez **toutes les commandes exécutées** sur toutes les machines, **tous les fichiers de configuration** créés et les **réponses aux questions** posées.
 
 ## 1 - Creation de l’infrastructure
 Pour réaliser ce TP, vous allez utiliser la plateforme OpenStack de l'université.
@@ -10,7 +10,7 @@ Pour réaliser ce TP, vous allez utiliser la plateforme OpenStack de l'universit
 ### L'architecture de déploiement
 ![Architecture de déploiement](./vpn_archi.png)
 
-L'architecture de déploiement est composée des composants suivants :
+L'architecture de déploiement est composée des éléments suivants :
 - 2 routeurs et 3 hôtes qui seront des VM sur Openstack
 - 2 réseaux privés A et B qui seront des réseaux OpenStack
 - 1 réseau public qui sera le réseau par défaut (***vlanXXXX***) déjà présent dans l'Openstack
@@ -19,7 +19,7 @@ L'architecture de déploiement est composée des composants suivants :
 - Une clé SSH qui sera utilisée uniquement pour ce TP
 - 2 réseaux OpenStack
     - 1 réseau nommé ***network-a-{numéro de groupe}*** pour le **Network A** avec le sous-réseau ***172.18.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé
-    - 1 réseau nommé ***network-b-{numéro de groupe}***pour le **Network B** avec le sous-réseau ***172.19.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé
+    - 1 réseau nommé ***network-b-{numéro de groupe}*** pour le **Network B** avec le sous-réseau ***172.19.{Numéro de groupe}.0/24***, sans Gateway et avec DHCP activé
     - **Dans la configuration DHCP des deux sous-réseaux**, vous pouvez choisir librement le pool d'attribution d’adresses de DHCP
     - **Attention!** Vous devrez également **supprimer les serveurs DNS mis par défaut** dans la configuration DHCP des sous-réseaux!
 - 5 machines virtuelles avec 
@@ -55,7 +55,7 @@ L'architecture de déploiement est composée des composants suivants :
 **Visualisez avec Wireshark via SSH les paquets échangés entre le Router 1 et le Router 2. Que pouvez-vous conclure?**
 - Vous pouvez utiliser le Wireshark via SSH avec la commande suivante:
     ```bash
-    ssh ubuntu@ADRESSE_IP_DU_ROUTEUR "sudo tcpdump -s0 -U -n -w - -i enp2s0 'not port 22'" | wireshark -i -
+    ssh ubuntu@ADRESSE_IP_DU_ROUTEUR "sudo tcpdump -s0 -U -n -w - -i enp1s0 'not port 22'" | wireshark -i -
     ```
 
 ## 3 - Protection du tunnel GRE avec IPsec - Gestion des clés manuelle
@@ -88,6 +88,7 @@ Dans cette section, vous allez déployer un **VPN IPsec en mode tunnel avec IKE*
 **Vérifiez que les hôtes des deux réseaux peuvent communiquer entre eux.**
 - Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.
 - Pourquoi y a-t-il des problèmes avec le NAT dans cette configuration ?
+- Désactivez NAT sur les deux routeurs.
 
 **Visualisez les paquets échangés entre les routeurs avec Wireshark.**
 - Que pouvez-vous remarquer ?
