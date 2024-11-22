@@ -49,6 +49,7 @@ L'architecture de déploiement est composée des éléments suivants :
 - Vous pouvez vous inspirer du tutoriel suivant : 
     - https://www.xmodulo.com/create-gre-tunnel-linux.html
     - **Important!** N'utilisez pas le sous-réseau `10.10.10.0/24` pour les devices du tunnel comme indiqué dans le tutoriel car cela risque de casser la résolution DNS. Utilisez plutôt le réseau `172.42.{Group Number}.0/24`.
+    - Utilisez `gre1` comme nom d'interface pour le tunnel.
 
 **Mettez à jour les règles de routage sur les routeurs afin que les machines du réseau A puissent communiquer avec les machines du réseau B via le tunnel GRE.**
 
@@ -81,9 +82,10 @@ Dans cette section, vous allez déployer un **VPN IPsec en mode tunnel avec IKE*
 
 **Configurez IPsec en mode tunnel entre Router 1 et 2 avec strongSwan.** 
 - Utilisez le IKEv2 comme mécanisme d'échange des clés et le Pre-shared key (PSK) pour l’authentification
-- Vous pouvez vous inspirer des tutoriels suivants
+- Vous pouvez vous inspirer du tutoriel suivant
     - https://www.tecmint.com/setup-ipsec-vpn-with-strongswan-on-debian-ubuntu/
-    - https://blog.ruanbekker.com/blog/2018/02/11/setup-a-site-to-site-ipsec-vpn-with-strongswan-and-preshared-key-authentication/
+    - Le nom du service strongSwan est `strongswan-starter`.
+    <!-- - https://blog.ruanbekker.com/blog/2018/02/11/setup-a-site-to-site-ipsec-vpn-with-strongswan-and-preshared-key-authentication/-->
 
 **Vérifiez que les hôtes des deux réseaux peuvent communiquer entre eux.**
 - Étant donné qu'IPsec est en mode tunnel, NAT doit être désactivé sur les routeurs 1 et 2 afin que les hôtes des deux réseaux puissent communiquer entre eux.
