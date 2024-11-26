@@ -873,15 +873,14 @@ Afin de créer le service Redis décrit dans l'architecture de déploiement, vou
     ```
 
 Vous avez créé le service Redis, vous devez maintenant vérifier s'il fonctionne correctement. Pour cela :
-- Créez un deploiement `busybox` avec la commande `kubectl create`
+- Créez un pod `busybox` avec la commande `kubectl run`
 	```bash
-	$ kubectl create deployment --image=busybox busybox -- sleep 99999999
+	$ kubectl run busybox --image=busybox --restart=Never --command sleep 99999999
 	```
 
-- Récupérez le nom du Pod créé par le déploiement et lancez un terminal dans ce Pod
-	```bash
-	$ kubectl get pods 
-	$ kubectl exec -it PODNAME -- sh
+- Lancez un terminal dans ce Pod
+	```bas
+	$ kubectl exec -it busybox -- sh
 	```
 
 - Connectez-vous avec `telnet` au **Redis** à partir de **Pod** `busybox` et testez si **Redis** fonctionne correctement
