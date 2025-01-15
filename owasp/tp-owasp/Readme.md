@@ -258,7 +258,7 @@ Pour ce faire:
 - Puis dans l’onglet `Payloads`, choisissez le type de payload `Simple List` 
 
 - Dans la section `Payload settings`, copiez la liste des prénoms donnée précédemment
-    - Pour allez plus vite, vous pouvez enregistrer la liste sous forme de fichier texte et utiliser le bouton `Load...` pour la charger à partir de ce fichier 
+    - Pour allez plus vite, vous pouvez enregistrer la liste sous forme de fichier texte et utiliser le bouton `Load...` pour la charger à partir de ce fichier ou copier la liste et utiliser le bouton `Paste` 
 
 - Démarrez l’attaque avec le bouton `Start attack` et analysez soigneusement la taille et l'état de chaque réponse
     - Pour chaque réponse de sécurité essayée par `Intruder`, vous pouvez visualiser la requête envoyée et la réponse reçue de l’application Web
@@ -266,6 +266,7 @@ Pour ce faire:
 
 - Authentifiez-vous en tant qu'utilisateur Jim via le navigateur Web
     - **Combien de produits a-t-il dans son panier ?**
+
 
 ### XML External Entities (XEE) - Lire un fichier du serveur
 Dans cette partie, vous allez exploiter la vulnérabilité XML External Entities. 
@@ -279,10 +280,11 @@ Tout d'abord, vous devez trouver une page avec un formulaire qui vous permet d'u
 - Ne cherchez pas trop loin, cette page est accessible depuis la page d'accueil en étant connecté avec n'importe quel utilisateur
 - **Quelle page contient le formulaire qui vous permet d'uploader des fichers XML ?**
 
-Utilisez le `Burp Suite Repeater` pour visualiser les requêtes et les réponses de l’application Web lors du upload du fichier XML.
+Utilisez le `Burp Suite Repeater` pour visualiser les requêtes et les réponses de l’application Web lors du upload du fichier XML via le formulaire trouvé précédemment.
 - **Avez-vous réussi à exploiter cette vulnérabilité ?**
 - **Quel fichier avez-vous envoyé à l'application Web ?**
 - **Quel message d’erreur accompagne le contenu du fichier `/etc/passwd` ?**
+
 
 ### Security Misconfiguration - Trouver des documents confidentiels
 Il arrive souvent que des ressources qui ne sont pas censées être vues par des personnes non autorisées soient disponibles sur le serveur et soient accessibles à tous.
