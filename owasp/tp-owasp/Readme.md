@@ -303,7 +303,8 @@ Par exemple, le fichier de configuration des scanners des moteurs de recherche e
 
 - **Quel fichier permet de spécifier quelles zones du site Web ne doivent pas être traitées ou scannées par des moteurs de recherches ?**
 - **Quel répertoire avez-vous découvert en analysant ce fichier ?**
-- **Quelles informations confidentielles trouvez-vous susceptibles d'avoir un impact boursier significatif ?**
+- **Quelles informations confidentielles avez-vous trouvées qui pourraient avoir un impact boursier significatif ?**
+
 
 ### Broken Access Control - Afficher le panier d'un autre utilisateur  
 Dans cette section, vous allez trouver et exploiter la vulnérabilité de contrôle d'accès défaillant. 
