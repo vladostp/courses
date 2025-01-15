@@ -263,42 +263,45 @@ Pour ce faire:
 - Démarrez l’attaque avec le bouton `Start attack` et analysez soigneusement la taille et l'état de chaque réponse
     - Pour chaque réponse de sécurité essayée par `Intruder`, vous pouvez visualiser la requête envoyée et la réponse reçue de l’application Web
     - **Quelle est la réponse à la question de sécurité de Jim ? Comment l'avez-vous trouvée?**
-    
-- Authentifiez-vous en tant qu'utilisateur Jim
+
+- Authentifiez-vous en tant qu'utilisateur Jim via le navigateur Web
     - **Combien de produits a-t-il dans son panier ?**
 
 ### XML External Entities (XEE) - Lire un fichier du serveur
-Dans cette section, vous allez exploiter la vulnérabilité XML External Entities. 
-Vous allez utiliser cette vulnérabilité pour lire le fichier `/etc/passwd` de la machine serveur.
+Dans cette partie, vous allez exploiter la vulnérabilité XML External Entities. 
 
-Un exemple d’exploitation de cette vulnérabilité a été vu pendant le CM. Cet exemple fonctionne également pour l’OWASP Juice Shop. 
+Vous allez utiliser cette vulnérabilité pour lire le fichier `/etc/passwd` du serveur.
 
-Il vous reste à trouver la page qui vous permettra d'uploader un fichier XML et d’exploiter cette vulnérabilité.
+Un exemple d’exploitation de cette vulnérabilité a été vu pendant le CM. 
+Cet exemple fonctionne également pour le `Juice Shop`.
 
-Ne cherchez pas la page trop loin, cette page est accessible depuis la page d'accueil en étant connecté avec n'importe quel utilisateur.
+Tout d'abord, vous devez trouver une page avec un formulaire qui vous permet d'uploader des fichiers XML et essayer de l'exploiter.
+- Ne cherchez pas trop loin, cette page est accessible depuis la page d'accueil en étant connecté avec n'importe quel utilisateur
+- **Quelle page contient le formulaire qui vous permet d'uploader des fichers XML ?**
 
-Utilisez le *Burp Suite Repeater* pour visualiser les requêtes et les réponses de l’application web lors du upload du fichier.
-- Avez-vous réussi à exploiter cette vulnérabilité ?
-- Quel fichier avez-vous envoyé à l'application Web ?
-- Quel message d’erreur accompagne le contenu du fichier `/etc/passwd` ?
+Utilisez le `Burp Suite Repeater` pour visualiser les requêtes et les réponses de l’application Web lors du upload du fichier XML.
+- **Avez-vous réussi à exploiter cette vulnérabilité ?**
+- **Quel fichier avez-vous envoyé à l'application Web ?**
+- **Quel message d’erreur accompagne le contenu du fichier `/etc/passwd` ?**
 
 ### Security Misconfiguration - Trouver des documents confidentiels
-Il arrive souvent que des ressources intéressantes qui ne sont pas censées être vues par des personnes non autorisées soient disponibles sur le serveur et soient accessibles par tout le monde.
+Il arrive souvent que des ressources qui ne sont pas censées être vues par des personnes non autorisées soient disponibles sur le serveur et soient accessibles à tous.
 
-Dans cette section, vous allez rechercher des fichiers intéressants disponibles sur le serveur Web de l'application Juice Shop.
+Dans cette partie, vous allez rechercher des fichiers intéressants disponibles sur le serveur Web de l'application `Juice Shop`.
 
-Pour faire une découverte de ressources cachées, vous pouvez utiliser des outils automatisés, comme *dirbuster* ou *gobuster*. 
-Ces outils vous permettent par le brute force de découvrir les fichiers et dossiers disponibles sur des serveurs Web. 
-Ils permettent de retrouver différentes ressources cachées: pages, fichiers, répertoires et applications.
+Pour faire la découverte de ressources cachées, vous pouvez utiliser des outils automatisés, tels que `dirbuster` ou `gobuster`. 
 
-Mais avant de commencer à effectuer des analyses massives qui peuvent être détectées par des systèmes de sécurité, vous devriez toujours essayer des choses plus simples.
+Ces outils vous permettent de découvrir les fichiers et dossiers disponibles sur les serveurs Web en essayant des noms communs ou en effectuant la découverte par bruteforce.
+Ils vous permettent de trouver différentes ressources cachées sur les serveurs Web, telles que des pages, des fichiers, des répertoires et des applications.
+
+Mais avant de commencer à effectuer des analyses massives qui peuvent être détectées par les systèmes de sécurité, vous devriez toujours essayer des choses plus simples.
 Vous pouvez commencer par analyser les fichiers de configuration qui sont souvent disponibles sur les serveurs Web et qui peuvent révéler des informations intéressantes. 
 
-Par exemple, le fichier de configuration des scanners des moteurs de recherche est souvent présent sur les serveurs Web et et peut révéler des répertoires cachés disponibles sur le serveur Web.
+Par exemple, le fichier de configuration des scanners des moteurs de recherche est souvent présent sur les serveurs Web et et peut révéler des ressources cachés disponibles sur le serveur Web.
 
-- Quel fichier permet de spécifier quelles zones du site Web ne doivent pas être traitées ou scannées par des moteurs de recherches ?
-- Quel répertoire avez-vous découvert en analysant ce fichier ?
-- Quelles informations confidentielles trouvez-vous susceptibles d'avoir un impact boursier significatif ?
+- **Quel fichier permet de spécifier quelles zones du site Web ne doivent pas être traitées ou scannées par des moteurs de recherches ?**
+- **Quel répertoire avez-vous découvert en analysant ce fichier ?**
+- **Quelles informations confidentielles trouvez-vous susceptibles d'avoir un impact boursier significatif ?**
 
 ### Broken Access Control - Afficher le panier d'un autre utilisateur  
 Dans cette section, vous allez trouver et exploiter la vulnérabilité de contrôle d'accès défaillant. 
