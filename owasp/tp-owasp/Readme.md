@@ -17,17 +17,18 @@ Dans la section suivante, vous allez installer l’OWASP Juice Shop sur cette ma
 OWASP Juice Shop est probablement l'application Web non sécurisée la plus moderne et la plus sophistiquée. 
 Elle englobe les vulnérabilités de l'ensemble du OWASP TOP 10 ainsi que de nombreuses autres failles de sécurité trouvées dans les applications du monde réel.
 Cette application contient un grand nombre de défis de difficulté variable où l'utilisateur est censé exploiter les vulnérabilités sous-jacentes. 
-La progression est suivie sur un tableau de score. Trouver ce tableau de score est en fait l'un des défis (faciles)!
+
+La progression est suivie sur un tableau de score. 
+Trouver ce tableau de score est en fait l'un des défis (faciles)!
 
 Au cours de ce TP, vous allez trouver et exploiter certaines vulnérabilités de l'OWASP TOP 10 dans cette application web.
-Pour commencer, vous allez installer l'application Juice Shop sur la machine OpenStack créée précédemment. 
-Cette application est disponible en version dockerisée. 
-Malheureusement, plusieurs failles ne sont pas compatibles avec cette version. 
-Donc, vous allez installer OWASP Juice Shop en version package.
+Pour commencer, vous allez installer l'application Juice Shop sur la machine OpenStack créée précédemment. Cette application est disponible en version dockerisée. 
+Mais comme plusieurs vulnérabilités ne sont pas compatibles avec cette version, vous allez installer OWASP Juice Shop en version package.
 
 ### Installation OWASP Juice Shop
 - Installez le Node.js 18 en suivant ce tutoriel
     - https://github.com/nodesource/distributions/blob/master/README.md#deb
+    - **Attention!** Assurez-vous d'installer la version 18 de Node.js!
 
 - Téléchargez l’application OWASP Juice Shop
     - https://github.com/juice-shop/juice-shop/releases/download/v14.5.0/juice-shop-14.5.0_node18_linux_x64.tgz
@@ -38,7 +39,7 @@ Donc, vous allez installer OWASP Juice Shop en version package.
     cd juice-shop_14.5.0/
     export NODE_ENV=quiet && export PORT=80 && sudo -E npm start
     ```
-- Accédez à l’application avec le navigateur Web **Firefox**
+- Accédez à l’application avec le navigateur Web **Firefox** depuis votre machine
     - L’application doit être disponible sur http://ADR-IP-DE-LA-VM/
 
 Si l'application n'est pas accessible, assurez-vous que l'application a été lancée correctement et que le port **80** est ouvert.
@@ -46,105 +47,115 @@ Si l'application n'est pas accessible, assurez-vous que l'application a été la
 ## Burp Suite
 Dans ce TP, vous n'utiliserez pas d'outils qui automatisent la découverte et l'exploitation des vulnérabilités. 
 
-Mais pour faciliter votre travail, vous allez utiliser un outil Proxy qui vous permettra d’intercepter, de modifier et de répéter les requêtes.
+Mais pour faciliter votre travail, vous allez utiliser un outil Proxy qui vous permettra d’intercepter, de modifier et de répéter les requêtes HTTP faites à l'application Web.
 
 Bien qu'il existe plusieurs outils Proxy, vous allez utiliser l’outil le plus moderne et le plus populaire, le *Burp Suite*. 
 Cet outil est utilisé par la majorité des Penesters et des Bug Hunters. 
-Par exemple, Thomas DeVoss (dawgyg), qui est l’un des premiers hackers au monde à gagner 1 million de dollars avec Bug Bounties, utilise uniquement Burp Suite et un outil de découverte des assets dans son travail.
+Par exemple, Thomas DeVoss (dawgyg), qui est l’un des premiers hackers au monde à avoir gagner 1 million de dollars grâce aux Bug Bounties, utilise uniquement *Burp Suite* et un outil de découverte d'assets dans son travail.
 
-Selon Wikipedia, Burp Suite est une application Java, développée par PortSwigger Ltd, qui peut être utilisée pour la sécurisation des applications web ou pour effectuer des tests de pénétration sur les applications web. 
-La suite est composée de différents outils comme un serveur proxy, robot d’indexation, un outil d'intrusion, un scanner de vulnérabilités et un répéteur HTTP.
+Selon Wikipedia, *Burp Suite* est une application Java, développée par PortSwigger Ltd, qui peut être utilisée pour la sécurisation des applications Web ou pour effectuer des tests de pénétration sur des applications Web. 
+La suite se compose de différents outils comme un serveur proxy, robot d’indexation, un outil d'intrusion, un scanner de vulnérabilités et un répéteur HTTP.
 
-Burp Suite existe en deux éditions: Burp Suite Community Edition et Burp Suite Pro. 
+Burp Suite est disponible en deux éditions: Burp Suite Community Edition et Burp Suite Pro. 
 Dans ce TP, vous allez utiliser Burp Suite Community Edition qui est la version gratuite, fournie par défaut avec la distribution Kali Linux.
-La version Pro est livrée des fonctionnalités supplémentaires, telles que l'analyse automatique des vulnérabilités, ainsi qu'un nombre de threads plus élevé pour les attaques et les requêtes.
+La version Pro est doitée de fonctionnalités supplémentaires, telles que l'analyse automatique des vulnérabilités, ainsi qu'un plus grand nombre de threads utilisables pour les attaques et les requêtes.
 
 Pour faire simple, Burp Suite fonctionne comme un proxy. 
-Il se place entre vous et l'application web testée, puis intercepte et analyse toutes les requêtes et les réponses échangées avec l'application Web. 
-Donc, pour utiliser Burp Suite vous devez l’installer sur votre machine et l’utiliser comme proxy dans votre navigateur Web.
+Il se place entre votre navigateur Web et l'application Web testée, puis intercepte et analyse toutes les requêtes et les réponses échangées avec l'application Web. 
+Donc, pour utiliser Burp Suite, vous devez l’installer sur votre machine et l’utiliser comme proxy dans votre navigateur Web.
 
 ### Installation
-- Installez la version Community de Burp Suite sur votre machine
-    - https://portswigger.net/burp/releases/professional-community-2024-4-5
-    - **Attention!** Vous devez choisir et installer la version **Burp Suite Community Edition!**
+Installez la version Community de Burp Suite sur votre machine
+- https://portswigger.net/burp/releases/professional-community-2024-4-5
+- **Attention!** Vous devez choisir et installer la version **Burp Suite Community Edition!**
 
 ### Configuration
 Dans cette section, vous allez configurer votre navigateur Web pour qu’il utilise Burp Suite comme serveur proxy.
 
-Pour avoir la possibilité d’activer et de désactiver le proxy rapidement, installez l'extension *FoxyProxy Standard* pour *Firefox*.
+Pour pouvoir activer et désactiver le proxy rapidement, installez et configurez l'extension *FoxyProxy Standard* pour *Firefox*.
 
-Lancez le Burp Suite avec un projet temporaire et avec la configuration par défaut et ajoutez une entrée pour le proxy Burp Suite dans le FoxyProxy (Adresse 127.0.0.1 et port 8080). Puis, activez l’utilisation de proxy Burp Suite dans le *FoxyProxy*.
+- Lancez le Burp Suite avec un projet temporaire et la configuration par défaut
+    - Verifiez que le proxy est configuré pour intercepter les requêtes (onglet `Proxy` -> `Intercept is on`)
+- Ajoutez une entrée pour le proxy *Burp Suite* dans le *FoxyProxy* 
+    - `Options` -> `Proxies` -> `Add` (Hostname `127.0.0.1` et Port `8080`) -> `Save`
+- Activez l'éntree du proxy Burp Suite créée précédemment dans le *FoxyProxy*
 
 ### Utilisation
 Essayez d'accéder à l'application Juice Shop précédemment lancée.
 
-Si tout est configuré correctement, vous verrez une page se charger continuellement en attente de réponse du serveur Web.
+Si tout est configuré correctement, vous verrez la page se charger en continu en attente de réponse du serveur Web.
 
-Si c’est le cas, rendez-vous dans Burp Suite onglet *Proxy*. 
+Si c’est le cas, rendez-vous dans *Burp Suite* onglet `Proxy`. 
 
-Dans cet onglet vous allez voir votre requête.
+Dans cet onglet, vous allez voir la requête envoyée par le navigateur Web à l'application Web Juice Shop qui a été interceptée par Proxy de Burp Suite.
 
 ![Requête intercepté avec Burp Suite](./burpsuite_1.png)
 
-Burp Suite a intercepté votre requête à l’application Web. 
+Vous avez la possibilité de la modifier ou/et de l’envoyer à l'application Web. 
 
-Vous avez la possibilité de la modifier ou/et de l’envoyer. 
+Si vous cliquez sur `Forward`, la requête sera envoyée et traitée par l’application Web.
+La reponse de l'application Web sera reçue directement dans le navigateur Web. 
 
-Si vous cliquez sur *Forward*, votre requête sera envoyée à l’application Web et une réponse sera reçue. 
-Pour afficher une page, votre navigateur peut avoir besoin de faire plusieurs requêtes à l’application web. 
-Donc, il peut être nécessaire de cliquer plusieurs fois sur *Forward* pour que votre navigateur soit débloqué et que vous puissiez voir la réponse de l'application Web dans le navigateur. 
+Pour afficher une page, votre navigateur peut avoir besoin d'effectuer plusieurs requêtes à l’application Web et recevoir plusieurs réponses. 
+Il peut donc être nécessaire de cliquer plusieurs fois sur `Forward`, pour que votre navigateur soit débloqué et que vous puissiez voir la page de l'application Web dans le navigateur.
 
 #### Repeater
-Vous avez aussi la possibilité d’envoyer votre requête au *Repeater*. 
+Vous avez également la possibilité d’envoyer la requête au `Repeater`. 
+
+`Repeater` vous permet d’envoyer une requête plusieurs fois et d’afficher la réponse de l’application Web directement dans Burp Suite. 
+
+Pour d’envoyer la requête au `Repeater`, faites un clic droit sur la requête dans l'onglet `Proxy` et `Send to Repeater`, puis allez dans l'onglet `Repeater`. 
 
 ![Requête dans Repeater](./burpsuite_2.png)
 
-*Repeater* vous permet d’envoyer une requête et d’afficher la réponse de l’application Web directement dans Burp Suite. 
-Pour faire cela, faites un clic droit sur la requête et *Send to Repeater*, puis allez dans l'onglet *Repeater*. 
+Cette fonctionnalité est extrêmement utile, lorsque vous essayez d'effectuez une attaque en modifiant la requête effectuée par le navigateur à l'application Web. 
 
-Cette fonctionnalité est extrêmement utile, par exemple, lorsque vous essayez d'effectuer une attaque en modifiant votre requête et que vous souhaitez voir la réponse de l'application Web directement sans passer par le navigateur Web. 
+Elle vous permet d'envoyer plusieurs versions de requêtes et de voir comment l'application Web répond à chaque version de la requête directement dans Burp Suite sans passer par le navigateur Web.
 
 Cette fonctionnalité vous permet d'ajuster votre attaque pour obtenir le résultat souhaité.
 
+
 #### Intruder
-Une autre possibilité intéressante est d’envoyer votre requête au *Intruder*. 
+Une autre possibilité intéressante est d’envoyer la requête au `Intruder`. 
 
-*Intruder* fonctionne en prenant une requête HTTP, en modifiant la requête de différentes manières, en envoyant chaque version modifiée de la requête et en analysant les réponses de l'application pour identifier les fonctionnalités intéressantes. 
-Pour faire cela, faites un clic droit sur la requête et *Send to Intruder*, puis puis allez dans l’onglet *Intruder*. 
+`Intruder` vous permet de modifier la requête de différentes manières, d'envoyer chaque version modifiée de la requête et d'analyser les réponses de l'application Web pour identifier les comportements intéressants.
 
-Cette fonctionnalité est utile, par exemple, lorsque vous souhaitez essayer une liste de valeurs pour un paramètre de requête. 
-Vous allez positionner des *markers* dans l’onglet *Positions* et vous allez choisir les valeurs qui seront essayées aux positions des markers dans l’onglet *Payloads*.
+Pour d’envoyer la requête au `Intruder`, faites un clic droit sur la requête dans l'onglet `Proxy` et `Send to Intruder`, puis puis allez dans l’onglet `Intruder`. 
+
+Cette fonctionnalité est utile lorsque vous souhaitez essayer une liste de valeurs pour un paramètre de la requête.
+
+Pour ce faire, vous devez positioner des `markers` dans l’onglet `Positions`, puis vous devez choisir les valeurs qui seront essayées aux positions des `markers` dans l'onglet `Payloads`.
+
 
 ![Intruder Positions](./burpsuite_3.png)
 ![Intruder Payloads](./burpsuite_4.png)
 
-Dans le cas présenté sur l’image, Burp Suite va envoyer 4 requêtes à l’application Web avec les valeurs “option1”, “option2”, “option3” et “option4” pour le cookie `cookieconsent_status`.
-Pour lancer l'attaque, cliquez sur *Start attack*.
+Dans le cas présenté sur les images, Burp Suite va envoyer 4 requêtes à l’application Web avec les valeurs `option1`, `option2`, `option3` et `option4` pour le cookie `cookieconsent_status`.
+Pour lancer l'attaque, vous devez cliquer sur `Start attack`.
 
 
-Une fois l'attaque terminée, vous allez pouvoir analyser chaque requête et la réponse reçue de l'application web.
+Une fois l'attaque terminée, vous allez pouvoir analyser chaque requête et la réponse reçue de l'application Web.
 ![Intruder Attack Results](./burpsuite_5.png)
 
-
-Explorez les différents types d'attaques disponibles sur *Intruder* de Burp Suite.
+Explorez les différents types d'attaques disponibles sur `Intruder` de Burp Suite.
 
 ## Time to hack
-Dans cette section, vous allez utiliser le *Burp Suite* pour trouver et exploiter les vulnérabilités dans l’application Web *Juice Shop*. 
+Dans cette section, vous allez trouver et exploiter les vulnérabilités dans l’application Web `Juice Shop`. 
 
 ### Échauffement - Trouvez le score board
-Dans cette partie, vous allez chercher le score board. 
-Sur le score board, vous pouvez voir une liste de tous les défis disponibles dans OWASP Juice Shop avec une brève description. 
+Dans cette partie vous allez trouver le score board. 
+Le score board est une page Web qui contient une liste de tous les défis disponibles dans `Juice Shop` avec une brève description. Certaines descriptions sont des instructions très explicites.
+D'autres ne sont que de vagues indices qui vous laissent le soin de déterminer ce qui doit être fait.
 
-Certaines descriptions sont des instructions très explicites. 
-D'autres ne sont que de vagues indices qui vous laissent le soin de savoir ce qui doit être fait.
+Pour trouver le score board, vous allez procéder de manière entièrement manuelle, sans l’utilisation de `Burp Suite`.
 
-Dans cette section, vous allez procéder d’une manière complètement manuelle, sans l’utilisation de *Burp Suite*.
+Désactivez l’utilisation du proxy `Burp Suite` dans `FoxyProxy` et trouvez le lien vers la page du score board. 
 
-Désactivez l’utilisation de proxy Burp Suite dans FoxyProxy et trouvez le lien du score board. 
+Pour ce faire, vous pouvez: 
+- Soit analyser le code source des pages de l'application Web affichées dans le navigateur Web (y compris les fichiers JavaScript) pour trouver le lien
+- Soit deviner le lien vers la page où le score board est caché
 
-Vous avez plusieurs options: soit vous analysez le code source du site (n'oubliez pas d'analyser les fichiers JavaScript), soit vous devinez le nom de la page où le tableau de score est caché.
-
-- Quel est le lien qui permet d'accéder au score board ? Où l'avez-vous trouvé ?
+- Quel est le lien qui permet d'accéder au score board ? Comment l'avez-vous trouvé ?
 
 ### Injection - Devenir administrateur
 Dans cette section, vous allez exploiter une injection SQL pour vous connecter en tant qu'administrateur.
