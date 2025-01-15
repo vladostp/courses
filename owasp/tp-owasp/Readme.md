@@ -143,7 +143,7 @@ Explorez les différents types d'attaques disponibles sur `Intruder` de Burp Sui
 Dans cette section, vous allez trouver et exploiter les vulnérabilités dans l’application Web `Juice Shop`. 
 
 ### Échauffement - Trouvez le score board
-Dans cette partie vous allez trouver le score board. 
+Dans cette partie, vous allez trouver le score board. 
 Le score board est une page Web qui contient une liste de tous les défis disponibles dans `Juice Shop` avec une brève description. Certaines descriptions sont des instructions très explicites.
 D'autres ne sont que de vagues indices qui vous laissent le soin de déterminer ce qui doit être fait.
 
@@ -155,73 +155,75 @@ Pour ce faire, vous pouvez:
 - Soit analyser le code source des pages de l'application Web affichées dans le navigateur Web (y compris les fichiers JavaScript) pour trouver le lien
 - Soit deviner le lien vers la page où le score board est caché
 
-- Quel est le lien qui permet d'accéder au score board ? Comment l'avez-vous trouvé ?
+**Quel est le lien qui permet d'accéder au score board ? Comment l'avez-vous trouvé ?**
+
 
 ### Injection - Devenir administrateur
-Dans cette section, vous allez exploiter une injection SQL pour vous connecter en tant qu'administrateur.
+Dans cette partie, vous allez exploiter une injection SQL pour vous connecter en tant qu'administrateur.
 
-Pour commencer, essayez de provoquer une erreur sur la page d’authentification.
+Le mécanisme d’authentification présente une vulnérabilité permettant une injection SQL que vous aller exploiter.
 
-Utilisez le *Burp Suite* pour intercepter vos requêtes. Vous devez intercepter la requête qui envoie les valeurs saisies dans le formulaire d'authentification à l'application Web. 
+Afin de pouvoir détecter et exploiter cette vulnérabilité, vous allez utiliser le `Burp Suite`.
 
-Lorsque vous avez intercepté cette requête, envoyez-la au *Burp Suite Repeater* avec clique droit *Send to Repeater*. 
+Pour ce faire:
+- Activez l’utilisation du proxy `Burp Suite` dans `FoxyProxy` et assurez-vous que `Intercept is on` dans l'onglet `Proxy` du `Burp Suite`
 
-*Burp Suite Repeater (onglet Repeater)* vous permettra de modifier votre requête pour essayer une entrée différente et de visualiser directement la réponse de l’application web.
+- Interceptez la requête qui envoie les valeurs saisies dans le formulaire d'authentification à l'application Web
 
-Essayez les différentes entrées du formulaire et surveillez les réponses de l'application Web.
+- Lorsque vous avez intercepté cette requête, envoyez-la au `Burp Suite Repeater` avec clique droit `Send to Repeater`
+    - `Burp Suite Repeater (onglet Repeater)` vous permettra de modifier la requête pour essayer une entrée différente et de visualiser directement la réponse de l’application Web
 
-- Comment provoquez-vous l’erreur en utilisant le formulaire d’authentification ?
+- Essayez de provoquer une erreur sur la page d’authentification en essayant différentes entrées de formulaire et en surveillant les réponses de l'application Web
+    - **Comment avez-vous provoqué l’erreur en utilisant le formulaire d’authentification ?**
+    - **Quelles données intéressantes sont divulguées par le serveur dans le message d’erreur ?**
 
-- Quelles données intéressantes sont divulguées par le serveur dans le message d’erreur ?
+- Trouvez une injection qui permet de vous connecter avec le compte administrateur
+    - Le compte administrateur est la première entrée de la base de données
+    - **Quelle injection avez-vous utilisé pour vous connecter avec le compte administrateur ?**
 
-- Trouvez une injection qui permettra de vous connecter avec le compte administrateur.
-    - Le compte administrateur est la première entrée de la base de données.
-    - Une fois que vous avez découvert comment exploiter le formulaire de connexion avec *Burp Suite*, désactivez le proxy et authentifiez-vous sur l'application avec le compte administrateur.
+- Une fois que vous avez découvert comment exploiter le formulaire de connexion avec `Burp Suite`, désactivez le proxy et authentifiez-vous sur l'application Web via votre navigateur Web en fournissant le contenu d'injection directement dans le fomulaire
+    - **Combien de produits y a-t-il dans le panier de l'administrateur ?**
 
-Bravo! Vous êtes administrateur!
+Dans cette partie, vous avez également rencontré une vulnérabilité de type **Security Misconfiguration**. 
+Vous avez provoqué une erreur qui a révélé la requête SQL utilisée par l'application Web et vous a facilité la construction de l'injection SQL.
+Cela représente une mauvaise configuration de la sécurité de l’application Web. 
+Normalement, l'application doit être configurée pour ne jamais afficher d'informations sensibles dans les messages d'erreur.
 
-- Combien de produits a-t-il dans le panier de l'administrateur ?
-
-Dans cette section, vous avez également rencontré une vulnérabilité de type *Security Misconfiguration*. 
-Vous avez provoqué une erreur qui a révélé la requête SQL utilisée par l'application Web. 
-Cela représente une mauvaise configuration de la sécurité de l’application. 
-Normalement, l'application doit être configurée de manière à ne jamais afficher d'informations sensibles dans les messages d'erreur. 
 
 ### Insecure Design - Voler l'identité de Jim
-Dans cette section, vous allez exploiter un mauvais mécanisme de récupération de mot de passe. 
+Dans cette partie, vous allez exploiter un mauvais mécanisme de récupération de mot de passe. 
+
 Vous allez exploiter cette vulnérabilité pour changer le mot de passe de l’utilisateur Jim et voler son identité.
 
-Pour commencer, vous devez d'abord comprendre comment fonctionne le mécanisme de récupération de mot de passe.
-Pour faire cela, créez un utilisateur et essayez de restaurer son mot de passe via la fonctionnalité de mot de passe oublié. 
-Analysez les requêtes et les réponses avec *Burp Suite Repeater*.
+Pour commencer, vous devez d'abord comprendre comment fonctionne le mécanisme de récupération de mot de passe dans l'application Web.
 
-- Que contient la réponse de l'application Web lorsque vous envoyez la demande de récupération de mot de passe avec la réponse à la question de sécurité correcte / incorrecte?
+Pour faire cela:
+- Créez un utilisateur et essayez de restaurer son mot de passe via la fonctionnalité de mot de passe oublié
+- Analysez les requêtes envoyées à l'application Web et les réponses récues avec `Burp Suite Repeater`
+- **Que contient la réponse de l'application Web lorsque vous envoyez la demande de récupération de mot de passe avec la réponse à la question de sécurité correcte / incorrecte?**
 
-Lorsque vous comprenez comment fonctionne la récupération de mot de passe, vous pouvez essayer de l’exploiter. 
+Un fois que vous avez compris comment fonctionne la récupération de mot de passe, vous pouvez essayer de l’exploiter. 
 
-Vous avez vu que pour effectuer une récupération de mot de passe, il faut connaître l’adresse mail et la réponse à la question de sécurité de la victime. 
-Vous avez de la chance car l’adresse mail de la victime peut être trouvée sur les pages de l’application web.
+Vous avez vu que pour effectuer une récupération de mot de passe, vous devez connaître l’adresse mail et la réponse à la question de sécurité de la victime. 
+Vous avez de la chance car l’adresse mail de la victime peut être trouvée sur les pages de l’application Web.
+- Explorez le site pour trouver l’adresse mail de Jim.
+- **Quelle est l’adresse mail de Jim ? Où l'avez-vous trouvé ?**
 
-Explorez le site pour trouver l’adresse mail de Jim.
+La question de sécurité de Jim peut également être facilement trouvée.
+- **Quelle est la question de sécurité de Jim ? Comment l'avez-vous trouvé ?**
 
-- Quelle est l’adresse mail de Jim ? Où l'avez-vous trouvé ?
-
-En saisissant son adresse email dans le formulaire de récupération du mot de passe, on retrouve sa question de sécurité. 
-
-- Quelle est la question de sécurité de Jim ?
-
-Supposons que Jim ait effectivement répondu à cette question et que la réponse soit un prénom. 
+Supposons que Jim ait effectivement répondu à cette question et que la réponse soit un prénom.
 Pour découvrir la réponse à sa question de sécurité, vous pouvez utiliser deux approches différentes:
-- *OSINT*: Analyser l’identité de Jim et essayer de trouver la réponse à partir des données disponibles publiquement sur Internet
-- *Dictionary Attack*: Vous pouvez trouver un dictionnaire avec tous les prénoms possibles et les essayer tous
+- **OSINT (Open-source intelligence)**: Analyser l’identité de Jim et essayer de trouver la réponse à partir des données publiquement disponibles sur Internet
+- **Dictionary Attack**: Trouver un dictionnaire avec tous les prénoms possibles et les essayer tous
 
-OSINT (Open Source Intelligence) est une ressource très puissante. 
+OSINT est une ressource très puissante. 
 Vous ne pouvez même pas imaginer la quantité de données intéressantes que vous pouvez trouver en utilisant intelligemment des sources ouvertes.
-Si vous trouvez la bonne réponse dans des sources publiques, votre attaque a moins de chances d'être détectée par l’application cible. 
-Cette approche doit donc être privilégiée dans la vraie vie. 
-Par contre, cela demande énormément de travail et nécessite beaucoup de temps.
+Si vous trouvez la bonne réponse dans des sources publiques, votre attaque est moins susceptible d’être détectée par l’application ciblée.
+Cette approche devrait donc être privilégiée. 
+Cependant, cela nécessite parfois beaucoup de travail de recherche et prend beaucoup de temps.
 
-Comme pour ce TP vous etes limités dans le temps, vous allez utiliser Dictionary Attack avec un dictionnaire restreint.
+Comme pour ce TP vous etes limités dans le temps, vous allez utiliser **Dictionary Attack** avec un dictionnaire restreint.
 
 **wordlist-prenoms.txt**
 ```
@@ -239,25 +241,31 @@ Win
 Windowing
 ```
 
-Vous allez utiliser *Burp Suite Intruder* pour effectuer cette attaque. 
+Vous allez utiliser `Burp Suite Intruder` pour effectuer cette attaque. 
 
-Interceptez la demande de récupération de mot de passe avec l'adresse mail de *Jim* et n'importe quelle réponse à la question de sécurité. 
-Puis faites un clic droit et *Send to Intruder*. 
+Pour ce faire:
+- Interceptez la demande de récupération de mot de passe avec l'adresse mail de `Jim` et n'importe quelle réponse à la question de sécurité
 
-Dans l’onglet *Intruder->Positions* effacez tous les markers (bouton *Clear*) et créez un marker à la position de la réponse à la question de sécurité. Pour ce faire, sélectionnez le texte de la réponse à la question de sécurité et cliquez sur le bouton *Add*.
+- Envoyez la requete au `Intruder` (clic droit et `Send to Intruder`) 
 
-Pour l’*Attack Type*, il faut bien choisir *Sniper*. 
+- Dans l’onglet `Intruder` -> `Positions`, effacez tous les `markers` (bouton `Clear`) 
 
-Puis dans l’onglet *Payloads*, choisissez le type de payload *Simple List* et dans la section *Payload settings* copiez la liste des prénoms donnée précédemment. Pour allez plus vite, vous pouvez enregistrer la liste sous forme de fichier texte et utiliser le bouton *Load...* pour la charger à partir de ce fichier. 
+- Créez un `marker` à la position de la réponse à la question de sécurité 
+    - Pour ce faire, sélectionnez le texte de la réponse à la question de sécurité et cliquez sur le bouton `Add`
 
-Démarrez l’attaque avec le bouton *Start attack* et analysez soigneusement la taille et l'état de chaque réponse. 
-Pour chaque réponse de sécurité essayée par *Intruder*, vous pouvez visualiser la requête envoyée et la réponse reçue de l’application web. 
+- Choisissez le type d'attaque `Sniper` 
 
-- Quelle est la réponse à la question de sécurité de Jim ? 
+- Puis dans l’onglet `Payloads`, choisissez le type de payload `Simple List` 
 
-Authentifiez-vous en tant qu'utilisateur Jim.
+- Dans la section `Payload settings`, copiez la liste des prénoms donnée précédemment
+    - Pour allez plus vite, vous pouvez enregistrer la liste sous forme de fichier texte et utiliser le bouton `Load...` pour la charger à partir de ce fichier 
 
-- Combien de produits a-t-il dans son panier ?
+- Démarrez l’attaque avec le bouton `Start attack` et analysez soigneusement la taille et l'état de chaque réponse
+    - Pour chaque réponse de sécurité essayée par `Intruder`, vous pouvez visualiser la requête envoyée et la réponse reçue de l’application Web
+    - **Quelle est la réponse à la question de sécurité de Jim ? Comment l'avez-vous trouvée?**
+    
+- Authentifiez-vous en tant qu'utilisateur Jim
+    - **Combien de produits a-t-il dans son panier ?**
 
 ### XML External Entities (XEE) - Lire un fichier du serveur
 Dans cette section, vous allez exploiter la vulnérabilité XML External Entities. 
