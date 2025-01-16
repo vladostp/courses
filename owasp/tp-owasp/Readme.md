@@ -308,23 +308,22 @@ Par exemple, le fichier de configuration des scanners des moteurs de recherche e
 
 ### Broken Access Control - Afficher le panier d'un autre utilisateur  
 Dans cette section, vous allez trouver et exploiter la vulnérabilité de contrôle d'accès défaillant. 
-Cette vulnérabilité est présente dans la fonctionnalité d'affichage du panier et vous permet de visualiser le panier de n'importe quel utilisateur de l'application.
+
+Cette vulnérabilité est présente dans la fonctionnalité d'affichage du panier et vous permet de visualiser le panier de n'importe quel utilisateur de l'application Web.
 
 Comme dans les sections précédentes, vous allez commencer par analyser le fonctionnement de la visualisation du panier. 
 
-Créez un compte, authentifiez-vous et ajoutez un article dans le panier.
+Pour ce faire:
 
-Activez le proxy Burp et trouvez la requête REST qui récupère les articles du panier de l’utilisateur. 
-
-Envoyez cette requête dans Burp Suite Repeater et analysez le résultat.
-
-Faites attention à l'en-tête HTTP `If-None-Match`
-
-- Que fait cette en-tête ?
+- Créez un compte, authentifiez-vous et ajoutez un article dans le panier
+- Activez l'utilization du Proxy `Burp Suite` et trouvez la requête REST qui récupère les articles du panier de l’utilisateur
+- Envoyez cette requête à `Repeater` et analysez le résultat
+    - Faites attention à l'en-tête HTTP `If-None-Match`
+    - **Que fait cette en-tête ?**
 
 Lorsque vous avez compris comment fonctionne la récupération du panier, essayez de manipuler la requête pour récupérer le panier de l'administrateur (utilisateur avec l’id `1`).
+- **Combien de produits y a-t-il dans son panier ?**
 
-- Combien de produits y a-t-il dans son panier?
 
 ### Cross-Site Scripting (XSS) - Voler des cookies
 Dans cette section, vous allez trouver et exploiter la vulnérabilité de type Reflected XSS. 
