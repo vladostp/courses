@@ -406,53 +406,49 @@ Stored XSS est considéré comme une vulnérabilité critique car le code malvei
 ### Injection - Récupérer la liste de tous les utilisateurs
 Dans cette section, vous allez exploiter une injection SQL de type Union-based pour récupérer la liste de tous les utilisateurs de la base de données.
 
-Vous allez exploiter la vulnérabilité présente dans l'API qui récupère le résultat de la recherche d'un produit. 
+Vous allez exploiter la vulnérabilité présente dans l'API de recherche de produits. 
 
-Analysez les échanges avec *Burp Suite* lors de la recherche d'un produit.
+Tout d'abord, vous devez trouver le endpoint et le paramètre vulnérables.
 
-Trouvez le endpoint et le paramètre vulnérables et un moyen de les exploiter. 
-Pour ce faire, vous pouvez intercepter la requête avec *Burp Suite* et l'envoyer au *Repeater*. 
-Ensuite, vous pouvez modifier le paramètre afin de provoquer une erreur SQL. 
-Faites attention à l'en-tête `If-None-Match`.
+Pour ce faire:
+- Analysez les échanges avec `Burp Suite` lorsque vous utilisez la fonctionnalité de recherche de produits
+- Trouvez la requête que vous pensez être vulnérable et envoyez-la au `Repeater`
+- Modifiez le paramètre de la requête pour provoquer une erreur SQL via une injection SQL
+    - Faites attention à l'en-tête `If-None-Match`
+- Analysez la requête SQL affichée dans le message d'erreur
+- **Quels sont le endpoint et le paramètre vulnérables ?**
+- **Comment avez-vous provoqué l'erreur SQL ?**
+- **Que contient le message d'erreur SQL ?**
 
-- Quels sont le endpoint et le paramètre vulnérables ?
-- Comment avez-vous provoqué l'erreur SQL ?
-- Que faut-il mettre en paramètre pour réparer la requête ?
+Ensuite, vous devez utiliser un `UNION SELECT` pour fusionner les données de la table SQL des utilisateurs avec les données des produits renvoyés dans le résultat JSON. 
 
-Ensuite, vous devez créer un `UNION SELECT` pour fusionner les données de la table SQL des utilisateurs avec les données des produits renvoyés dans le résultat JSON.
+Étant donné que cette fois vous injectez la requête dans un paramètre d'URL, vous devez encoder les espaces en les remplaçant par `%20`.
 
-Analysez la requête SQL affichée dans le message d'erreur et essayez d'y ajouter un simple `UNION`. 
-Puisque cette fois vous injectez la requête dans un paramètre d'URL, vous devrez encoder les espaces en les remplaçant par `%20`.
+Pour ce faire:
+- Tout d’abord, trouvez le nom de la table SQL où sont stockés les utilisateurs
+    - Normalement, vous devriez trouver ce nom facilement
+        - Vous l'avez déjà vu dans les messages d'erreur SQL au début de ce TP
+    - **Quel est le nom de la table des utilisateurs ?**
 
-Le premier challenge dans cette partie est de trouver le nom de la table ou les utilisateurs sont stockés. 
-Normalement, vous pouvez deviner ce nom facilement. 
-Vous l'avez déjà vu dans les messages d'erreur SQL au début de ce TP.
+- Ensuite, trouvez le nombre de colonnes renvoyées par la requête de recherche de produit, car pour pouvoir effectuer une `UNION`, le nombre de colonnes renvoyées par deux requêtes doit être le même
+    - Pour cela, ajoutez progressivement des colonnes à droite de votre `UNION` jusqu'à ne plus avoir d'erreurs SQL
+        - `UNION SELECT '1' FROM table`
+        - `UNION SELECT '1', '2'  FROM table`
+        - `UNION SELECT '1', '2', '3'  FROM table`
+        - …
+    - **Quel est le nombre de colonnes renvoyées par la requête initiale ?**
+    - **Qu'avez-vous mis en paramètre pour trouver ce nombre ?**
+    - Si vous le souhaitez, vous pouvez vous débarrasser des résultats de recherche de produits en ajoutant le nom d'un produit inexistant au début de la requête
+        - `asdeqwe')) …`
 
-- Quel est le nom de la table des utilisateurs ? 
+- Finalement, récupérez la liste des utilisateurs avec leurs mots de passe
+    - Remplacez les nombres que vous avez mis dans `UNION` avec les noms des colonnes contenant les noms et les mots de passe des utilisateurs
+        - Vous avez déjà vu les noms des colonnes nécessaires dans le message d’erreur SQL généré au début de ce TP
+- **Avez-vous réussi à récupérer la liste de tous les utilisateurs ?**
+- **Qu'avez-vous mis en paramètre pour récupérer la liste ?**
+- **Comment les mots de passe sont-ils stockés dans la base de données ?**
+- **Quel est le nom de Chris ?**
 
-Le deuxième challenge est de trouver le nombre de colonnes qui sont renvoyées par la requête initiale, car pour pouvoir effectuer une `UNION` le nombre de colonnes renvoyées par deux requêtes doit être le même. 
-
-Pour cela, ajoutez progressivement les colonnes à droite de votre `UNION` jusqu'à ce que vous n'ayez plus d'erreur SQL. 
-- `UNION SELECT '1' FROM table`
-- `UNION SELECT '1', '2'  FROM table`
-- `UNION SELECT '1', '2', '3'  FROM table`
-- …
-
-- Quel est le nombre de colonnes renvoyées par la requête initiale ? 
-- Qu'avez-vous mis en paramètre pour trouver ce nombre ?
-
-Vous pouvez vous débarrasser des résultats de recherche en ajoutant une chaîne inexistante au début de la requête.
-- `asdeqwe')) …`
-
-Le dernier challenge consiste à afficher une liste d'utilisateurs avec leur mot de passe. 
-Vous avez déjà vu les noms des colonnes contenant le nom et le mot de passe des utilisateurs dans le message d'erreur SQL généré au début de ce TP. 
-
-Remplacez les nombres que vous avez mis dans `UNION` avec les noms des colonnes contenant le nom et le mot de passe. 
-
-- Avez-vous réussi à récupérer la liste de tous les utilisateurs ? 
-- Qu'avez-vous mis en paramètre pour récupérer la liste ?
-- Comment les mots de passe sont-ils stockés dans la base de données ?
-- Quel est le nom de Chris ?
 
 ### Broken Access Control - Créer un compte avec des privilèges d'administrateur 
 Dans cette section, vous allez créer un compte avec des privilèges d'administrateur.
