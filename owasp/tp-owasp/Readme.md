@@ -457,55 +457,52 @@ Pour ce faire:
 - Analysez la requête envoyée et la réponse retournée lors de la création d'un compte utilisateur
 - Trouvez un paramètre dans la réponse renvoyée par l'application Web qui peut être intéressant dans notre contexte 
 - Essayez de forcer ce paramètre lors de l'envoi de la requête de création de compte
+- Vérifiez que l'utilisateur créé dispose des privilèges d'administrateur
 
 - **Avez-vous réussi à créer un utilisateur avec des privilèges d'administrateur ? Comment avez-vous procédé ?**
+- **Comment avez-vous verifié que l'utilisateur créé dispose des privilèges d'administrateur ?**
 
-## Bonus
-Cette section est destinée aux étudiants qui ont terminé toutes les tâches précédentes et qui souhaitent aller plus loin.
+## Partie Bonus
 
-### Passez une commande qui vous rend riche
+### Passer une commande qui vous rend riche
 Dans cette section, vous allez exploiter une vulnérabilité qui vous permettra d'obtenir de l'argent sur votre portefeuille numérique.
 
-Créez un utilisateur simple, authentifiez-vous et ajoutez un article dans votre panier.
+Pour ce faire:
+- Créez un utilisateur simple, authentifiez-vous et ajoutez un article dans votre panier
+- Analysez le fonctionnement de la modification de la quantité d'articles dans le panier
+- Analysez les requêtes et les paramètres envoyés lors du changement de quantité avec `Burp Suite`
+- Essayez d'exploiter le paramètre envoyé pour gagner de l'argent
+- Passez la commande et visualisez votre Digital Wallet
 
-Analysez comment fonctionne la modification de la quantité d'articles dans le panier. 
-Analysez les requêtes et les paramètres envoyés lors du changement de quantité. 
-
-Essayez d'exploiter le paramètre envoyé afin de gagner de l'argent.
-
-Passez la commande et visualisez votre Digital Wallet.
-
-- Avez-vous trouvé la vulnérabilité dans le panier ? En quoi consiste la vulnérabilité ?
-- Avez-vous réussi à gagner de l’argent sur votre Digital Wallet ? Comment avez-vous procédé ?
+- **Avez-vous trouvé la vulnérabilité qui vous permet de gagner de l'argent ? En quoi consiste cette vulnérabilité ?**
+- **Avez-vous réussi à gagner de l’argent sur votre Digital Wallet ? Comment avez-vous procédé ?**
 
 ### Déterminer la réponse à la question de sécurité d'Emma et voler son identité
 Dans cette section, vous devez trouver la réponse à la question de sécurité d'Emma. 
-Devinez l'adresse mail d'Emma et trouvez la question de sécurité via le formulaire de récupération de mot de passe. 
 
-- Quelles est l'adresse mail et la question de sécurité d'Emma ?
+Pour ce faire:
+- Devinez l'adresse email d'Emma et trouvez la question de sécurité via le formulaire de récupération de mot de passe
+    - **Quelle est l'adresse email et la question de sécurité d'Emma ?**
 
-Pour trouver la réponse à la question de sécurité d'Emma, parcourez le site Web et analysez attentivement les éléments postés par les utilisateurs. 
-Faites attention aux commentaires et aux images. 
-Parfois, les utilisateurs peuvent divulguer des informations importantes sans s'en rendre compte.
+- Trouvez la réponse à la question de sécurité d'Emma
+    - Parcourez le site Web et analysez attentivement les éléments publiés par les utilisateurs
+        - Faites attention aux commentaires et aux images 
+        - Parfois, les utilisateurs peuvent divulguer des informations importantes sans s'en rendre compte
+    - **Quelle est la réponse à la question de sécurité d'Emma ? Où l’avez-vous trouvé ?**
 
-- Quelle est la réponse à la question de sécurité d'Emma ? 
-- Où l’avez-vous trouvé ?
-
-Modifiez le mot de passe d'Emma et authentifiez-vous en tant qu'Emma.
-
-- Combien de produits Emma a-t-elle dans son panier ?
+- Changez le mot de passe d'Emma et authentifiez-vous en tant qu'Emma
+- **Combien de produits Emma a-t-elle dans son panier ?**
 
 ### Déterminer la réponse à la question de sécurité de John et voler son identité
 Dans cette section, vous devez trouver la réponse à la question de sécurité de John. 
-Devinez l'adresse e-mail de John et trouvez la question de sécurité via le formulaire de récupération de mot de passe.
 
-- Quelles est l'adresse mail et la question de sécurité de John ?
+Pour ce faire:
+- Devinez l'adresse email de John et trouvez la question de sécurité via le formulaire de récupération de mot de passe
+    - **Quelle est l'adresse email et la question de sécurité de John ?**
 
-Pour trouver la réponse à la question de sécurité de John, parcourez le site Web et analysez attentivement les éléments postés par les utilisateurs.
-
-Vous devez trouver une photo qui peut potentiellement vous aider à trouver la réponse. 
-
-Analysez les métadonnées de cette photo. 
-Pour cela, vous pouvez utiliser un outil en ligne d'analyse des métadonnées d'image. 
-
-- Quelle est la réponse à la question de sécurité de John ?
+- Trouvez la réponse à la question de sécurité de John
+    - Parcourez le site Web et analysez attentivement les éléments postés par les utilisateurs
+        - Vous devez trouver une photo qui peut potentiellement vous aider à trouver la réponse
+        - Analysez les métadonnées de cette photo
+            - Pour cela, vous pouvez utiliser un outil en ligne d'analyse des métadonnées d'image
+    - **Quelle est la réponse à la question de sécurité de John ? Comment l’avez-vous trouvé ?**
