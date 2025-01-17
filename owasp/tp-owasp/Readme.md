@@ -381,29 +381,27 @@ L'attaque vue ci-dessus est relativement compliquée à réaliser car la victime
 Par conséquent, les attaques Reflected XSS et DOM XSS dans la plupart des cas ne sont pas considérées comme critiques.
 
 
-### Cross-Site Scripting (XSS)  - Voler des cookies de l’administrateur
-Dans cette section, vous allez exploiter la vulnérabilité de type Stored XSS. 
+### Cross-Site Scripting (XSS) - Voler les cookies de l’administrateur
+Dans cette section, vous allez exploiter la vulnérabilité de type Stored XSS pour voler les cookies de l'administrateur. 
 
-Vous allez essayer de publier du code JavaScript qui sera stocké dans la base de données et sera exécuté à chaque fois que la page est consultée par un utilisateur.
+Pour voler les cookies, vous allez utiliser la technique vue dans la section précédente (une serveur HTTP Python et le code JavaScript dans un tag HTML `img`).
 
-Dans le cadre de ce TP, l'exploitation de cette vulnérabilité vous permettra de voler des cookies d'administrateur.
+La différence par raport à la section précédente est que vous devez trouver un moyen de publier le code JavaScript qui sera stocké dans la base de données et qui sera exectué sur une page consultée par l'administrateur.
 
-Pour voler les cookies, vous allez utiliser la technique vue dans la section précédente (une serveur HTTP python et le code Javascript dans un tag HTML `img`).
+**Indice**: L’adresse email saisie lors de la création de l’utilisateur est validée uniquement côté client et est affichée dans le panneau d'administration. Vous pouvez donc intercepter et modifier la requête de création d'utilisateur en utilisant `Burp Suite` et `Burp Suite Repeater` afin de créer un compte avec l'adresse email contenant du code JavaScript.
 
-La différence par raport à la section précédente est que vous devez trouver un moyen de publier du code JavaScript sur une page qui sera consultée par l'administrateur.
+Pour que vous avez réussi à exploiter la vulnérabilité, vous pouvez :
+- Accéder au panneau d'administration en utilisant l'injection SQL vue précédemment pour vous authentifier en tant qu'administrateur et en utilisant l'URL `/#/administration`
+- Voir si les cookies d'administrateur sont affichés dans les logs du serveur HTTP Python
 
-**Un indice**: l’adresse mail saisie lors de la création de l’utilisateur est validée uniquement côté client et est affichée dans le panneau d'administration. Vous pouvez donc intercepter et modifier la demande de création d'utilisateur avec *Burp Suite* et *Burp Suite Repeater* afin de créer un compte avec l'adresse mail contenant du code Javascript.
+Si vous ne parvenez pas à récupérer les cookies d'administrateur, n'hésitez pas à consulter le code HTML affiché dans le panneau d'administration pour ajuster votre attaque.
 
-- Quel code mettez-vous dans le champ email de votre requête ? 
+- **Avez-vous réussi à exploiter cette vulnérabilité ?**
+- **Quel code avez-vous mis dans le champ email de la requête de création d'utilisateur ?**
+- **Quels champs contiennent les cookies volés ?**
 
-Vous pouvez accéder au panneau d'administration à l'aide de l'injection SQL vue précédemment pour vous authentifier en tant qu'administrateur et en utilisant le chemin suivant : `/#/administration`. 
+Stored XSS est considéré comme une vulnérabilité critique car le code malveillant s'exécute automatiquement lorsqu'une page est consultée et peut affecter un très grand nombre d'utilisateurs. 
 
-Si vous ne parvenez pas à récupérer les cookies d'administrateur, n'hésitez pas à regarder le code HTML affiché dans le panneau d'administration pour ajuster votre attaque.
-
-- Avez-vous réussi à exploiter cette vulnérabilité ?
-- Quels champs contiennent les cookies volés ?
-
-Stored XSS est considéré comme une vulnérabilité critique car le code malveillant s'exécute automatiquement lors de la consultation d'une page et peut affecter un très grand nombre d'utilisateurs. 
 
 ### Injection - Récupérer la liste de tous les utilisateurs
 Dans cette section, vous allez exploiter une injection SQL de type Union-based pour récupérer la liste de tous les utilisateurs de la base de données.
