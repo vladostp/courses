@@ -451,13 +451,14 @@ Pour ce faire:
 
 
 ### Broken Access Control - Créer un compte avec des privilèges d'administrateur 
-Dans cette section, vous allez créer un compte avec des privilèges d'administrateur.
+Dans cette section, vous allez créer un compte avec les privilèges d'administrateur.
 
-Analysez la requête envoyée et la réponse retournée lors de la création d'un compte.
+Pour ce faire:
+- Analysez la requête envoyée et la réponse retournée lors de la création d'un compte utilisateur
+- Trouvez un paramètre dans la réponse renvoyée par l'application Web qui peut être intéressant dans notre contexte 
+- Essayez de forcer ce paramètre lors de l'envoi de la requête de création de compte
 
-Trouvez un paramètre dans la réponse qui peut être intéressant dans notre contexte et essayez de forcer ce paramètre lors de l'envoi de la requête de création de compte.
-
-- Avez-vous réussi à créer un utilisateur avec des privilèges d'administrateur ? Comment avez-vous procédé ?
+- **Avez-vous réussi à créer un utilisateur avec des privilèges d'administrateur ? Comment avez-vous procédé ?**
 
 ## Bonus
 Cette section est destinée aux étudiants qui ont terminé toutes les tâches précédentes et qui souhaitent aller plus loin.
