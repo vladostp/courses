@@ -413,7 +413,7 @@ Tout d'abord, vous devez trouver le endpoint et le paramètre vulnérables.
 Pour ce faire:
 - Analysez les échanges avec `Burp Suite` lorsque vous utilisez la fonctionnalité de recherche de produits
 - Trouvez la requête que vous pensez être vulnérable et envoyez-la au `Repeater`
-- Modifiez le paramètre de la requête pour provoquer une erreur SQL via une injection SQL
+- Modifiez le paramètre de la requête pour provoquer une erreur SQL
     - Faites attention à l'en-tête `If-None-Match`
 - Analysez la requête SQL affichée dans le message d'erreur
 - **Quels sont le endpoint et le paramètre vulnérables ?**
@@ -433,8 +433,8 @@ Pour ce faire:
 - Ensuite, trouvez le nombre de colonnes renvoyées par la requête de recherche de produit, car pour pouvoir effectuer une `UNION`, le nombre de colonnes renvoyées par deux requêtes doit être le même
     - Pour cela, ajoutez progressivement des colonnes à droite de votre `UNION` jusqu'à ne plus avoir d'erreurs SQL
         - `UNION SELECT '1' FROM table`
-        - `UNION SELECT '1', '2'  FROM table`
-        - `UNION SELECT '1', '2', '3'  FROM table`
+        - `UNION SELECT '1','2' FROM table`
+        - `UNION SELECT '1','2','3' FROM table`
         - …
     - **Quel est le nombre de colonnes renvoyées par la requête initiale ?**
     - **Qu'avez-vous mis en paramètre pour trouver ce nombre ?**
