@@ -1,6 +1,8 @@
 # TP Gestion des Logs
 Au cours de ce TP, vous explorerez et implémenterez la gestion des logs sur des machines Linux et Windows.
+
 Vous commencerez par préparer l'infrastructure, puis vous manipulerez et configurerez les logs sur les machines Linux et Windows.
+
 Vous finirez par installer et configurer les trois solutions de centralisation de logs vues en cours: **Elastic Stack**, **Graylog** et **Grafana Loki**. 
 
 ## Rendu
@@ -26,15 +28,14 @@ Dans cette section, vous manipulerez les logs Linux.
 Vous allez visualiser, configurer et générer les logs sur la machine `nginx-server`.
 
 Pour commencer, vous devez installer un serveur `nginx` via le gestionnaire de packages `apt`. 
-Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes des utilisateurs.
+Vérifiez si le port `80` est bien ouvert dans `OpenStack` et testez si le serveur `nginx` répond bien aux requêtes.
 
 ### Rappel: Architecture des logs de l'espace utilisateur Linux
 
 ![L’architecture des logs de l’espace utilisateur](./linux_logs_arch.jpg)
 
 ### Rsyslog
-`Rsyslog` est une implémentation du protocole `syslog` et est fourni par défaut sur la plupart des systèmes Linux modernes. 
-`Syslog` est utilisé comme standard pour produire, transmettre et collecter des logs.
+`Rsyslog` est une implémentation du protocole `syslog` et est fourni par défaut sur la plupart des systèmes Linux modernes. `Syslog` est utilisé comme standard pour produire, transmettre et collecter des logs.
 
 `Rsyslog` récupère les logs de l’espace noyau et du journal de systemd et les enregistre dans des fichiers.
 
@@ -44,13 +45,17 @@ Analysez les fichiers de configuration de `rsyslog` (`/etc/rsyslog.conf` et les 
 - Quelles logs sont écrites dans le fichier `/var/log/syslog`?
 - Dans quel fichier sont écrits les logs du noyau?
 
-Configurez `rsyslog` pour qu’il envoie tous les logs contenant le mot `ssh` dans le fichier `/var/log/ssh.log`. (Créez un fichier de configuration dans `/etc/rsyslog.d/`, n’oubliez pas de redémarrer le `rsyslog`).
-- Que mettez-vous dans le fichier de configuration?
+Configurez `rsyslog` pour qu’il envoie tous les logs contenant le mot `ssh` dans le fichier `/var/log/ssh.log`. 
 
-Vérifiez si le fichier `/var/log/ssh.log` existe et contient des entrées avec le mot `ssh`.
+Pour ce faire, créez un fichier de configuration dans `/etc/rsyslog.d/` (n’oubliez pas de redémarrer le `rsyslog`).
+
+- Qu'avez-vous mis dans le fichier de configuration ?
+
+Déconnectez-vous, reconnectez-vous à la machine et vérifiez si le fichier `/var/log/ssh.log` existe et contient des entrées avec le mot `ssh`.
 
 ### Systemd Journal
 Le `systemd` est un gestionnaire de systèmes et de services qui implémente son propre service de journalisation appelé `systemd-journald` (`journald`). 
+
 Les services `systemd` envoient les logs directement au `journald`. 
 Les fichiers logs du `journald` sont stockés par défaut dans `/var/log/journal`. 
 
@@ -64,17 +69,25 @@ Essayez de visualiser les fichiers logs `journald` avec la commande `cat`.
 Dans cette section, vous allez générer des logs avec la ligne de commande.
 
 #### Logs noyau
-Envoyez le log contenant la phrase `Hello world` à l’espace de logs du noyau et visualisez-la via la commande `dmesg` (Pour ce faire, vous pouvez écrire le log en tant qu'utilisateur root dans `/dev/kmsg`). 
-- Quelle commande utiliserez-vous pour faire cela?
+Envoyez le log contenant la phrase `Hello world` à l’espace de logs du noyau et visualisez-la via la commande `dmesg`.
+
+Pour ce faire, vous pouvez écrire le log en tant qu'utilisateur root dans `/dev/kmsg`. 
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 Vérifiez si le log a été bien écrit dans le fichier `/var/log/syslog` par `rsyslog` en tant que log du noyau.
+
 - Quel module `rsyslog` est responsable de la récupération des logs de l'espace noyau afin de les écrire dans ce fichier ?
 
 #### Logs espace utilisateur
-Envoyez le log contenant la phrase `Hello world` au journal de `systemd` (Pour ce faire, vous pouvez utiliser la commande `systemd-cat`). 
-- Quelle commande utiliserez-vous pour faire cela?
+Envoyez le log contenant la phrase `Hello world` au journal de `systemd`.
+
+Pour ce faire, vous pouvez utiliser la commande `systemd-cat`. 
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 Vérifiez si le log a été bien enregistré avec la commande `journalctl` et vérifiez que `rsyslog` a bien écrit ce log dans le fichier `/var/log/syslog`.
+
 - Quel module `rsyslog` est responsable de la récupération des logs du journal `systemd` afin de les écrire dans ce fichier?
 
 ### Suppression des logs
@@ -83,46 +96,57 @@ Sur les systèmes Linux, vous pouvez facilement supprimer les logs.
 Pour supprimer les logs écrits dans des fichiers avec `rsyslog`, il suffit de purger, supprimer ou éditer le fichier.
 
 Supprimez tous les logs du fichier `/var/log/syslog`. (***Attention!*** Ne supprimez pas le fichier lui-même!)
-- Quelle commande utiliserez-vous pour faire cela?
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 Vérifiez que les anciens logs ont été bien supprimés et que les nouveaux logs continuent d'être écrits dans le fichier `/var/log/syslog`.
 
 Pour supprimer les logs du journal `systemd`, il suffit d’utiliser les options `--rotate` et `--vacuum-time` de la commande `journalctl`. 
 
 Supprimez tous les logs du journal `systemd`.
-- Quelle commande utiliserez-vous pour faire cela?
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 Vérifiez que les anciens logs ont été bin supprimés.
 
 ### Logrotate
 `Logrotate` est un outil système qui gère la rotation, la compression et la suppression automatique des fichiers log. 
+
 Sans ces mécanismes, les logs pourraient éventuellement consommer tout l'espace disque disponible sur un système et le rendre inutilisable.
 
 Visualisez le fichier de configuration de `logrotate` et trouvez la configuration de rotation des logs pour le fichier `/var/log/syslog`. 
+
 - Comment fonctionne la rotation des logs pour le fichier `/var/log/syslog` (fréquence de rotation, durée de rétention, compression)?
 
 Configurez la rotation pour le fichier `/var/log/ssh.log`. 
+
 La rotation doit avoir lieu tous les jours, les 7 derniers fichiers doivent être conservés, la compression doit être activée.
-- Que mettez-vous dans le fichier de configuration?
+
+- Que avez-vous mis dans le fichier de configuration?
 
 Vérifiez si votre configuration est correcte et est prise en compte avec la commande `sudo logrotate /etc/logrotate.conf --debug`. 
+
 - Que renvoie cette commande ? Comment avez-vous pu vérifier que votre configuration était bien prise en compte ?
 
 Trouvez un moyen de forcer la rotation pour le fichier `/var/log/ssh.log` avec `logrotate` et vérifiez que la rotation a été bien effectuée.
-- Quelle commande utiliserez-vous pour faire cela?
+
+- Quelle commande avez-vous utilisé pour faire cela?
 - Que pouvez-vous remarquer ? Le fichier `/var/log/ssh.log` a-t-il été compressé ?
 
 Generez des logs contenant le mot `ssh` et exécutez à nouveau le `logrotate` forcé. 
+
 - Que pouvez-vous remarquer ? Expliquez le résultat.
 
 ### Fail2ban
 Dans cette section, vous allez installer et configurer l’outil `fail2ban`. 
+
 Cet outil analyse les fichiers logs et interdit les adresses IP qui montrent des signes de comportement malveillant. 
 
 Installez l’outil `fail2ban` via le gestionnaire des packages `apt`.
 
 #### Les filtres
 `Fail2ban` est fourni par défaut avec plusieurs filtres.
+
 Les filtres sont généralement des expressions régulières utilisées pour détecter les tentatives d'effraction, les échecs de mot de passe, etc. 
 
 Les filtres sont stockés dans `/etc/fail2ban/filter.d`. 
@@ -136,10 +160,12 @@ Les actions sont stockés dans `/etc/fail2ban/action.d`.
 Un jail est une combinaison d'un filtre et d'une ou plusieurs actions. 
 
 Les configurations des jails sont stockés dans `/etc/fail2ban/jail.d`.
+
 - Quel jail est activé par défaut?
 
 Confirmez que le jail est bien activé en utilisant le client fail2ban `fail2ban-client`. 
-- Quelle commande utiliserez-vous pour faire cela?
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 Demandez à l'un de vos collègues de tenter plusieurs fois de se connecter à la machine `nginx` avec un mot de passe erroné ou un utilisateur inexistant via SSH jusqu'à ce qu'il soit bloqué par `fail2ban`.  
 - Après combien de tentatives de connexion échouées `fail2ban` a-t-il bloqué l'accès? 
@@ -148,35 +174,43 @@ Visualisez les iptables avec la commande `iptables -L`.
 - Quelle règle a été créé par `fail2ban`?
 
 Visualisez l'état du jail `sshd` avec le client `fail2ban` `fail2ban-client`. 
-- Quelle commande utiliserez-vous pour faire cela?
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 Supprimez l’adresse IP de votre collègue de jail avec le client `fail2ban`.
-- Quelle commande utiliserez-vous pour faire cela?
+
+- Quelle commande avez-vous utilisé pour faire cela?
 
 ## Logs Windows - BONUS
 Dans cette section, vous allez visualiser et manipuler les logs Windows sur la machine `windows-web-server`.
 
 Pour vous connecter à la machine Windows via RDP, vous pouvez utiliser l'outil `Remmina`.
+
 L'utilisateur et le mot de passe par défaut dans l'image `Windows 10` disponible sur Openstack sont `etuinfo`.
 
-`Windows Event Logs` contient les logs du système d'exploitation et des applications. 
+`Windows Event Logs` contient les logs du système d'exploitation et des applications.
+
 Les logs utilisent un format de données structuré, ce qui facilite la recherche et l’analyse des logs.
 
 Utilisez `Windows Event Viewer` afin de visualiser les logs Windows.
+
 - Quelles catégories de logs sont disponibles dans Event Viewer? 
 - Quels logs chaque catégorie contient-elle?
 - Dans quel dossier les Event Logs sont-ils stockées?
 - Est-il possible de supprimer une seule entrée des logs Windows?
 
 Créez un `Custom View` avec les logs de démarrage du noyau (provenant de la source `Kernel-Boot`).
+
 - Qu'est-ce que les `Custom Views` vous permettent de faire?
 
 Sauvegardez et effacez les logs de sécurité, puis ouvrez le fichier sauvegardé avec `Windows Event Viewer`.
+
 - Quel log de sécurité est créé lorsque vous effacez les logs?
 - Sous quelle catégorie le fichier de logs ouvert apparaît-il?
 
 ## Centralisation des logs
 Dans cette section, vous allez planifier et configurer la centralisation des logs de toutes les machines en utilisant les 3 solutions de centralisation des logs vues en cours.
+
 - Pourquoi est-il important de centraliser les logs?
 
 ### Planification de collecte des logs
@@ -193,12 +227,15 @@ Pour collecter et envoyer les logs des machines, vous allez utiliser un agent.
 - Dans quel cas l’utilisation d’un agent n’est-elle pas possible?
 
 Pour faciliter le travail dans le cadre de ce TP, vous n'allez pas configurer d'authentification ou de canaux sécurisés pour transférer les logs. 
+
 En revanche, c’est obligatoire en production, car les logs peuvent contenir des informations sensibles.
 
 ### Elastic Stack
 `Elastic Stack` est une solution de monitoring et de gestion des logs très populaire. 
+
 Cette solution permet de récupérer de manière fiable et sécurisée des données depuis n'importe quelle source, dans n'importe quel format, puis de les rechercher, les analyser et les visualiser en temps réel. 
-Dans le cadre de ce TP, nous limitons son utilisation à la centralisation et à l'agrégation de logs.
+
+Dans le cadre de ce TP, nous limitons son utilisation à la centralisation et agrégation de logs.
 
 Dans cette partie, vous allez donc déployer et configurer un `Elastic Stack` pour la centralisation et l'agrégation des logs.
 
@@ -206,7 +243,7 @@ Dans cette partie, vous allez donc déployer et configurer un `Elastic Stack` po
 ![Architecture de Elastic Stack](./elastic_stack_arch.jpg)
 
 #### Installation
-Dans cette section, vous allez installer `Elasticsearch`, `Kibana` et `Logstash` sur la machine `elastic` et un agent collecteur `Beats` (`Filebeat` ou `Winlogbeat`) sur chaque machine précédemment créée.
+Dans cette section, vous allez installer et configurer `Elasticsearch`, `Kibana` et `Logstash` sur la machine `elastic` et un agent collecteur `Beats` (`Filebeat` ou `Winlogbeat`) sur chaque machine précédemment créée.
 
 ##### Installation de l’Elasticsearch
 `Elasticsearch` est un moteur de recherche, de stockage et d'analyse distribué basé sur Apache Lucene, qui prend en charge de très gros volumes de données.
@@ -228,12 +265,14 @@ sudo systemctl enable elasticsearch
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisées pour faire cela ?
 
 Ensuite, vérifiez que Elasticsearch fonctionne et repond aux requêtes en envoyant une requête HTTP `GET` à l'API REST d'Elasticsearch avec la commande `curl` sur le port `9200`.
 ```
 sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://localhost:9200
 ```
+
 - Quel est le résultat de la commande `curl`?
 
 ##### Installation et configuration de Kibana
@@ -242,12 +281,14 @@ sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic https://local
 Installez, démarrez `Kibana` et activez le démarrage automatique au démarrage du système.
 ```
 sudo apt install kibana
+sudo systemctl daemon-reload
 sudo systemctl start kibana
 sudo systemctl enable kibana
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `kibana` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisées pour faire cela ?
 
 Puisque `Kibana` est configuré par défaut pour écouter uniquement sur `localhost`, pour pouvoir y accéder, vous devez le configurer pour écouter sur l'adresse IP de la machine `elastic`. 
 
@@ -274,6 +315,7 @@ Vous pouvez le récupérer via `journalctl`.
 Authentifiez-vous avec l'utilisateur `elastic` et le mot de passe généré lors de l'installation de `elasticsearch`.
 
 Visualisez la page `http://IP_ADDR_MACHINE_ELASTIC:8080/status` pour vérifier que Kibana fonctionne correctement.
+
 - Avez-vous réussi à faire fonctionner Kibana ?
 
 ##### Installation et configuration de Logstash
@@ -288,9 +330,10 @@ sudo apt install logstash
 
 `Logstash` peut également être vu comme un pipeline qui prend des données à une extrémité, les traite d'une manière ou d'une autre et les envoie à une destination.
 
-Un pipeline `Logstash` comporte deux éléments obligatoires, ***une entrée*** et ***une sortie***, et un élément facultatif, ***un filtre***. 
+Un pipeline `Logstash` comporte deux éléments obligatoires: ***une entrée*** et ***une sortie***, et un élément facultatif: ***un filtre***. 
 
 Pour configurer ce pipeline, vous devez créer deux fichiers de configuration. 
+
 Un fichier pour configurer une entrée et l’autre fichier pour configurer une sortie.
 
 Créez le fichier de configuration de l'entrée `/etc/logstash/conf.d/01-beats-input.conf`
@@ -303,9 +346,6 @@ input {
 ```
 
 Avec cette configuration, `Logstash` écoutera le port `5044` et attendra les données au format `Beats`. 
-<!---
-Vérifiez que le port `5044` de la machine `elastic` est bien ouvert dans `Openstack`.
---->
 
 Créez le fichier de configuration de la sortie
 `/etc/logstash/conf.d/02-elasticsearch-output.conf`
@@ -341,25 +381,27 @@ output {
 sudo usermod -a -G elasticsearch logstash
 ```
 
-Avec cette configuration, `Logstash` enverra des logs directement à `Elasticsearch`. 
+Avec cette configuration, `Logstash` va envoyer des logs directement à `Elasticsearch`. 
 
 Les logs seront stockes dans l'index nommé selon le Beat utilisé et postfixé par la date.
 
 Démarrez le `logstash` et activez le démarrage automatique
 ```
+sudo systemctl daemon-reload
 sudo systemctl start logstash
 sudo systemctl enable logstash
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `logstash` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisées pour faire cela ?
 
 ##### Configuration des agents collecteurs sous Linux
 Dans cette section, vous allez utiliser `Filebeat` comme agent collecteur de logs. 
 
 Cet agent doit être installe et configuré sur toutes les machines créées au cours de ce TP. 
 
-Vous allez commencer par la machine `elastic`, car sur cette machine vous devrez effectuer des actions supplémentaires.
+Vous allez **commencer par la machine `elastic`**, car sur cette machine vous devrez effectuer des actions supplémentaires.
 
 Sur toutes les machines **sauf `elastic`** vous devez ajouter les repos `Elastic` dans le gestionnaire des packages `apt`.
 ```
@@ -394,16 +436,17 @@ output.logstash:
 ```
 
 Jusqu'à présent, vous avez configuré la sortie des logs, tous les logs collectés seront envoyés à `Logstash`.
+
 Vous devez maintenant indiquer à `Filebeat` quels logs il doit collecter.
 
 Pour ce faire, vous avez deux options: 
 - Modifier manuellement le fichier de configuration `Filebeat` et spécifier les fichiers logs à surveiller.
-- Utiliser les modules fournis avec `Filebeat`. 
-  - `Filebeat` est livré avec plusieurs modules vous permettant de specifier les sources des logs.
+- Utiliser les modules fournis avec `Filebeat` 
+  - `Filebeat` est livré avec plusieurs modules vous permettant de specifier les sources des logs
 
 Dans cette section, vous allez utiliser deux modules `Filebeat` pour specifier les logs à collecter :
-- Le module `system` qui configure la collecte de logs `syslog` (`/var/log/syslog`) et de logs d'authentification (`/var/log/auth.log`).
-- Le module `nginx` qui configure la collecte de logs d'accès et de logs d'erreurs du serveur nginx.
+- Le module `system` qui configure la collecte de logs `syslog` (`/var/log/syslog`) et de logs d'authentification (`/var/log/auth.log`)
+- Le module `nginx` qui configure la collecte de logs d'accès et de logs d'erreurs du serveur nginx
 
 Vous pouvez activez le module `system` avec la commande:
 ```
@@ -416,13 +459,17 @@ sudo filebeat modules list
 ```
 
 Après avoir activé le module `system`, vous devez spécifier dans le fichier de configuration du module `/etc/filebeat/modules.d/system.yml` quels logs collecter. 
-- Modifiez le fichier de configuration afin que le module collecte les logs syslog et les logs d'autorisation.
-- Donnez le contenu du fichier de configuration du module `system`.
 
-Activez le module `nginx` sur les machines avec un serveur `nginx`. 
+Modifiez le fichier de configuration afin que le module collecte les logs syslog et les logs d'autorisation.
+
+- Quel est contenu du fichier de configuration du module `system`?
+
+Activez le module `nginx`. 
+
 N'oubliez pas de modifier le fichier de configuration du module afin qu'il collecte les logs d'accès et les logs d'erreurs du serveur nginx.
-- Quelle commande utiliserez-vous pour faire cela?
-- Donnez le contenu du fichier de configuration du module `nginx`.
+
+- Quelle commande avez-vous utilisé pour faire cela?
+- Quel est contenu du du fichier de configuration du module `nginx`?
 
 Une fois que `Filebeat` connaît quels logs à collecter et où les envoyer, il est nécessaire de créer le template d'index pour stocker les logs `Filebeat` dans `Elasticsearch` et une description des pipelines de traitement des logs. 
 
@@ -440,12 +487,14 @@ sudo filebeat setup --pipelines --modules system,nginx --force-enable-module-fil
 
 Démarrez le `Filebeat` et activez le démarrage automatique
 ```
+sudo systemctl daemon-reload
 sudo systemctl start filebeat
 sudo systemctl enable filebeat
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `filebeat` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisé pour faire cela?
 
 Vérifiez si `Elasticsearch` reçoit les logs.
 
@@ -453,8 +502,11 @@ Pour ce faire, interrogez `Elasticsearch` depuis la machine `elastic` avec la co
 ```
 sudo curl --cacert /etc/elasticsearch/certs/http_ca.crt -u elastic 'https://localhost:9200/filebeat-*/_search?pretty'
 ```
-- Cette commande doit renvoyer les logs `filebeat` enregistrés dans elasticsearch. Si vous ne voyez aucun log, vérifiez que la configuration a été correctement effectuée et que tous les services ont été lancés sans erreur.
+- Cette commande doit renvoyer les logs `filebeat` enregistrés dans `Elasticsearch`. Si vous ne voyez aucun log, vérifiez que la configuration a été correctement effectuée et que tous les services ont été lancés sans erreur.
+
 - `Elasticsearch` reçoit-il des logs?
+
+Assurez-vous d'avoir configuré `Filebeat` sur toutes les machines.
 
 ##### Configuration des agents collecteurs sur Windows - Bonus
 Installez et configurez le `Winlogbeat` sur la machine `Windows`. 
@@ -465,10 +517,12 @@ Le `Winlogbeat` doit collecter et envoyer tous les `Event Logs` à `logstash`.
 > **Rappel**: le lien pour accéder à l’instance `Kibana` depuis votre natigateur Web est `http://ADRESSE_IP_DE_LA_MACHINE_ELASTIC:8080/`
 
 ##### Visualisation des logs
-Visualisez les logs dans l’interface `Kibana`. (`Kibana->Discover`)
+Visualisez les logs dans l’interface `Kibana` (`Kibana->Discover`).
+
 Avant de pouvoir afficher les logs dans `Discover`, créez un data view avec l'index pattern `filebeat-*`.
 
 Recherchez tous les logs provenant de la machine `nginx-server`.
+
 - Quelle requête avez-vous utilisée ?
 
 ##### Dashboards
@@ -483,12 +537,16 @@ sudo filebeat setup --dashboards -E setup.kibana.password="$ELASTIC_PASSWORD" -E
 - Vous devez remplacer le `MOT_DE_PASSE` par le mot de passe généré lors de l'installation `elasticsearch` et `ADRESSE_IP_DE_LA_MACHINE_ELASTIC` par l'adresse IP de la machine `elastic`.
 
 Trouvez et affichez le dashboard `[Filebeat System] Syslog dashboard ECS` dans `Kibana`.
+
+Si le dashboard livré par defaut ne fonctionne pas, essayez de le reparer en ajoutant `keyword` à chaque champ utilisé par le dashboard.
+
+- Avez-vous réussi à réparer le dashboard?
 - Quelles autres dashboards de type `[Filebeat System]` sont disponibles dans `Kibana`?
 
 #### Conclusion
-Dans cette section, vous avez installé et manipulé `Elastic Stack`. 
+Dans cette section, vous avez installé et manipulé un `Elastic Stack`. 
 
-Si vous envisagez de déployer `Elastic Stack` en production, ous devrez penser à ajouter au moins de la sécurité aux inputs (tunnelling et authentification), créer un cluster `Elasticsearch`, ajouter une solution de buffering devant `Logstash` (par exemple `Redis`), ajouter des équilibreurs de charge. 
+Si vous envisagez de déployer `Elastic Stack` en production, vous devrez penser à ajouter au moins de la sécurité aux inputs (tunnelling et authentification), créer un cluster `Elasticsearch`, ajouter une solution de buffering devant `Logstash` (par exemple `Redis`), ajouter des équilibreurs de charge. 
 
 Même si vous avez utilisé `Elastic Stack` pour la centralisation des logs, il est capable de traiter tous les types de messages. 
 C'est en partie pourquoi il est relativement difficile à configurer (ajout des pipelines, création des indices et etc).
@@ -509,7 +567,7 @@ Vous allez commencer par installer `Elasticsearch`, `Mongodb` et `Graylog-server
 
 Ensuite, vous allez installer un agent collector `Filebeat` ou `Winlogbeat` et un agent de gestion de configuration `Graylog Collector` sur chaque machine.
 
-##### Preparation de la machine `graylog`
+##### Preparation de la machine
 Installez les packages nécessaires qui seront utiles lors de la configuration de `Graylog`.
 ``` 
 sudo apt update
