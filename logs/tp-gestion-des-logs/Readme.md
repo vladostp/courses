@@ -592,7 +592,9 @@ sudo systemctl --type=service --state=active | grep mongod
 ```
 
 ##### Installation et configuration de Data node
-`Graylog` stocke les logs dans un Data node. Le Data node peut être `Elasticsearch` ou `OpenSearch` qui sont des moteurs de recherche open source. 
+`Graylog` stocke les logs dans un Data node. 
+
+Le Data node peut être `Elasticsearch` ou `OpenSearch` qui sont des moteurs de recherche open source. 
 
 Dans cette section, vous allez configurer `Elasticsearch` en tant que Data node.
 
@@ -621,16 +623,19 @@ sudo systemctl restart elasticsearch.service
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `elasticsearch` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisé pour faire cela?
 
 Vérifiez que `Elasticsearch` est fonctionnel en envoyant une requête HTTP `GET` à l'API REST avec la commande `curl` sur le port `9200`.
 ```
 curl -X GET "localhost:9200"
 ```
+
 - Quel est le résultat de la commande `curl`?
 
 ##### Installation et configuration de Graylog
 `Graylog server` est un serveur de collecte et de visualisation des logs qui est le composant principal de la solution `Graylog`. 
+
 `Graylog server` stocke les données de configuration dans `MongoDB` et utilize `Elasticsearch` comme Data node pour stocker les logs.
 
 Installez le version gratuite de `Graylog Server`.
@@ -642,12 +647,13 @@ sudo apt update && sudo apt install -y graylog-server
 
 Pour pouvoir démarrer le serveur, vous devez au moins configurer les valeurs de `password_secret` et `root_password_sha2` dans le fichier de configuration du serveur Graylog `/etc/graylog/server/server.conf`.
 
-Le `password_secret` est utilisé pour le chiffrement de certaines données dans `MongoDB` (mots des passe utilisateur) et peut être généré avec la commande:
+Le `password_secret` est utilisé pour le chiffrement de certaines données dans `MongoDB` (mots des passe utilisateur) et peut être généré avec la commande suivante:
 ```
 pwgen -N 1 -s 96
 ```
 
 Le `root_password_sha2` est le hash du mot de passe de l’utilisateur root (`admin` par défaut).
+
 Créez un hash de mot de passe de l’utilisateur root avec la commande:
 ```
 echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | cut -d" " -f1
@@ -656,6 +662,7 @@ echo -n "Enter Password: " && head -1 </dev/stdin | tr -d '\n' | sha256sum | cut
 Ajoutez ces deux valeurs dans le fichier de configuration `/etc/graylog/server/server.conf`.
 
 Pour accéder à l’interface Web `Graylog`, vous allez passer par un reverse proxy `nginx`.
+
 Vous allez donc installer et configurer un proxy `nginx`.
 
 Installez le package `nginx`
@@ -702,17 +709,20 @@ sudo systemctl start graylog-server.service
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `graylog-server` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisé pour faire cela?
 
 Attendez une minute et vérifiez si l’interface Web `Graylog` fonctionne correctement.
 
 L’interface web `Graylog` doit être disponible à l’adresse `http://ADRESSE_IP_DE_LA_MACHINE_GRAYLOG/`.
 
 Vous pouvez vous authentifier sur l'interface web `Graylog` avec l'utilisateur `admin` et le mot de passe créé précédemment.
+
 - L'interface Web Graylog fonctionne-t-elle ? Quelle page voyez-vous après la connexion ?
 
 #### Configuration de Graylog Sidecar sur Linux
 Dans cette section, vous ne configurerez pas les collecteurs de logs manuellement comme nous l'avons fait pour `Elastic Stack`. 
+
 Au lieu de cela, vous allez automatiser et centraliser la gestion de la configuration des collecteurs de logs avec `Graylog Sidecar`. 
 
 Pour ce faire, vous allez installer le collecteur de logs `Filebeat`, si cela n'a pas été fait précédemment, et le gestionnaire de configuration `Graylog Sidecar` sur chaque machine. 
@@ -720,14 +730,14 @@ Pour ce faire, vous allez installer le collecteur de logs `Filebeat`, si cela n'
 ##### Fonctionnement de Graylog avec Sidecar
 ![Fonctionnement de Graylog avec Sidecar](./graylog_sidecar_arch.jpg)
 
-La configuration des sources de logs est stockée dans la base de données `MongoDB` par `Graylog` et sera disponible via l’API REST. 
+La configuration des sources de logs est stockée dans la base de données `MongoDB` par `Graylog` et est disponible via l’API REST. 
 
 Le `Graylog Sidecar` contacte périodiquement l’API REST du serveur `Graylog` afin de récupérer la configuration et lance le collector de logs avec cette configuration.
 
 Dans ce TP, `Graylog Sidecar` récupérera la configuration du serveur `Graylog` et lancera une instance `Filebeat` avec cette configuration.
 
 ##### Installation de Filebeat
-Si vous avez réalisé la partie sur `Elastic Stack`, `Filebeat` devrait déjà être présent sur toutes les machines. 
+Si vous avez déjà fait la partie `Elastic Stack`, `Filebeat` devrait déjà être présent sur toutes les machines. 
 
 Sinon, vous trouverez des instructions pour installer `Filebeat` dans la section sur `Elastic Stack`.
 
@@ -763,7 +773,8 @@ sudo systemctl start graylog-sidecar
 ```
 
 Vérifiez avec les commandes `systemctl` et `journalctl` que `graylog-sidecar` a démarré sans erreur.
-- Quelles commandes utiliserez-vous pour faire cela?
+
+- Quelles commandes avez-vous utilisé pour faire cela?
 
 Après quelques secondes, vos `Sidecars` devraient être visibles dans l'interface Web Graylog dans `System -> Sidecars`.
 
@@ -771,20 +782,24 @@ Après quelques secondes, vos `Sidecars` devraient être visibles dans l'interfa
 Dans cette section, vous allez configurer les sources et les entrées de logs de manière centralisée via l’interface Web `Graylog`.
 
 ##### Configuration des entrées
-Pour pouvoir envoyer des logs au serveur `Graylog`, vous devez créer des entrées (`Inputs`). 
+Pour pouvoir envoyer des logs au serveur `Graylog`, vous devez créer une entrée (`Inputs`). 
+
 `Graylog` prend en charge une multitude de types d'entrées: `AWS`, `Beats`, `CEF`, `GELF`, `Syslog`...
 
 Les entrées `Graylog` sont configurables via l'interface web `Graylog` dans `System -> Inputs`
 
 Configurez une entrée de type `Beats`, nommez l’entrée et laissez tous les autres paramètres par défaut.
+
 - Quel protocole de sécurité est disponible pour l'entrée de type Beats?
 - L'authentification est-elle configurable pour ce type d'entrée?
 
 ##### Configuration des sources
 Pour envoyer des logs au serveur `Graylog`, vous allez créer et attribuer la configuration des sources de logs via l'interface web `Graylog`. 
+
 Cette configuration sera récupérée par `Graylog Sidecar` de chaque machine.
 
 Ensuite, `Graylog Sidecar` lancera une instance de `Filebeat` avec cette configuration sur chaque machine. 
+
 En conséquence, les logs seront envoyés par `Filebeat` lancé sur chaque machine au serveur `Graylog`.
 
 Pour commencer, vous devez créer une configuration `Filebeat` dans l’interface web Graylog dans `System -> Sidecars -> Configuration -> Create Configuration`.
@@ -800,11 +815,13 @@ Configurez les inputs et l’output `Filebeat`.
 - /var/log/nginx/error.log
 
 Le Filebeat doit tout envoyer au `ADRESSE_IP_DE_LA_MACHINE_GRAYLOG:5044` (Ne changez pas le type d’output)
-- Quelle configuration allez-vous mettre dans le champ de configuration ?
+
+- Quelle configuration allez-vous mettre dans le champ de configuration?
 
 Puis, il faut attribuer la configuration créée à un `Graylog Sidecar` dans (`System -> Sidecars -> Overvirew -> Manage sidecar`).
 
 Pour ce faire, il faut choisir `filebeat`, cliquer sur `Assign Configurations` et choisir la configuration créée précédemment. 
+
 Après confirmation, `Graylog Sidecar` récupérera cette configuration et lancera `Filebeat`.
 
 Si tout à été configuré correctement, vous allez voir l'état de `Filebeat` `Running` et vous allez pouvoir visualiser les logs dans la section `Search`.
@@ -813,15 +830,18 @@ Attribuez la configuration aux `Sidecars` de toutes les machines.
 
 Vérifiez que toutes les machines envoient des logs au serveur Graylog.
 
+- Comment l'avez-vous vérifié?
+
 #### Installation de Graylog Sidecar et configuration des sources sur Windows - BONUS
 Si vous voulez aller plus loin, vous pouvez configurer `Graylog Sidecar` sur la machine `Windows`. 
 
 La machine `Windows` doit envoyer tous les `Event Logs` au serveur `Graylog`.
 
-Pour collecter et envoyer les `Event Logs`, vous devrez utiliser `Winlogbeat` au lieu de `Filebeat`. 
+Pour collecter et envoyer les `Event Logs`, vous devez utiliser `Winlogbeat` au lieu de `Filebeat`. 
 
 #### Extracteurs et visualisation des logs
 Dans les sections précédentes, vous avez configuré `Graylog` avec une gestion centralisée de la configuration des sources. 
+
 Désormais, chaque machine envoie des logs à `Graylog` et vous pouvez les visualiser et les manipuler via l'interface Web. 
 
 ##### Création des extracteurs
@@ -840,7 +860,9 @@ Cela vous permettra de créer des statistiques et des tableaux de bord basés su
 Dans cette section, vous allez extraire l’adresse IP du client avec une expression régulière.
 
 Pour ce faire, trouvez un log `nginx` dans la section `Search` de l’interface web `Graylog`. 
+
 Cliquez ensuite sur le log trouvé pour visualiser le message en détail. 
+
 Sur le champ `message`, cliquez sur la petite flèche, puis `Create extractor`.
 
 Créez un extracteur de type `Regular expression` et dans le champ `Regular expression` mettez l’expression régulière suivante :
@@ -849,19 +871,22 @@ Créez un extracteur de type `Regular expression` et dans le champ `Regular expr
 ```
 
 Cliquez sur `Try` pour voir si l’adresse IP a été bien extraite du log `nginx`.
+
 Mettez une condition d’extraction `Only attempt extraction if field contains string` et mettez `HTTP` dans `Field contains string`. 
 
 Nommez l'extracteur et le nouveau champ `source_ip`.
 
 Si vous configurez l'extracteur de cette façon, `Graylog` créera un nouveau champ `source_ip` contenant l'adresse IP du client pour les logs où le `message` contient la chaîne `HTTP`.
 
-Revenez à la page de recherche et confirmez que tous les logs `nginx` ont un nouveau champ `source_ip` avec l’adresse IP du client.
+Créez l'extracteur et revenez à la page de recherche et confirmez que tous les logs `nginx` ont un nouveau champ `source_ip` avec l’adresse IP du client.
 
-Cliquez sur la petite flèche sur `source_ip`, puis sur `Show top values` pour afficher les adresses IP qui contactent le plus les serveurs `nginx`.
+Cliquez sur la petite flèche sur le champ `source_ip`, puis sur `Show top values` pour afficher les adresses IP qui contactent le plus les serveurs `nginx`.
+
 - Combien d’adresses IP sont affichées dans les `Top values`?
 
 ##### Visualisation des logs
 Jouez avec l'interface de recherche `Graylog` pour comprendre son fonctionnement (période de recherche, mise à jour automatique et etc).
+
 - Quelle requête utilisez-vous pour trouver tous les messages contenant votre adresse IP?
 - Quelle requête utilisez-vous pour trouver tous les messages contenant le champ `source_ip`?
 
@@ -881,30 +906,39 @@ Ce dashboard doit contenir:
 #### Rotation et la période de rétention des logs
 La rotation des logs est un élément très important de la gestion des logs qui permet d'économiser de l'espace disque, de maintenir des temps d'ouverture et de recherche raisonnables et, dans certains cas, d’augmenter les performances d'écriture.
 
-`Graylog` écrit des messages dans des `index sets`. Un `index set` peut etre vu comme une configuration de rétention, de partitionnement et de réplication des données stockées.
+`Graylog` écrit des messages dans des `index sets`. 
+
+Un `index set` peut etre vu comme une configuration de rétention, de partitionnement et de réplication des données stockées.
 
 Dans cette section, vous allez configurer la rotation et la période de rétention de l’index set principal dans (`System -> Indices -> Default index set -> Edit Index Set`).
 
 Pour configurer la rotation de l’index set, vous devrez modifier les paramètres dans la section `Index Rotation Configuration`.
 
-Configurez la stratégie de rotation `Index Time` pour la fréquence de rotation toutes les 12 heures. 
+Configurez la stratégie de rotation `Index Time` pour la fréquence de rotation toutes les 12 heures.
+
 - Que mettez-vous dans le champ `Rotation period`?
 
 Configurez la période de rétention dans la section `Index Retention Configuration` pour une rétention des logs pendant 12 mois.
+
 - Combien d'indices faut-il conserver pour avoir la période de rétention des logs de 12 mois?
 
 #### Conclusion
 Dans cette section, vous avez installé, configuré et manipulé le `Graylog` avec `Sidecar`. 
 
 Ayant un temps très limité, même si vous en avez fait beaucoup, vous n'avez pas pu voir toutes les fonctionnalités de `Graylog`.
+
 Vous pouvez consulter la documentation officielle de `Graylog` et d'essayer d'aller plus loin (`Alerts`, `Streams`, `Users`, `Groups`, `Roles`, `Content Packs`).
 
-Pour un déploiement en production, il faudra au moins penser à sécuriser les entrées, passer l’API et l’interface Web à `HTTPS` et créer un cluster `Elasticsearch`. Vous pouvez également déployer plusieurs instances du serveur `Graylog` et de les placer derrière un `load balancer`.
+Pour un déploiement en production, il faudra au moins penser à sécuriser les entrées, passer l’API et l’interface Web à `HTTPS` et créer un cluster `Elasticsearch`. 
+
+Vous pouvez également déployer plusieurs instances du serveur `Graylog` et de les placer derrière un `load balancer`.
 
 L'un des principaux avantages de `Graylog` est qu'il est spécialement conçu pour la centralisation et la gestion des logs. 
+
 Même dans sa version gratuite, il propose de nombreuses fonctionnalités très avancées (Gestion des utilisateurs et des rôles, Authentification via AD/LDAP, Alerting, plugin AWS...).
 
 De plus, une fois que vous avez configuré `Graylog`, vous pouvez effectuer la plupart des actions via son interface Web.
+
 Et si vous automatisez le déploiement des agents collecteurs et de `Graylog Sidecar` avec `Puppet` ou `Ansible`, vous ne toucherez presque plus jamais les fichiers de configuration `Graylog`.
 
 ### Grafana Loki (PLG Stack)
