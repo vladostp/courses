@@ -17,7 +17,7 @@ Ces machines doivent avoir les noms d'hôte et les caractéristiques suivants :
 - `[num]-elastic` (Ubuntu Server 22.04.3, 4vCPU, 16GB RAM, 20GB d’espace disque)
 - `[num]-loki` (**Ubuntu Server 22.04.3 - Docker Ready**, 2vCPU, 4GB RAM, 10GB d’espace disque)
 - `[num]-windows-web-server` (Windows 10, 2vCPU, 8GB RAM, 50GB d’espace disque) (BONUS)
-  - Pour la machine Windows, créez un volume séparé avec 50 Go de stockage et l'image Windows 10 comme source de volume.
+  - Pour la machine Windows, créez un volume séparé avec 50 Go de stockage et l'image `Windows 10` comme source de volume.
   - Ensuite, créez l'instance Windows avec le volume créé précédemment comme source de démarrage.
 
 Où `[num]` est votre numéro d'étudiant ou votre numero de groupe.
@@ -184,9 +184,13 @@ Supprimez l’adresse IP de votre collègue de jail avec le client `fail2ban`.
 ## Logs Windows - BONUS
 Dans cette section, vous allez visualiser et manipuler les logs Windows sur la machine `windows-web-server`.
 
-Pour vous connecter à la machine Windows via RDP, vous pouvez utiliser l'outil `Remmina`.
+Pour vous connecter à la machine Windows via RDP à partir d'une machine Linux, vous pouvez utiliser l'outil `Remmina`.
 
 L'utilisateur et le mot de passe par défaut dans l'image `Windows 10` disponible sur Openstack sont `etuinfo`.
+
+Pour pouvoir vous connecter à la machine, vous devrez probablement modifier le mot de passe de l'utilisateur `etuinfo`.
+
+Vous pouvez le faire via la console disponible dans l'interface OpenStack.
 
 `Windows Event Logs` contient les logs du système d'exploitation et des applications.
 
