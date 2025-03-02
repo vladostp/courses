@@ -10,11 +10,10 @@ Dans cette section, vous devez créer trois machines virtuelles dans OpenStack a
 - 4 vCPU
 - 8Go RAM
 - 20Go d'espace disque
-- Réseau `vlan1374` ou `vlan1368` (Assurez-vous que toutes les machines virtuelles font partie du même réseau!)
 
 Une machine sera le *Control Plane* et deux autres seront des *Worker Nodes*.
 
-Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 4 vCPU, 8 Go de RAM, réseau `vlan1374` ou `vlan1368` et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
+Afin de créer des machines avec 20Go d'espace disque, vous allez commencer par créer trois **Volumes** dans l'OpenStack avec l'image **Ubuntu Server 22.04.3 LTS - Docker Ready** comme **Volume Source**. Ensuite, vous allez créer trois machines avec 4 vCPU, 8 Go de RAM et avec les volumes précédemment créés comme sources de démarrage (**Boot Source**).
 
 ------
 
@@ -49,33 +48,33 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 	- Créez un cluster de 3 machines avec la machine Control Plane ayant les rôles `control-plane` et `etcd` et les deux Worker nodes ayant le rôle de `worker`.
 	- Mettez les adresses IP de vos machines en tant que `SSH Address of host`.
 	- Laissez toutes les autres paramètres aux valeurs par défaut
-	- Cette commande va créer le fichier de configuration du cluster `cluster.yml` qui peut être changé à la main si vous souhaitez modifier la configuration du cluster.
+	- Cette commande va créer le fichier de configuration du cluster `cluster.yaml` qui peut être changé à la main si vous souhaitez modifier la configuration du cluster.
 - Déployez le cluster Kubernetes avec **RKE**
 	```bash
 	$ ./rke up
 	```
-	- Cette commande lit le fichier de configuration `cluster.yml` et installe, démarre et configure tout ce qui est nécessaire sur tous les nœuds pour avoir un cluster Kubernetes fonctionnel.
+	- Cette commande lit le fichier de configuration `cluster.yaml` et installe, démarre et configure tout ce qui est nécessaire sur tous les nœuds pour avoir un cluster Kubernetes fonctionnel.
 	- Si vous voyez "Finished building Kubernetes cluster successfully", le cluster a été déployé avec succès
 		- Si ce n'est pas le cas, essayez de supprimer et de redéployer le cluster
 		```bash
 		$ ./rke remove
 		$ ./rke up
 		```
-- Après avoir déployé le cluster avec **RKE**, un fichier `kube_config_cluster.yml` est créé, ce fichier contient les détails de connexion et d'authentification pour interagir avec le cluster déployé.
+- Après avoir déployé le cluster avec **RKE**, un fichier `kube_config_cluster.yaml` est créé, ce fichier contient les détails de connexion et d'authentification pour interagir avec le cluster déployé.
 
 ### Installation et configuration de kubectl
 Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
 **kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
 
-- Téléchargez et installez la version `1.13.2` de **kubectl**
+- Téléchargez et installez la version `1.31.5` de **kubectl**
   ```bash
-  $ curl -LO "https://dl.k8s.io/release/v1.13.2/bin/linux/amd64/kubectl"
+  $ curl -LO "https://dl.k8s.io/release/v1.31.5/bin/linux/amd64/kubectl"
   $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   ```
 - Copiez la configuration de `kubectl` crée par **RKE**
   ```bash
   $ mkdir -p $HOME/.kube
-  $ sudo cp -i kube_config_cluster.yml $HOME/.kube/config
+  $ sudo cp -i kube_config_cluster.yaml $HOME/.kube/config
   $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
   ```
 - Vérifiez le fonctionnement de `kubectl` en récupérant les informations du nœud de cluster
@@ -90,13 +89,13 @@ Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kube
 Dans cette section, vous allez déployer quelques objets Kubernetes sur votre cluster. 
 Pour cela, vous allez créer des fichiers **yml** contenant la description des objets K8s. Ensuite vous allez créer ces objets avec la commande :
 ```bash
-$ kubectl apply -f nom_du_fichier.yml
+$ kubectl apply -f nom_du_fichier.yaml
 ```
 
 ### Création d'un pod
 Vous allez commencer par créer un Pod qui est la plus petite unité que vous pouvez déployer dans un cluster K8s.
 
-Créez le fichier `nginx_pod.yml`:
+Créez le fichier `nginx_pod.yaml`:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -122,7 +121,7 @@ Ce fichier décrit un Pod qui a les caractéristiques suivantes :
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_pod.yml
+    $ kubectl apply -f nginx_pod.yaml
     ```
 
 - **Vérifiez si le pod a été bien créé**
@@ -148,7 +147,7 @@ Dans cette section, vous allez déployer une application hautement disponible et
 
 Pour commencer, vous allez créer un objet de type "Deployment". 
 
-Créez le fichier `nginx_deployment.yml`
+Créez le fichier `nginx_deployment.yaml`
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -173,7 +172,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_deployment.yml
+    $ kubectl apply -f nginx_deployment.yaml
     ```
     - Quels rôles jouent les labels et les sélecteurs ? 
     - Sur quelle image seront basés les conteneurs créés ?
@@ -194,10 +193,6 @@ spec:
     - Vous pouvez utiliser la commande `kubectl describe` pour afficher une description détaillée des objets K8S
     ```bash
     $ kubectl describe deployment nginx-deployment
-    ```
-    - Visualisez les événements Kubernetes avec la commande
-    ```bash
-    $ kubectl get events
     ```
     - Quel événement reflète la mise à l’échelle de votre déploiement ?
 
@@ -220,7 +215,7 @@ Pour rendre votre **Deployment** accessible, vous allez créer un objet de type 
 Le **Service** peut être vu comme un Load Balancer qui distribue le trafic vers un ensemble des **Pods**.
 Le nom du **Service** peut être utilisé comme nom DNS pour contacter tous les Pods référencés par ce **Service** depuis n'importe quel **Pod** du même **namespace**.
 
-Créez le fichier `nginx_service.yml`
+Créez le fichier `nginx_service.yaml`
 ```yaml
 apiVersion: v1
 kind: Service
@@ -240,7 +235,7 @@ spec:
 
 - **Créez le service dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_service.yml
+    $ kubectl apply -f nginx_service.yaml
     ```
 
 - **Détectez quel port est exposé sur les nœuds pour atteindre le service**
@@ -279,7 +274,7 @@ $ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 30}
 Pour déployer la nouvelle version de l'application, vous allez mettre à jour le **Déploiement**.
 
 **Vous avez trois moyens pour faire cela :**
-- **En modifiant le fichier `yaml` du Deployment `nginx_deployment.yml`**
+- **En modifiant le fichier `yaml` du Deployment `nginx_deployment.yaml`**
     ```yaml
     apiVersion: apps/v1
     kind: Deployment
@@ -303,7 +298,7 @@ Pour déployer la nouvelle version de l'application, vous allez mettre à jour l
     ```
     - **Et en appliquant les changements**
         ```bash
-        $ kubectl apply -f nginx_deployment.yml
+        $ kubectl apply -f nginx_deployment.yaml
         ```
 
 - **Inline (en utilisant uniquement la ligne de commande)**
@@ -365,9 +360,9 @@ Dans cette section, vous allez manipuler le mécanisme des volumes persistants p
 
 La création d'un volume et son attribution à un **Pod** se font en plusieurs étapes.
 Tout d'abord, un objet `Persistent Volume` doit être créé. Cette tâche est généralement effectuée par l'administrateur du cluster.
-Dans le cadre de ce TP, vous allez créer un volume persistant de type `local` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de 200Mi.
+Dans le cadre de ce TP, vous allez créer un volume persistant de type `hostPath` (un répertoire monté sur les nœuds workers) avec la capacité de stockage de 200Mi.
 
-Créez le fichier `pv.yml`
+Créez le fichier `pv.yaml`
 ```yaml
 kind: PersistentVolume
 apiVersion: v1
@@ -387,7 +382,7 @@ spec:
 
 - **Créez le Persistent Volume dans le cluster**
     ```bash
-    $ kubectl apply -f pv.yml
+    $ kubectl apply -f pv.yaml
     ```
     - Que signifie l'accès mode "ReadWriteOnce"?
 
@@ -406,7 +401,7 @@ Cette abstraction permet de découpler les volumes mis à disposition par les ad
 
 Vous allez demander 100 Mi de stockage qui peut être monté en lecture-écriture par un seul nœud en créant un objet **PersistentVolumeClaim**.
 
-Créez le fichier `pvc.yml`
+Créez le fichier `pvc.yaml`
 ```yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -423,7 +418,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f pvc.yml
+    $ kubectl apply -f pvc.yaml
     ```
 
 - **Visualisez l'état des Persistant Volumes et Persistant Volume Claims**
@@ -438,7 +433,7 @@ spec:
 
 Maintenant, vous pouvez attacher le `PersistantVolumeClaim` à un **Pod**.
 
-Créez le fichier `pvc_pod.yml`
+Créez le fichier `pvc_pod.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -462,7 +457,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f pvc_pod.yml
+    $ kubectl apply -f pvc_pod.yaml
     ```
 
 - **Vérifiez que votre pod est lancé**
@@ -478,7 +473,7 @@ spec:
 L'utilisation de variables d'environnement est le moyen le plus simple d'injecter des données dans vos applications.
 Dans cette section, vous allez créer un **Pod** qui utilise une variable d'environnement et affiche sa valeur au démarrage.
 
-Créez le fichier `env_var_pod.yml`:
+Créez le fichier `env_var_pod.yaml`:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -496,7 +491,7 @@ spec:
 
 - **Créez le Pod dans le cluster**
     ```bash
-    $ kubectl apply -f env_var_pod.yml
+    $ kubectl apply -f env_var_pod.yaml
     ```
 
 - **Visualisez les logs du pod**
@@ -512,7 +507,7 @@ Les secrets peuvent être fournis à vos pods de deux manières différentes : 
 
 Dans cette section, vous allez créer un secret et l'utiliser dans un pod de deux manières différentes.
 
-Créez le fichier `secret.yml`
+Créez le fichier `secret.yaml`
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -524,15 +519,15 @@ data:
 ```
 
 - **Modifiez le secret** pour que les champs `username` et `password` contiennent `Lyon1`. Pour cela, vous devez convertir la chaîne en base64 (commande `base64`)
-    - Quel est le contenu du fichier `secret.yml` après les modifications?
+    - Quel est le contenu du fichier `secret.yaml` après les modifications?
     - N'hésitez pas à utiliser la [documentation officielle](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/).
 - **Créez le secret dans le cluster**
     ```bash
-    $ kubectl apply -f secret.yml
+    $ kubectl apply -f secret.yaml
     $ kubectl get secrets
     ```
 
-Créez le fichier `pod_with_secret.yml`
+Créez le fichier `pod_with_secret.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -551,7 +546,7 @@ spec:
 
 - **Créez le Pod dans le cluster**
     ```bash
-    $ kubectl apply -f pod_with_secret.yml
+    $ kubectl apply -f pod_with_secret.yaml
     ```
 
 - **Visualisez les logs du pod**
@@ -570,7 +565,7 @@ Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContain
 Comme le `initContainer` et le conteneur principal sont deux conteneurs distincts, il faudra créer un volume partagé par les deux conteneurs. 
 Grâce à ce volume le `initContainer` pourra modifier la page d'accueil du conteneur principal. Vous allez utiliser un volume de type `emptyDir`.
 
-Créez le fichier `nginx_pod_with_init.yml`:
+Créez le fichier `nginx_pod_with_init.yaml`:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -602,7 +597,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
   ```bash
-  $ kubectl apply -f nginx_pod_with_init.yml
+  $ kubectl apply -f nginx_pod_with_init.yaml
   ```
 
 - **Surveillez le déploiement du Pod**
@@ -630,7 +625,7 @@ Dans cette section, vous allez déployer des Pods avec les sondes **Liveness** e
 Kubernetes est capable de vérifier automatiquement si vos applications répondent aux demandes des utilisateurs avec des sondes **Liveness**. 
 Si votre application est bloquée et ne répond pas, K8s le détecte et redémarre ou recrée le conteneur.
 
-Créez le fichier `liveness_pod.yml`
+Créez le fichier `liveness_pod.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -648,7 +643,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f liveness_pod.yml
+    $ kubectl apply -f liveness_pod.yaml
     ```
 
 - **Provoquez une erreur d'application en supprimant le répertoire `/usr/share/nginx` dans le Pod `liveness-pod`**
@@ -659,8 +654,8 @@ spec:
 
 - **Surveillez les événements relatifs au Pod et le comportement du Pod `liveness-pod`**
   ```bash
-  $ kubectl get events
   $ kubectl get pods
+  $ kubectl describe pod liveness-pod
   ```
 	- Que fait Kubernetes en cas d'échec de la Liveness probe?
 
@@ -669,7 +664,7 @@ spec:
 Kubernetes peut également retenir le trafic entrant jusqu'à ce que votre service soit en mesure de recevoir les demandes des utilisateurs avec des sondes **Readiness**.
 Les sondes **Readiness** permettent de vérifier si un conteneur peut recevoir les demandes des utilisateurs. Si la vérification échoue, le trafic ne sera pas dirigé vers ce Pod.
 
-Créez le fichier `nginx_readiness.yml`
+Créez le fichier `nginx_readiness.yaml`
 ```yaml
 apiVersion: v1
 kind: Service
@@ -686,7 +681,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-good
+  name: nginx-one
   labels:
     app: nginx-readiness
 spec:
@@ -703,7 +698,7 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx-slow
+  name: nginx-two
   labels:
     app: nginx-readiness
 spec:
@@ -719,11 +714,11 @@ spec:
       periodSeconds: 5
 ```
 
-**Attention!** Vous devez arriver au dernier points de cette partie (Readiness probe) en moins de 10 minutes. Si cela vous a pris plus de temps, supprimez les objets avec `kubectl delete -f nginx_readiness.yml` et recommencez.
+**Attention!** Vous devez arriver au dernier points de cette partie (Readiness probe) en moins de 10 minutes. Si cela vous a pris plus de temps, supprimez les objets avec `kubectl delete -f nginx_readiness.yaml` et recommencez.
 
 - **Créez ces objets dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_readiness.yml
+    $ kubectl apply -f nginx_readiness.yaml
     ```
 
 - **Etudiez le comportement des Pods avec une sonde Readiness**
@@ -767,7 +762,7 @@ L'**OpenStack** de l'université dispose d'un service qui vous permet de génér
 
 Une fois le nom DNS correctement configuré, vous pouvez créer l'objet **Ingress** qui redirigera le trafic vers le service `nginx-service` créé précédemment.
 
-Créez le fichier `nginx_ingress.yml`
+Créez le fichier `nginx_ingress.yaml`
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -783,7 +778,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
   ```bash
-  $ kubectl apply -f nginx_ingress.yml
+  $ kubectl apply -f nginx_ingress.yaml
   ```
 
 - **Visualisez la liste des Ingress**
@@ -1015,12 +1010,3 @@ $ ./rke remove
 --------
 
 **Bravo! Vous avez fini le TP! :tada:**
-
---------
-
-Ce TP a été créé par: 
-
-- [Vladimir Ostapenco](https://vladost.com/)
-- [Fabien Rico](https://perso.univ-lyon1.fr/fabien.rico/site/)
-
-----------
