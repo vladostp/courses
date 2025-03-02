@@ -89,13 +89,13 @@ Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kube
 Dans cette section, vous allez déployer quelques objets Kubernetes sur votre cluster. 
 Pour cela, vous allez créer des fichiers **yml** contenant la description des objets K8s. Ensuite vous allez créer ces objets avec la commande :
 ```bash
-$ kubectl apply -f nom_du_fichier.yaml
+$ kubectl apply -f nom-du-fichier.yaml
 ```
 
 ### Création d'un pod
 Vous allez commencer par créer un Pod qui est la plus petite unité que vous pouvez déployer dans un cluster K8s.
 
-Créez le fichier `nginx_pod.yaml`:
+Créez le fichier `nginx-pod.yaml`:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -121,7 +121,7 @@ Ce fichier décrit un Pod qui a les caractéristiques suivantes :
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_pod.yaml
+    $ kubectl apply -f nginx-pod.yaml
     ```
 
 - **Vérifiez si le pod a été bien créé**
@@ -147,7 +147,7 @@ Dans cette section, vous allez déployer une application hautement disponible et
 
 Pour commencer, vous allez créer un objet de type "Deployment". 
 
-Créez le fichier `nginx_deployment.yaml`
+Créez le fichier `nginx-deployment.yaml`
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -172,7 +172,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_deployment.yaml
+    $ kubectl apply -f nginx-deployment.yaml
     ```
     - Quels rôles jouent les labels et les sélecteurs ? 
     - Sur quelle image seront basés les conteneurs créés ?
@@ -215,7 +215,7 @@ Pour rendre votre **Deployment** accessible, vous allez créer un objet de type 
 Le **Service** peut être vu comme un Load Balancer qui distribue le trafic vers un ensemble des **Pods**.
 Le nom du **Service** peut être utilisé comme nom DNS pour contacter tous les Pods référencés par ce **Service** depuis n'importe quel **Pod** du même **namespace**.
 
-Créez le fichier `nginx_service.yaml`
+Créez le fichier `nginx-service.yaml`
 ```yaml
 apiVersion: v1
 kind: Service
@@ -235,7 +235,7 @@ spec:
 
 - **Créez le service dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_service.yaml
+    $ kubectl apply -f nginx-service.yaml
     ```
 
 - **Détectez quel port est exposé sur les nœuds pour atteindre le service**
@@ -274,7 +274,7 @@ $ kubectl patch deployment nginx-deployment -p '{"spec": {"minReadySeconds": 30}
 Pour déployer la nouvelle version de l'application, vous allez mettre à jour le **Déploiement**.
 
 **Vous avez trois moyens pour faire cela :**
-- **En modifiant le fichier `yaml` du Deployment `nginx_deployment.yaml`**
+- **En modifiant le fichier `yaml` du Deployment `nginx-deployment.yaml`**
     ```yaml
     apiVersion: apps/v1
     kind: Deployment
@@ -298,7 +298,7 @@ Pour déployer la nouvelle version de l'application, vous allez mettre à jour l
     ```
     - **Et en appliquant les changements**
         ```bash
-        $ kubectl apply -f nginx_deployment.yaml
+        $ kubectl apply -f nginx-deployment.yaml
         ```
 
 - **Inline (en utilisant uniquement la ligne de commande)**
@@ -367,7 +367,7 @@ Créez le fichier `pv.yaml`
 kind: PersistentVolume
 apiVersion: v1
 metadata:
-  name: task-pv-volume
+  name: pv
   labels:
     type: local
 spec:
@@ -406,7 +406,7 @@ Créez le fichier `pvc.yaml`
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: task-pv-claim
+  name: pvc
 spec:
   storageClassName: manual
   accessModes:
@@ -433,12 +433,12 @@ spec:
 
 Maintenant, vous pouvez attacher le `PersistantVolumeClaim` à un **Pod**.
 
-Créez le fichier `pvc_pod.yaml`
+Créez le fichier `pvc-pod.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: mongodb-pvc
+  name: pvc-pod
 spec:
   containers:
     - image: mongo
@@ -457,7 +457,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f pvc_pod.yaml
+    $ kubectl apply -f pvc-pod.yaml
     ```
 
 - **Vérifiez que votre pod est lancé**
@@ -473,7 +473,7 @@ spec:
 L'utilisation de variables d'environnement est le moyen le plus simple d'injecter des données dans vos applications.
 Dans cette section, vous allez créer un **Pod** qui utilise une variable d'environnement et affiche sa valeur au démarrage.
 
-Créez le fichier `env_var_pod.yaml`:
+Créez le fichier `env-var-pod.yaml`:
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -491,7 +491,7 @@ spec:
 
 - **Créez le Pod dans le cluster**
     ```bash
-    $ kubectl apply -f env_var_pod.yaml
+    $ kubectl apply -f env-var-pod.yaml
     ```
 
 - **Visualisez les logs du pod**
@@ -527,7 +527,7 @@ data:
     $ kubectl get secrets
     ```
 
-Créez le fichier `pod_with_secret.yaml`
+Créez le fichier `pod-with-secret.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -546,7 +546,7 @@ spec:
 
 - **Créez le Pod dans le cluster**
     ```bash
-    $ kubectl apply -f pod_with_secret.yaml
+    $ kubectl apply -f pod-with-secret.yaml
     ```
 
 - **Visualisez les logs du pod**
@@ -565,14 +565,12 @@ Dans cette section, vous allez déployer un **Pod** `nginx` avec un `initContain
 Comme le `initContainer` et le conteneur principal sont deux conteneurs distincts, il faudra créer un volume partagé par les deux conteneurs. 
 Grâce à ce volume le `initContainer` pourra modifier la page d'accueil du conteneur principal. Vous allez utiliser un volume de type `emptyDir`.
 
-Créez le fichier `nginx_pod_with_init.yaml`:
+Créez le fichier `nginx-pod-with-init.yaml`:
 ```yaml
 apiVersion: v1
 kind: Pod
 metadata:
   name: nginx-pod-with-init
-  labels:
-    service: web-with-init
 spec:
   volumes:  
   - name: www 
@@ -597,7 +595,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
   ```bash
-  $ kubectl apply -f nginx_pod_with_init.yaml
+  $ kubectl apply -f nginx-pod-with-init.yaml
   ```
 
 - **Surveillez le déploiement du Pod**
@@ -625,7 +623,7 @@ Dans cette section, vous allez déployer des Pods avec les sondes **Liveness** e
 Kubernetes est capable de vérifier automatiquement si vos applications répondent aux demandes des utilisateurs avec des sondes **Liveness**. 
 Si votre application est bloquée et ne répond pas, K8s le détecte et redémarre ou recrée le conteneur.
 
-Créez le fichier `liveness_pod.yaml`
+Créez le fichier `liveness-pod.yaml`
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -643,7 +641,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
     ```bash
-    $ kubectl apply -f liveness_pod.yaml
+    $ kubectl apply -f liveness-pod.yaml
     ```
 
 - **Provoquez une erreur d'application en supprimant le répertoire `/usr/share/nginx` dans le Pod `liveness-pod`**
@@ -664,7 +662,7 @@ spec:
 Kubernetes peut également retenir le trafic entrant jusqu'à ce que votre service soit en mesure de recevoir les demandes des utilisateurs avec des sondes **Readiness**.
 Les sondes **Readiness** permettent de vérifier si un conteneur peut recevoir les demandes des utilisateurs. Si la vérification échoue, le trafic ne sera pas dirigé vers ce Pod.
 
-Créez le fichier `nginx_readiness.yaml`
+Créez le fichier `nginx-readiness.yaml`
 ```yaml
 apiVersion: v1
 kind: Service
@@ -714,11 +712,11 @@ spec:
       periodSeconds: 5
 ```
 
-**Attention!** Vous devez arriver au dernier points de cette partie (Readiness probe) en moins de 10 minutes. Si cela vous a pris plus de temps, supprimez les objets avec `kubectl delete -f nginx_readiness.yaml` et recommencez.
+**Attention!** Vous devez arriver au dernier points de cette partie (Readiness probe) en moins de 10 minutes. Si cela vous a pris plus de temps, supprimez les objets avec `kubectl delete -f nginx-readiness.yaml` et recommencez.
 
 - **Créez ces objets dans le cluster**
     ```bash
-    $ kubectl apply -f nginx_readiness.yaml
+    $ kubectl apply -f nginx-readiness.yaml
     ```
 
 - **Etudiez le comportement des Pods avec une sonde Readiness**
@@ -762,7 +760,7 @@ L'**OpenStack** de l'université dispose d'un service qui vous permet de génér
 
 Une fois le nom DNS correctement configuré, vous pouvez créer l'objet **Ingress** qui redirigera le trafic vers le service `nginx-service` créé précédemment.
 
-Créez le fichier `nginx_ingress.yaml`
+Créez le fichier `nginx-ingress.yaml`
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -778,7 +776,7 @@ spec:
 
 - **Créez cet objet dans le cluster**
   ```bash
-  $ kubectl apply -f nginx_ingress.yaml
+  $ kubectl apply -f nginx-ingress.yaml
   ```
 
 - **Visualisez la liste des Ingress**
