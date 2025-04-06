@@ -74,7 +74,7 @@ Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kube
 - Copiez la configuration de `kubectl` crée par **RKE**
   ```bash
   $ mkdir -p $HOME/.kube
-  $ sudo cp -i kube_config_cluster.yaml $HOME/.kube/config
+  $ sudo cp -i kube_config_cluster.yml $HOME/.kube/config
   $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
   ```
 - Vérifiez le fonctionnement de `kubectl` en récupérant les informations du nœud de cluster
