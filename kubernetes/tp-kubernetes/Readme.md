@@ -66,9 +66,9 @@ Avant de commencer le déploiement avec RKE, vous devez vous assurer que la mach
 Afin de manipuler les objets de votre cluster dans ce TP, vous utiliserez **kubectl**.
 **kubectl** un outil de ligne de commande permettant de communiquer avec le Control Plane d'un cluster Kubernetes via l'API Kubernetes.
 
-- Téléchargez et installez la version `1.31.5` de **kubectl**
+- Téléchargez et installez la version `1.32.3` de **kubectl**
   ```bash
-  $ curl -LO "https://dl.k8s.io/release/v1.31.5/bin/linux/amd64/kubectl"
+  $ curl -LO "https://dl.k8s.io/release/v1.32.3/bin/linux/amd64/kubectl"
   $ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
   ```
 - Copiez la configuration de `kubectl` crée par **RKE**
