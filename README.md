@@ -1,5 +1,5 @@
 # Teaching Repository
-In this repository you will find all my courses, presentations and labs.
+In this repository you will find my lectures and practical work instructions.
 
 ## Kubernetes
 ### IUT
