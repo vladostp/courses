@@ -1,4 +1,4 @@
-# Courses Repository
+# Teaching Repository
 In this repository you will find all my courses, presentations and labs.
 
 ## Kubernetes
@@ -23,5 +23,4 @@ In this repository you will find all my courses, presentations and labs.
 ## OWASP
 ### M2 SRS
 - [CM OWASP](./owasp/cm-owasp.pdf) - French
-- [TP OWASP PDF Version](./owasp/tp-owasp.pdf) - French
 - [TP OWASP Markdown Version](./owasp/tp-owasp) - French
