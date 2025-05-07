@@ -2,10 +2,6 @@
 In this repository you will find my lectures and practical work instructions.
 
 ## Kubernetes
-### IUT
-- [CM Kubernetes](./kubernetes-iut/cm-kubernetes.pdf) - French
-- [TP Kubernetes](./kubernetes-iut/tp-kubernetes) - French
-
 ### M2 TIW and SRS
 - [CM Kubernetes](./kubernetes/cm-kubernetes.pdf) - French
 - [TP Kubernetes](./kubernetes/tp-kubernetes) - French
